@@ -1,0 +1,76 @@
+#!/usr/bin/env node
+
+const http = require('http');
+const mongodber = require('../utils/mongodber');
+const rediser = require('../utils/rediser');
+const PG = require('../utils/pg');
+const config = require('config');
+const {logger} = require('../utils/logger');
+
+// 数据库初始化
+async function initDb() {
+    let databases = config.get('MONGODBS');
+    await mongodber.init(databases);
+    logger.info('mongo is ready!');
+}
+// 数据库初始化
+async function initRedis() {
+    const redisConfig = config.get('REDIS');
+    // Inject redis client
+    await new Promise((resolve) => {
+        rediser.init(redisConfig, function (err) {
+            if (err) {
+                logger.error('Connect Redis Error: ' + err);
+            } else {
+                logger.info('Redis is ready!');
+                return resolve();
+            }
+        });
+    });
+}
+
+(async function init() {
+    // 初始化数据库连接
+    await initDb();
+    // 初始化redis数据库连接
+    await initRedis();
+    // 初始化PG数据库
+    const app = require('../app');
+    const port = config.get('app.port');
+    app.set('port', port);
+    const server = http.createServer(app);
+    server.listen(port);
+    server.on('error', onError);
+
+    logger.info('Listening on ' + port);
+})();
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+
+function onError(error) {
+    if (error.syscall !== 'listen') {
+        throw error;
+    }
+    const bind = config.get('app.port');
+    // handle specific listen errors with friendly messages
+    switch (error.code) {
+    case 'EACCES':
+        logger.error(bind + ' 权限不足,请使用root权限运行');
+        process.exit(1);
+    case 'EADDRINUSE':
+        logger.error(bind + ' 已被占用');
+        process.exit(1);
+    default:
+        throw error;
+    }
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+
+process.on('uncaughtException', function (err) {
+    logger.error('Caught exception: ' + err.stack);
+});

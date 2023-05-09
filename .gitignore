@@ -1,0 +1,7 @@
+package-lock.json
+node_modules/
+logs/*.log
+temp/*
+public/*
+static/*
+

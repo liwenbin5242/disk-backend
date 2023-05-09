@@ -1,0 +1,50 @@
+{
+    "app": {
+        "name": "disk-backend",
+        "port": 3101,
+        "url": "http://103.74.175.251:3101",
+        "env": "dev"
+    },
+    "SECRET": "baidudicksecret",
+    "MONGODBS": {
+        "disk": {
+            "host": "mongodb://103.74.175.251:4567/disk",
+            "user": "15810185602",
+            "password": "liwenbin($%@>($%#"
+        }
+    },
+    "REDIS": {
+        "port": 8001,
+        "host": "103.74.175.251",
+        "password": "liwenbin($%@>($%#"
+    },
+    "PG": {
+        "port": 15432,
+        "host": "103.74.175.251",
+        "user": "postgres",
+        "password": "liwenbin($%@>($%#",
+        "max": 20,
+        "idleTimeoutMillis": 3000
+    },
+    "jwtSimple": {
+        "secret": "EmZuVAjWHdkztCrNDvkMlTVmZMomFmnh",
+        "encode": "HS256"
+    },
+    "privateKey": "EmZuVAjWHdkztCrNDvkMlTVmZMomFmnh",
+    "CORS": [
+        "http://localhost:9528"
+    ],
+    "BaiDuDisk": {
+        "clientid": "Xo5gDASeVZRxHArna5hviweIGkllqetf",
+        "clientsecret": "GVpNxBBQ3P79GTcGWPfnds5jk7Um6EM8",
+        "signkey": "n39*as6rSaWPj6s$9wNd4eGlUQOA1C1z",
+        "redirecturi": "http://api.aassc.cn/oauth_redirect"
+    },
+    "WechatApp": {
+        "AppID": "wx225c85ed443def3f",
+        "AppSecret": "3bc1f4ba45401df4c4b4e9596bce049a"
+    },
+    "WechatAppAPIs": {
+        "QRcode": "https://api.weixin.qq.com/wxa/getwxacodeunlimit"
+    }
+}
