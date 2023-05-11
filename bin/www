@@ -1,22 +1,18 @@
-#!/usr/bin/env node
-
 const http = require('http');
-const mongodber = require('../utils/mongodber');
 const rediser = require('../utils/rediser');
+const mongodber = require('../utils/mongodber');
 const PG = require('../utils/pg');
 const config = require('config');
 const {logger} = require('../utils/logger');
-
-// 数据库初始化
+const axios = require('axios');
+const {machineId, machineIdSync} = require('node-machine-id');
 async function initDb() {
     let databases = config.get('MONGODBS');
     await mongodber.init(databases);
     logger.info('mongo is ready!');
 }
-// 数据库初始化
 async function initRedis() {
     const redisConfig = config.get('REDIS');
-    // Inject redis client
     await new Promise((resolve) => {
         rediser.init(redisConfig, function (err) {
             if (err) {
@@ -28,13 +24,36 @@ async function initRedis() {
         });
     });
 }
+async function initMachid() {
+    let machid = await machineId();
+    const data = await axios.post(`${config.get('AuthServer')}/api/agent/register`, {machid})
+    if(data.data.code === 0) {
+        global.machid = machid;
+    }
+}
 
+async function auth() {
+    setInterval(async() => {
+        try {
+            const data = await axios.get(`${config.get('AuthServer')}/api/agent/verify?machid=${global.machid}`)
+            if(data.data.code === 0 && data.data.data.auth ) {
+                global.auth = {auth: data.data.data.auth, expires: data.data.data.expires}
+            } else {
+                global.auth = {
+                    auth: false,
+                    message: '未授权'
+                }
+            };
+        } catch (error) {
+            logger.error(error)
+        }
+    }, 1000 * 60)
+}
 (async function init() {
-    // 初始化数据库连接
     await initDb();
-    // 初始化redis数据库连接
     await initRedis();
-    // 初始化PG数据库
+    await initMachid()
+    await auth()
     const app = require('../app');
     const port = config.get('app.port');
     app.set('port', port);
@@ -44,17 +63,11 @@ async function initRedis() {
 
     logger.info('Listening on ' + port);
 })();
-
-/**
- * Event listener for HTTP server "error" event.
- */
-
 function onError(error) {
     if (error.syscall !== 'listen') {
         throw error;
     }
     const bind = config.get('app.port');
-    // handle specific listen errors with friendly messages
     switch (error.code) {
     case 'EACCES':
         logger.error(bind + ' 权限不足,请使用root权限运行');
@@ -66,11 +79,6 @@ function onError(error) {
         throw error;
     }
 }
-
-/**
- * Event listener for HTTP server "listening" event.
- */
-
 process.on('uncaughtException', function (err) {
     logger.error('Caught exception: ' + err.stack);
 });
