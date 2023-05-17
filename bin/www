@@ -26,13 +26,27 @@ async function initRedis() {
 }
 async function initMachid() {
     let machid = await machineId();
-    const data = await axios.post(`${config.get('AuthServer')}/api/agent/register`, {machid})
+    let {data:{query, }} = await axios.get('http://ip-api.com/json/?lang=zh-CN');
+    const data = await axios.post(`${config.get('AuthServer')}/api/agent/register`, {machid, publicip: query})
     if(data.data.code === 0) {
         global.machid = machid;
     }
 }
 
 async function auth() {
+    try {
+        const data = await axios.get(`${config.get('AuthServer')}/api/agent/verify?machid=${global.machid}`)
+            if(data.data.code === 0 && data.data.data.auth ) {
+                global.auth = {auth: data.data.data.auth, expires: data.data.data.expires}
+            } else {
+                global.auth = {
+                    auth: false,
+                    message: '未授权'
+                }
+            };
+    } catch (error) {
+        logger.error(error)
+    }
     setInterval(async() => {
         try {
             const data = await axios.get(`${config.get('AuthServer')}/api/agent/verify?machid=${global.machid}`)

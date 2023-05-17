@@ -7,4 +7,4 @@ RUN npm install
 COPY . .
 
 EXPOSE 3101
-CMD ["pm2","start", "./bin/www --name disk-backend"]
+CMD ["node","./bin/www"]
