@@ -319,22 +319,4 @@ router.post('/file/dbfile', upload.single('file'),  reqHandler(async function(re
     res.json({code: returnCode.SUCCESS, data: result, msg: 'ok'});
 }));
 
-/**
- * @api {get} /disk/file/dbfile 15.创建文件分享链接
- * @apiName 创建文件分享链接
- * @apiGroup 网盘模块
- *
- * @apiParam {String} diskid 网盘id.
- *
- * @apiSuccess {String} code 响应码, 如： 200, 0，……
- * @apiSuccess {String} msg 响应信息
- * @apiSuccess {Object} data 数据对象数组
- */
-router.post('/file/share', reqHandler(async function(req, res) {
-    const { diskid, } = req.query;
-    const file = req.file;
-    const result = await diskServ.postDbfile(diskid, file);
-    res.json({code: returnCode.SUCCESS, data: result, msg: 'ok'});
-}));
-
 module.exports = router;
