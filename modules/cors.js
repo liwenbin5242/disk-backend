@@ -64,7 +64,16 @@ async function getUserShareFiles(diskid, dir,) {
     //     throw new Error('网盘目录非法');
     // }
     const query = `SELECT * FROM "public"."disk_${diskid}" WHERE parent_path = $1::text  ORDER BY server_filename ASC`
-    returnData.list = (await pg.query(query, [dir])).rows
+    returnData.list = (await pg.query(query, [dir])).rows.map(item => { return {
+        id: parseInt(item.id),
+        category: parseInt(item.category),
+        isFolder: item.isdir == '1'? true: false,
+        name: item.server_filename,
+        path: item.path,
+        size: parseInt(item.file_size),
+        updateDate: parseInt(item.local_mtime),
+        uploadDate: parseInt(item.server_mtime)
+    }})
     return returnData;
 }
 
@@ -79,15 +88,20 @@ async function searchUserShareFiles(diskid, dir = '/', key, offset = 0, limit = 
         list: [],
         total: 0
     };
-    // const query = `SELECT * FROM "public"."disk_${diskid}" WHERE parent_path LIKE $1::text AND `  + ` (path LIKE $2::text) ORDER BY server_filename ASC LIMIT ${limit} OFFSET ${offset}`
-    // const count = `SELECT COUNT(*) FROM "public"."disk_${diskid}" WHERE parent_path LIKE $1::text AND `  + ` (path LIKE $2::text)`
-    // const [data, num] = await Promise.all([pg.query(query, [dir+'%', '%'+key+'%']), pg.query(count, [dir+'%', '%'+key+'%'])]) 
-
-    const query = `SELECT * FROM "public"."disk_${diskid}" WHERE (path LIKE $1::text) ORDER BY path ASC LIMIT ${limit} OFFSET ${offset}`
-    const count = `SELECT COUNT(path) FROM "public"."disk_${diskid}" WHERE (path LIKE $1::text)`
+    const query = `SELECT * FROM "public"."disk_${diskid}" WHERE (server_filename LIKE $1::text) ORDER BY path ASC LIMIT ${limit} OFFSET ${offset}`
+    const count = `SELECT COUNT(path) FROM "public"."disk_${diskid}" WHERE (server_filename LIKE $1::text)`
     const [data, num] = await Promise.all([pg.query(query, ['%'+key+'%']), pg.query(count, ['%'+key+'%'])]) 
 
-    returnData.list = data.rows
+    returnData.list = data.rows.map(item => { return {
+        id: parseInt(item.id),
+        category: parseInt(item.category),
+        isFolder: item.isdir == '1'? true: false,
+        name: item.server_filename,
+        path: item.path,
+        size: parseInt(item.file_size),
+        updateDate: parseInt(item.local_mtime),
+        uploadDate: parseInt(item.server_mtime)
+    }})
     returnData.total = num.rows[0].count
     return returnData;
 }

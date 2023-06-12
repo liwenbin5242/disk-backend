@@ -1,0 +1,42 @@
+[2023-06-09T11:23:45.183] [INFO] default - init disk db
+[2023-06-09T11:23:46.038] [INFO] default - mongo is ready!
+[2023-06-09T11:23:50.291] [INFO] default - Redis is ready!
+[2023-06-09T11:23:52.119] [INFO] default - Listening on 3101
+[2023-06-09T11:25:05.164] [INFO] default - init disk db
+[2023-06-09T11:25:05.220] [INFO] default - mongo is ready!
+[2023-06-09T11:25:05.236] [INFO] default - Redis is ready!
+[2023-06-09T11:25:06.505] [INFO] default - Listening on 3101
+[2023-06-09T11:25:18.400] [INFO] default - init disk db
+[2023-06-09T11:25:18.446] [INFO] default - mongo is ready!
+[2023-06-09T11:25:18.462] [INFO] default - Redis is ready!
+[2023-06-09T11:25:32.086] [INFO] default - Listening on 3101
+[2023-06-09T11:25:45.979] [INFO] default - 请求耗时: 8ms
+[2023-06-09T11:25:46.000] [INFO] default - 请求耗时: 2ms
+[2023-06-09T11:25:46.954] [INFO] default - 请求耗时: 4ms
+[2023-06-09T11:25:46.967] [INFO] default - 请求耗时: 2ms
+[2023-06-09T11:26:17.172] [INFO] default - init disk db
+[2023-06-09T11:26:17.221] [INFO] default - mongo is ready!
+[2023-06-09T11:26:17.229] [INFO] default - Redis is ready!
+[2023-06-09T11:26:21.632] [INFO] default - Listening on 3101
+[2023-06-09T11:26:46.601] [INFO] default - 请求耗时: 22219ms
+[2023-06-09T11:26:49.191] [INFO] default - 请求耗时: 2532ms
+[2023-06-09T11:27:13.340] [INFO] default - init disk db
+[2023-06-09T11:27:13.381] [INFO] default - mongo is ready!
+[2023-06-09T11:27:13.389] [INFO] default - Redis is ready!
+[2023-06-09T11:35:59.556] [INFO] default - init disk db
+[2023-06-09T11:35:59.603] [INFO] default - mongo is ready!
+[2023-06-09T11:35:59.614] [INFO] default - Redis is ready!
+[2023-06-09T11:36:05.212] [INFO] default - init disk db
+[2023-06-09T11:36:05.252] [INFO] default - mongo is ready!
+[2023-06-09T11:36:05.259] [INFO] default - Redis is ready!
+[2023-06-09T11:36:24.474] [INFO] default - Listening on 3101
+[2023-06-09T11:36:35.858] [INFO] default - Method:GET from 127.0.0.1 url:/ 
+ query:{} 
+ params:{"0":"/"} 
+ body:{}
+[2023-06-09T11:36:35.884] [INFO] default - 请求耗时: 31ms
+[2023-06-09T11:36:35.924] [INFO] default - Method:GET from 127.0.0.1 url:/favicon.ico 
+ query:{} 
+ params:{"0":"/favicon.ico"} 
+ body:{}
+[2023-06-09T11:36:35.934] [INFO] default - 请求耗时: 10ms

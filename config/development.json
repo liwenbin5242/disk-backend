@@ -22,7 +22,7 @@
         "port": 5432,
         "host": "127.0.0.1",
         "user": "postgres",
-        "password": "wseAw37NNBa5",
+        "password": "15810185602",
         "max": 20,
         "idleTimeoutMillis": 3000
     },
@@ -36,9 +36,9 @@
     ],
     "AuthServer": "http://api.gopan.live",
     "BaiDuDisk": {
-        "clientid": "039oqaFYqNeHqLwZiLMmVwZHeMbBQqsP",
-        "clientsecret": "MiRtqllaKkk8FAj0ryno1YVb8B1zlKlo",
-        "signkey": "1D^*@jYWU~yePtYtsKNaP$#xvnf0Xn2G",
+        "clientid": "4OZQf6Td3z2C7Beo4VNgTRtjPILLYApF",
+        "clientsecret": "WgjGOYSys69bwpg7XgBh4CakGCEYACuQ",
+        "signkey": "$bzmHeFRou$a=kUk@BCO-sid^Y@Zy0dW",
         "redirecturi": "http://disk.aassc.cn/oauth_redirect"
     }
 }

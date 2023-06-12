@@ -4,11 +4,13 @@ const mongodber = require('../utils/mongodber');
 const { ObjectID } = require('mongodb');
 const config = require('config');
 const {logger} = require('../utils/logger');
-const { argonEncryption, argonVerification } = require('../lib/utils');
+const { argonEncryption} = require('../lib/utils');
 const utils = require('../lib/utils');
 const axios = require('axios');
 const moment = require('moment');
+const {serverAuth} = require('../utils/auth');
 const {machineId} = require('node-machine-id');
+
 async function initDb() {
     let databases = config.get('MONGODBS');
     await mongodber.init(databases);
@@ -29,78 +31,57 @@ async function initRedis() {
 }
 async function initMachid() {
     let machid = await machineId();
-    let {data:{query, }} = await axios.get('http://ip-api.com/json/?lang=zh-CN');
-    const data = await axios.post(`${config.get('AuthServer')}/api/agent/register`, {machid, publicip: query})
-    if(data.data.code === 0) {
+    let {data: {query, }} = await axios.get('http://ip-api.com/json/?lang=zh-CN');
+    const data = await axios.post(`${config.get('AuthServer')}/api/agent/register`, {machid, publicip: query});
+    if (data.data.code === 0) {
         global.machid = machid;
     }
 }
 
 async function auth() {
     try {
-        const data = await axios.get(`${config.get('AuthServer')}/api/agent/verify?machid=${global.machid}`)
-            if(data.data.code === 0 && data.data.data.auth ) {
-                global.auth = {auth: data.data.data.auth, expires: data.data.data.expires}
-            } else {
-                global.auth = {
-                    auth: false,
-                    message: '未授权'
-                }
-            };
+        await serverAuth()
     } catch (error) {
-        logger.error(error)
+        logger.error(error);
     }
     setInterval(async() => {
-        try {
-            const data = await axios.get(`${config.get('AuthServer')}/api/agent/verify?machid=${global.machid}`)
-            if(data.data.code === 0 && data.data.data.auth ) {
-                global.auth = {auth: data.data.data.auth, expires: data.data.data.expires}
-            } else {
-                global.auth = {
-                    auth: false,
-                    message: '未授权'
-                }
-            };
-        } catch (error) {
-            logger.error(error)
-        }
-    }, 1000 * 60)
+        await serverAuth()
+    }, 1000 * 60);
 }
 async function createAdmin() {
     const diskDB = mongodber.use('disk');
     const _id = ObjectID(utils.md5ID('admin'));
     const $setOnInsert = {
-        username:'admin',
+        username: 'admin',
         password: await argonEncryption(`admin_${moment().format('YYYYMMDD')}`),
         phone: '',
         name: '管理员',
         avatar: `${config.get('app.url')}/imgs/avatar.jpg`,
         inviter: '', // 邀请人用户名
-        role:  'admin', // admin, member,
+        role: 'admin', // admin, member,
         level: 1,        // 1 普通用户 2 期限会员 3 永久会员
         coins: 0,        // 积分  
-        banners:[],      // 轮播图
+        banners: [],      // 轮播图
         vx: '',          // vx二维码地址
         utm: new Date(),
         ctm: new Date(),
-        belongs:'',
-        expires: new Date(new Date().getTime() + 30 * 365 * 24 * 60 * 60 * 1000) // 3天后过期
-    }
+        belongs: '',
+        expires: new Date(new Date().getTime() + 30 * 365 * 24 * 60 * 60 * 1000) 
+    }; 
     await diskDB.collection('users').updateOne({_id}, {$setOnInsert}, {upsert: true});
 }
 (async function init() {
     await initDb();
     await initRedis();
-    await initMachid()
-    await auth()
-    await createAdmin()
+    await initMachid();
+    await auth();
+    await createAdmin();
     const app = require('../app');
     const port = config.get('app.port');
     app.set('port', port);
     const server = http.createServer(app);
     server.listen(port);
     server.on('error', onError);
-
     logger.info('Listening on ' + port);
 })();
 function onError(error) {
@@ -112,9 +93,11 @@ function onError(error) {
     case 'EACCES':
         logger.error(bind + ' 权限不足,请使用root权限运行');
         process.exit(1);
+        break;
     case 'EADDRINUSE':
         logger.error(bind + ' 已被占用');
         process.exit(1);
+        break;
     default:
         throw error;
     }
