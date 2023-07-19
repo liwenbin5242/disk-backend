@@ -1,6 +1,6 @@
 package-lock.json
 node_modules/
-logs/*.log
+logs/
 temp/*
 public/*
 static/*

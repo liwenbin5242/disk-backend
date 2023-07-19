@@ -302,7 +302,7 @@ router.post('/file/transfer',  reqHandler(async function(req, res) {
 }));
 
 /**
- * @api {get} /disk/file/dbfile 14.手动上传db文件到对应网盘生成目录树
+ * @api {post} /disk/file/dbfile 14.手动上传db文件到对应网盘生成目录树
  * @apiName 上传db文件到对应网盘生成目录树
  * @apiGroup 网盘模块
  *
@@ -312,10 +312,9 @@ router.post('/file/transfer',  reqHandler(async function(req, res) {
  * @apiSuccess {String} msg 响应信息
  * @apiSuccess {Object} data 数据对象数组
  */
-router.post('/file/dbfile', upload.single('file'),  reqHandler(async function(req, res) {
-    const { diskid, } = req.query;
-    const file = req.file;
-    const result = await diskServ.postDbfile(diskid, file);
+router.post('/file/dbfile', reqHandler(async function(req, res) {
+    const { diskid } = req.query;
+    const result = await diskServ.postDbfile(diskid, req);
     res.json({code: returnCode.SUCCESS, data: result, msg: 'ok'});
 }));
 

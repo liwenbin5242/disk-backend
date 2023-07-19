@@ -12,20 +12,13 @@ const mongodber = require('../utils/mongodber');
 const diskDB = mongodber.use('disk');
 
 /**
- * 执行sqlite文件入库mongodb
+ * 执行sqlite文件入库pg
  * @param {网盘id} diskid
- * @param {db文件} file
+ * @param {db文件路径} tempfile
  */
-async function task(file, diskid) {
-    const tempdir = node_path.join(__dirname, `../temp/${utils.md5(file.buffer)}/`);
-    const tempfile = node_path.join(tempdir, `${diskid}_${file.originalname}`);
+async function task(tempfile, diskid) {
     let sqliteDB;
     try {
-        const exists = await fs.existsSync(node_path.join(__dirname, `../temp/${utils.md5(file.buffer)}/`));
-        if (!exists) {
-            await fs.mkdirSync(node_path.join(__dirname, `../temp/${utils.md5(file.buffer)}/`));
-        }
-        await fs.writeFileSync(tempfile, file.buffer);
         sqliteDB = new SqliteDB(tempfile);
         let offset = 0;
         let limit = 5000; // 每次取5000条数据
@@ -34,6 +27,11 @@ async function task(file, diskid) {
         await pg.query(`DROP TABLE IF EXISTS disk_${diskid}`)
         // 创建表
         await pg.query(`CREATE TABLE IF not EXISTS disk_${diskid} (id bigint,fid bigint, parent_path text,server_filename text, path text,file_size bigint,md5 text,isdir bigint,category bigint,server_mtime bigint,local_mtime bigint,PRIMARY KEY(id))`);
+        // 添加索引
+        await pg.query(`CREATE INDEX IF NOT EXISTS disk_${diskid}_path_idx ON disk_${diskid} (path)`);
+        await pg.query(`CREATE INDEX IF NOT EXISTS disk_${diskid}_parent_path_idx ON disk_${diskid} (parent_path)`);
+        // 添加path和parent_path复合索引
+        await pg.query(`CREATE INDEX IF NOT EXISTS disk_${diskid}_path_parent_path_idx ON disk_${diskid} (path,parent_path)`);
         let cond = true;
         while ( cond ) {
             try {
@@ -93,7 +91,7 @@ async function task(file, diskid) {
         // 删除文件
         await fs.unlinkSync(tempfile);
         // 删除目录
-        await fs.rmdirSync(tempdir);
+        // await fs.rmdirSync(tempdir);
     }
     logger.info('文件树构建完成');
 }

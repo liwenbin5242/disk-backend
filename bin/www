@@ -31,10 +31,10 @@ async function initRedis() {
 }
 async function initMachid() {
     let machid = await machineId();
-    let {data: {query, }} = await axios.get('http://ip-api.com/json/?lang=zh-CN');
+    let {data: { query }} = await axios.get('http://ip-api.com/json/?lang=zh-CN');
     const data = await axios.post(`${config.get('AuthServer')}/api/agent/register`, {machid, publicip: query});
-    if (data.data.code === 0) {
-        global.machid = machid;
+    if (data?.data?.code === 0) {
+        await rediser.set('machid', machid);
     }
 }
 
@@ -66,7 +66,7 @@ async function createAdmin() {
         utm: new Date(),
         ctm: new Date(),
         belongs: '',
-        expires: new Date(new Date().getTime() + 30 * 365 * 24 * 60 * 60 * 1000) 
+        expires: new Date(new Date().getTime() + 30 * 365 * 24 * 60 * 60 * 1000) // 30年后过期
     }; 
     await diskDB.collection('users').updateOne({_id}, {$setOnInsert}, {upsert: true});
 }

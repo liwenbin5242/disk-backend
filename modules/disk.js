@@ -2,6 +2,8 @@
 const mongodber = require('../utils/mongodber');
 const diskDB = mongodber.use('disk');
 const moment = require('moment');
+const busboy = require('busboy');
+const node_path = require('path');
 const utils = require('../lib/utils');
 const { ObjectId } = require('mongodb');
 const fs = require('fs');
@@ -9,9 +11,6 @@ const nodePath = require('path');
 const _ = require('lodash');
 const splitFileStream = require('split-file-stream');
 const { logger } = require('../utils/logger');
-const node_path = require('path');
-const SqliteDB = require('../utils/sqlite').SqliteDB;
-const { task: genTree} = require('../scripts/gen_dir_tree') 
 const { task: genTreepg} = require('../scripts/gen_dir_tree_pg') 
 moment.locale('zh-cn');
 
@@ -367,7 +366,7 @@ async function fileCreate(username, id, path, size, isdir, block_list, uploadid)
  * @param {网盘id} diskid
  * @param {db文件} file
  */
-async function postDbfile(diskid, file) {
+async function postDbfile(diskid, req) {
     let returnData = {};
     const disk = await diskDB.collection('disks').findOne({ _id: ObjectId(diskid) });
     if (!disk) {
@@ -375,8 +374,35 @@ async function postDbfile(diskid, file) {
     }
     // 更新网盘状态,设置为pending
     await diskDB.collection('disks').updateOne({ _id: ObjectId(diskid) }, {$set: {dir_tree_status: 'pending'}});
+    const tempdir = node_path.join(__dirname, `../temp/${diskid}/`);
+    let tempfile = ''
+    const result = await new Promise(async (resolve, reject) => { // 异步执行
+        const exists = await fs.existsSync(tempdir);
+        if (!exists) {
+            await fs.mkdirSync(tempdir);
+        }
+        const fileStream = req.pipe(req.busboy)
+        fileStream.on('file', (name, file, info) => {
+            tempfile = node_path.join(tempdir, `${info.filename}`);
+            const writeStream = fs.createWriteStream(`${tempfile}`);
+            file.pipe(writeStream);
+          });
+        fileStream.on('close', () => {
+            logger.info('db文件上传成功');
+            return resolve(true);
+        });
+        fileStream.on('field', (name, value, info) => {
+            logger.info('files', name, value, info);
+          });
+        fileStream.on('error', (error) => {
+            logger.error('db文件上传失败', error);
+            return resolve(false);
+        });
+    })
     // 开始异步执行文件入pgsql库
-    genTreepg(file, diskid)
+    if(result) {
+        genTreepg(tempfile, diskid)
+    }
     return returnData;
 }
 module.exports = {
