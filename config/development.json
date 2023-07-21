@@ -36,8 +36,8 @@
     ],
     "AuthServer": "http://api.gopan.live",
     "BaiDuDisk": {
-        "clientid": "4OZQf6Td3z2C7Beo4VNgTRtjPILLYApF",
-        "clientsecret": "WgjGOYSys69bwpg7XgBh4CakGCEYACuQ",
+        "clientid": "Xo5gDASeVZRxHArna5hviweIGkllqetf",
+        "clientsecret": "GVpNxBBQ3P79GTcGWPfnds5jk7Um6EM8",
         "signkey": "$bzmHeFRou$a=kUk@BCO-sid^Y@Zy0dW",
         "redirecturi": "http://disk.aassc.cn/oauth_redirect"
     }

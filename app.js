@@ -50,34 +50,9 @@ app.use('/api/cors', corsRotes);
 
 app.use('/api/cors_v2', corsV2Rotes);
 
-app.use('/test', (req, res) => {
-      // 获取文件流
-  const fileStream = req.pipe(req.busboy);
-
-  // 监听文件上传事件
-  fileStream.on('file', (fieldname, file, filename) => {
-    // 生成文件保存路径
-    const filepath = path.join(__dirname, 'uploads', filename);
-
-    // 创建文件写入流
-    const writeStream = fs.createWriteStream(filepath);
-
-    // 将文件数据写入磁盘
-    file.pipe(writeStream);
-
-    // 文件写入完成
-    writeStream.on('finish', () => {
-      console.log(`File ${filename} uploaded successfully`);
-    });
-  });
-
-  // 文件上传完成
-  fileStream.on('finish', () => {
-    res.status(200).send('File uploaded successfully');
-  });
-})
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
+    logger.error(`404: ${req.method} from ${req.ip.slice(7)} url:${req.path} \n query:${JSON.stringify(req.query)} \n params:${JSON.stringify(req.params)} \n body:${JSON.stringify(req.body)}`);
     next(createError(404));
 });
 

@@ -44,7 +44,7 @@ async function postUserShare(username, files, diskid) {
  * 获取缓存文件目录树文件列表
  * @param {string} diskid 网盘id
  */
-async function getUserShareFiles(diskid, dir,) {
+async function getUserShareFiles(diskid, parent_path,) {
     const returnData = {
         list: [],
     };
@@ -56,15 +56,15 @@ async function getUserShareFiles(diskid, dir,) {
     const sharedisk = await diskDB.collection('share_disks').findOne({diskid});
     const paths = sharedisk?.paths ?? []
     for(let path of paths) {
-        if(dir.search(path) === 0) {
+        if(parent_path.search(path) === 0) {
             legal = true
         } 
     }
     // if (!legal) {
     //     throw new Error('网盘目录非法');
     // }
-    const query = `SELECT * FROM "public"."disk_${diskid}" WHERE parent_path = $1::text  ORDER BY server_filename ASC`
-    returnData.list = (await pg.query(query, [dir])).rows.map(item => { return {
+    const query = `SELECT * FROM "public"."disk_${diskid}" WHERE (parent_path = $1::text)  ORDER BY server_filename ASC`
+    returnData.list = (await pg.query(query, [parent_path])).rows.map(item => { return {
         id: parseInt(item.id),
         category: parseInt(item.category),
         isFolder: item.isdir == '1'? true: false,
@@ -83,14 +83,18 @@ async function getUserShareFiles(diskid, dir,) {
  * @param {string} dir 搜索目录，默认根目录
  * @param {string} key 搜索关键字
  */
-async function searchUserShareFiles(diskid, dir = '/', key, offset = 0, limit = 20) {
+async function searchUserShareFiles(diskid, dir = '', key, offset = 0, limit = 20) {
     const returnData = {
         list: [],
         total: 0
     };
-    const query = `SELECT * FROM "public"."disk_${diskid}" WHERE (server_filename LIKE $1::text) ORDER BY path ASC LIMIT ${limit} OFFSET ${offset}`
-    const count = `SELECT COUNT(path) FROM "public"."disk_${diskid}" WHERE (server_filename LIKE $1::text)`
-    const [data, num] = await Promise.all([pg.query(query, ['%'+key+'%']), pg.query(count, ['%'+key+'%'])]) 
+    let parent_sql = `` 
+    if(dir) {
+        parent_sql = `AND parent_path = $2::text`
+    }
+    const query = `SELECT * FROM "public"."disk_${diskid}" WHERE (server_filename LIKE $1::text)`+ parent_sql + ` ORDER BY path ASC LIMIT ${limit} OFFSET ${offset}`
+    const count = `SELECT COUNT(path) FROM "public"."disk_${diskid}" WHERE (server_filename LIKE $1::text)` + parent_sql
+    const [data, num] = await Promise.all([pg.query(query, _.compact(['%'+key+'%', dir])), pg.query(count, _.compact(['%'+key+'%', dir]))]) 
 
     returnData.list = data.rows.map(item => { return {
         id: parseInt(item.id),
