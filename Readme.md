@@ -12,7 +12,7 @@
     3.5 mongodb 4.4
 4. 代码依赖
     disk-backend后端 
-        1.对应niginx配置需要添加  client_max_body_size 10000m 文件上传小大限制在10gb;
+        1.对应niginx配置需要添加  client_max_body_size 10000m 文件上传小大限制在10gb;(注意前后端代码都需要配置)
         2.配置config文件的BaiDuDisk 密钥信息
         3.配置PGSQL 版本11.15数据库密码, PGSQL需要配置全网可访问 host all all 0.0.0.0/0 trust
     disk-client前端后台管理

@@ -8,9 +8,7 @@ const redis = require('../utils/rediser');
 const _ = require('lodash');
 const config = require('config');
 moment.locale('zh-cn');
-
-const PG = require('../utils/pg');
-const pg =  new PG(config.get('PG'));
+const pool = require('../utils/mysql')
 
 /**
  * 采集端触发器更新缓存文件
@@ -63,13 +61,14 @@ async function getUserShareFiles(diskid, parent_path,) {
     // if (!legal) {
     //     throw new Error('网盘目录非法');
     // }
-    const query = `SELECT * FROM "public"."disk_${diskid}" WHERE (parent_path = $1::text)  ORDER BY server_filename ASC`
-    returnData.list = (await pg.query(query, [parent_path])).rows.map(item => { return {
+    const query = `SELECT * FROM disk_${diskid} WHERE parent_path = ?  ORDER BY server_filename ASC`
+    const data = await pool.query(query, [parent_path])
+    returnData.list = (data[0]??[]).map(item => { return {
         id: parseInt(item.id),
         category: parseInt(item.category),
         isFolder: item.isdir == '1'? true: false,
         name: item.server_filename,
-        path: item.path,
+        parent_path: item.parent_path,
         size: parseInt(item.file_size),
         updateDate: parseInt(item.local_mtime),
         uploadDate: parseInt(item.server_mtime)
@@ -80,33 +79,33 @@ async function getUserShareFiles(diskid, parent_path,) {
 /**
  * 搜索文件
  * @param {string} diskid 网盘id
- * @param {string} dir 搜索目录，默认根目录
+ * @param {string} path 搜索目录，默认根目录
  * @param {string} key 搜索关键字
  */
-async function searchUserShareFiles(diskid, dir = '', key, offset = 0, limit = 20) {
+async function searchUserShareFiles(diskid, path = '', key,) {
     const returnData = {
         list: [],
         total: 0
     };
     let parent_sql = `` 
-    if(dir) {
-        parent_sql = `AND parent_path = $2::text`
+    if(path) {
+        parent_sql = `AND parent_path = '/' `
     }
-    const query = `SELECT * FROM "public"."disk_${diskid}" WHERE (server_filename LIKE $1::text)`+ parent_sql + ` ORDER BY path ASC LIMIT ${limit} OFFSET ${offset}`
-    const count = `SELECT COUNT(path) FROM "public"."disk_${diskid}" WHERE (server_filename LIKE $1::text)` + parent_sql
-    const [data, num] = await Promise.all([pg.query(query, _.compact(['%'+key+'%', dir])), pg.query(count, _.compact(['%'+key+'%', dir]))]) 
+    const query = `SELECT * FROM disk_${diskid} WHERE server_filename REGEXP ? ORDER BY server_filename ASC`
+    const count = `SELECT COUNT(*) FROM disk_${diskid} WHERE server_filename REGEXP ? `
+    const [data, num] = await Promise.all([pool.query(query, [key]), pool.query(count,[key])]) 
 
-    returnData.list = data.rows.map(item => { return {
+    returnData.list = (data[0]??[]).map(item => { return {
         id: parseInt(item.id),
         category: parseInt(item.category),
         isFolder: item.isdir == '1'? true: false,
         name: item.server_filename,
-        path: item.path,
+        parent_path: item.parent_path,
         size: parseInt(item.file_size),
         updateDate: parseInt(item.local_mtime),
         uploadDate: parseInt(item.server_mtime)
     }})
-    returnData.total = num.rows[0].count
+    returnData.total = num[0][0]['COUNT(*)']
     return returnData;
 }
 

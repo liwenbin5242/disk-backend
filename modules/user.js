@@ -28,7 +28,7 @@ async function getUserRegcode(mail) {
  * 用户注册账号
  * @param {账号} username 用户名
  * @param {密码} password 密码
- * @param {密码} belongs 从前台注册需要从url获取归属
+ * @param {密码} belongs 从前台注册需要从url获取归属,所属用户的username
  */
 async function postUserRegister(username, password, belongs, mail, code) {
     const returnData = {};
@@ -38,7 +38,7 @@ async function postUserRegister(username, password, belongs, mail, code) {
         // throw new Error('注册失败，验证码有误');
     }
     if(belongs) { 
-        member = await diskDB.collection('users').findOne({ _id: ObjectID(belongs) });
+        member = await diskDB.collection('users').findOne({ username: belongs });
         if(!member) {
             throw new Error('注册失败，此应用对应的用户不存在');
         }

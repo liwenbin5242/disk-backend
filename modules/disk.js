@@ -11,7 +11,7 @@ const nodePath = require('path');
 const _ = require('lodash');
 const splitFileStream = require('split-file-stream');
 const { logger } = require('../utils/logger');
-const { task: genTreepg} = require('../scripts/gen_dir_tree_pg') 
+const { task: genTreeMysql} = require('../scripts/gen_dir_tree_mysql') 
 moment.locale('zh-cn');
 
 /**
@@ -401,7 +401,8 @@ async function postDbfile(diskid, req) {
     })
     // 开始异步执行文件入pgsql库
     if(result) {
-        genTreepg(tempfile, diskid)
+        // genTreepg(tempfile, diskid)
+        genTreeMysql(tempfile, diskid)
     }
     return returnData;
 }
