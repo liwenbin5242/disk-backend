@@ -10,7 +10,7 @@ const axios = require('axios');
 const moment = require('moment');
 const {serverAuth} = require('../utils/auth');
 const {machineId} = require('node-machine-id');
-
+const jobs = require('../scripts/crons')
 async function initDb() {
     let databases = config.get('MONGODBS');
     await mongodber.init(databases);
@@ -82,6 +82,7 @@ async function createAdmin() {
     const server = http.createServer(app);
     server.listen(port);
     server.on('error', onError);
+    jobs()
     logger.info('Listening on ' + port);
 })();
 function onError(error) {
@@ -93,11 +94,9 @@ function onError(error) {
     case 'EACCES':
         logger.error(bind + ' 权限不足,请使用root权限运行');
         process.exit(1);
-        break;
     case 'EADDRINUSE':
         logger.error(bind + ' 已被占用');
         process.exit(1);
-        break;
     default:
         throw error;
     }

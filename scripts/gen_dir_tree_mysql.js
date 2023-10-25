@@ -1,10 +1,7 @@
 'use strict';
-const utils = require('../lib/utils');
 const { ObjectId } = require('mongodb');
 const { logger } = require('../utils/logger');
-const node_path = require('path');
 const SqliteDB = require('../utils/sqlite').SqliteDB;
-const config = require('config');
 const fs = require('fs');
 const mongodber = require('../utils/mongodber');
 const diskDB = mongodber.use('disk');
