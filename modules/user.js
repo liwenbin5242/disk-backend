@@ -278,9 +278,9 @@ async function deleteShare(id) {
  */
 async function getShare(username) {
     const returnData = {};
-    const shareDisks = await diskDB.collection('share_disks').find({ username}, {sort:{ ctm: -1}}).toArray();
+    const shareDisks = await diskDB.collection('share_disks').find({ username }, {sort:{ ctm: -1}}).toArray();
     shareDisks.forEach(disk => {
-        disk.paths = disk.paths.map(path => {return path.path})
+        disk.paths = disk.paths.map(e => {return{ parent_path: e.parent_path, server_filename: e.server_filename}})
     })
     returnData.list = shareDisks
     return returnData;

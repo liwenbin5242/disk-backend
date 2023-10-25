@@ -12,7 +12,6 @@ const { responseTime, urlecodes, ipControl, machidAuth } = require('./lib/utils'
 const userRotes = require('./routes/user');
 const diskRotes = require('./routes/disk');
 const corsRotes = require('./routes/cors');
-const wechatRotes = require('./routes/wechat');
 const memberRotes = require('./routes/member');
 const filesRotes = require('./routes/files');
 const agentRotes = require('./routes/agent');
@@ -41,7 +40,6 @@ app.use(express.static(path.join(__dirname, 'static')));
 
 app.use('/api/user', userRotes);
 app.use('/api/disk', diskRotes);
-app.use('/api/wechat', wechatRotes);
 app.use('/api/member', memberRotes);
 app.use('/api/files', filesRotes);
 app.use('/api/agent', agentRotes);

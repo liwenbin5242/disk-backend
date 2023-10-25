@@ -39,9 +39,9 @@ async function getUserConfig(userid) {
  * 获取用户分享的网盘列表以及目录
  * @param {用户id} userid 用户id
  */
-async function getUserShareDisks(userid) {
+async function getUserShareDisks() {
     const returnData = {};
-    const sharedisks = await diskDB.collection('share_disks').find({userid, used: true}, {projection: {
+    const sharedisks = await diskDB.collection('share_disks').find({ used: true}, {projection: {
         _id: 0,
         paths: 1,
         remark: 1,

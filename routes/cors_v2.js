@@ -37,8 +37,8 @@ router.get('/uconfig', reqHandler(async function(req, res) {
  * @apiSuccess {String} disks.name 网盘名称
  */
 router.get('/disks/list', reqHandler(async function(req, res) {
-    const {agentid} = req.query;
-    const result = await corsServ.getUserShareDisks(agentid);
+    const {} = req.query;
+    const result = await corsServ.getUserShareDisks();
     return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
 }));
 
