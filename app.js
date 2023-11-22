@@ -7,7 +7,7 @@ const cors = require('cors');
 const proxy = require('./lib/middlewares/proxy')
 const { logger } = require('./utils/logger');
 const { tokenAuth } = require('./lib/auth');
-const { responseTime, urlecodes, ipControl, machidAuth } = require('./lib/utils');
+const { responseTime, urlecodes, ipControl, } = require('./lib/utils');
 
 const userRotes = require('./routes/user');
 const diskRotes = require('./routes/disk');
@@ -15,13 +15,14 @@ const corsRotes = require('./routes/cors');
 const memberRotes = require('./routes/member');
 const filesRotes = require('./routes/files');
 const agentRotes = require('./routes/agent');
+const cdkeyRotes = require('./routes/cdkey');
 const corsV2Rotes = require('./routes/cors_v2');
 
 const app = express();
 app.use(cors());
 app.use(busboy());
 
-app.use('*', responseTime(), machidAuth());
+app.use('*', responseTime(),);
 app.use(urlecodes);
 
 app.use('/api/member/m3u8', ipControl(), proxy.do());
@@ -47,6 +48,7 @@ app.use('/api/agent', agentRotes);
 app.use('/api/cors', corsRotes);
 
 app.use('/api/cors_v2', corsV2Rotes);
+app.use('/api/cdkey', cdkeyRotes);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

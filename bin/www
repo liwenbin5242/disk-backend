@@ -38,16 +38,6 @@ async function initMachid() {
     }
 }
 
-async function auth() {
-    try {
-        await serverAuth()
-    } catch (error) {
-        logger.error(error);
-    }
-    setInterval(async() => {
-        await serverAuth()
-    }, 1000 * 60);
-}
 async function createAdmin() {
     const diskDB = mongodber.use('disk');
     const _id = ObjectID(utils.md5ID('admin'));
@@ -74,7 +64,6 @@ async function createAdmin() {
     await initDb();
     await initRedis();
     await initMachid();
-    await auth();
     await createAdmin();
     const app = require('../app');
     const port = config.get('app.port');
