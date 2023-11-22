@@ -60,4 +60,22 @@ router.delete('/:id',  reqHandler(async function(req, res) {
     return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
 }));
 
+/**
+ * @api {post} /api/cdkey/active 04.激活cdkey
+ * @apiName 激活cdkey
+ * @apiGroup cdkey
+ *
+ * @apiParam {string} cdkey 
+
+ * @apiSuccess {String} code 响应码, 如： 200, 0，……
+ * @apiSuccess {String} message 响应信息
+ * @apiSuccess {Object} data 数据对象数组
+ */
+router.post('/active',  reqHandler(async function(req, res) {
+    const {cdkey} = req.body
+    const {username} = req.user
+    const result = await cdkeyServ.activateCDkey(username, cdkey)
+    return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
+}));
+
 module.exports = router;

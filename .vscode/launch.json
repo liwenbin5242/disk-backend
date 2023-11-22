@@ -13,7 +13,6 @@
                 "<node_internals>/**"
             ],
             "program": "${workspaceFolder}\\bin\\www",
-            "args": ["--prof"]
         },
         {
             "type": "pwa-node",

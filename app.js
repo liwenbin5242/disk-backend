@@ -8,7 +8,7 @@ const proxy = require('./lib/middlewares/proxy')
 const { logger } = require('./utils/logger');
 const { tokenAuth } = require('./lib/auth');
 const { responseTime, urlecodes, ipControl, } = require('./lib/utils');
-
+const jobs = require('./scripts/crons')
 const userRotes = require('./routes/user');
 const diskRotes = require('./routes/disk');
 const corsRotes = require('./routes/cors');
@@ -17,7 +17,7 @@ const filesRotes = require('./routes/files');
 const agentRotes = require('./routes/agent');
 const cdkeyRotes = require('./routes/cdkey');
 const corsV2Rotes = require('./routes/cors_v2');
-
+jobs()
 const app = express();
 app.use(cors());
 app.use(busboy());
