@@ -48,7 +48,7 @@ async function getCDkeyList(actived, limit = 20, offset = 0,) {
     let returnData = {};
     const query = {}
     if(typeof actived !== "undefined") {
-        query.actived = actived
+        query.actived = actived == 'true'? true: false
     }
     returnData.list = await diskDB.collection('cdkey').find(query).skip(parseInt(offset)).limit(parseInt(limit)).toArray()
     returnData.total = await diskDB.collection('cdkey').countDocuments(query)

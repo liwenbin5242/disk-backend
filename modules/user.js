@@ -28,20 +28,13 @@ async function getUserRegcode(mail) {
  * 用户注册账号
  * @param {账号} username 用户名
  * @param {密码} password 密码
- * @param {密码} belongs 从前台注册需要从url获取归属,所属用户的username
  */
-async function postUserRegister(username, password, belongs, mail, code) {
+async function postUserRegister(username, password, email, code) {
     const returnData = {};
     let member
     const cd = await redis.get(mail)
     if(!cd || JSON.parse(cd) != code) {
         // throw new Error('注册失败，验证码有误');
-    }
-    if(belongs) { 
-        member = await diskDB.collection('users').findOne({ username: belongs });
-        if(!member) {
-            throw new Error('注册失败，此应用对应的用户不存在');
-        }
     }
     const authInfo = await diskDB.collection('users').findOne({ username });
     const _id = ObjectID(utils.md5ID(username));
@@ -50,17 +43,16 @@ async function postUserRegister(username, password, belongs, mail, code) {
         username,
         password: await argonEncryption(password),
         phone: '',
+        email,
         name: '',
         avatar: `${config.get('app.url')}/imgs/avatar.jpg`,
-        inviter: member?.username?? '', // 邀请人用户名
-        role: belongs ? 'member': 'admin', // admin, member,
+        role: 'admin', // admin, member,
         level: 1,        // 1 普通用户 2 期限会员 3 永久会员
         coins: 0,        // 积分  
         banners:[],      // 轮播图
         vx: '',          // vx二维码地址
         utm: new Date(),
         ctm: new Date(),
-        belongs,
         expires: new Date(new Date().getTime() + 3 * 24 * 60 * 60 * 1000) // 3天后过期
     }
     if (authInfo) {
@@ -72,8 +64,8 @@ async function postUserRegister(username, password, belongs, mail, code) {
 
 /**
  * 用户登录获取token
- * @param {账号} username 可选
- * @param {密码} password 可选
+ * @param {账号} username 
+ * @param {密码} password
  */
 async function postUserLogin(username, password) {
     const returnData = {};

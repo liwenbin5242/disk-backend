@@ -57,7 +57,7 @@ async function postMemberLevel(inviter, username, level, days) {
 
 /**
  * 获取我的会员列表
- * @param {string} username 代理商用户名
+ * @param {string} username agent name
  * @param {number} offset
  * @param {number} limit
  */

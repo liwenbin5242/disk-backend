@@ -1,7 +1,6 @@
 'use strict';
 const express = require('express');
 const router = express.Router();
-const fileServ = require('../modules/files');
 const returnCode = require('../utils/returnCodes');
 const { reqHandler } = require('../utils/reqHandler');
 

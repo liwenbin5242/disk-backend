@@ -27,7 +27,7 @@ router.post('/',  reqHandler(async function(req, res) {
  * @apiName 获取cdkey列表
  * @apiGroup cdkey
  *
- * @apiParam {boolean} actived 数量.
+ * @apiParam {boolean} actived 是否已激活.
  * @apiParam {number} limit 
  * @apiParam {number} offset 
  *
@@ -45,10 +45,6 @@ router.get('/list',  reqHandler(async function(req, res) {
  * @api {delete} /api/cdkey 03.获取cdkey列表
  * @apiName 获取cdkey列表
  * @apiGroup cdkey
- *
- * @apiParam {boolean} actived 数量.
- * @apiParam {number} limit 
- * @apiParam {number} offset 
  *
  * @apiSuccess {String} code 响应码, 如： 200, 0，……
  * @apiSuccess {String} message 响应信息

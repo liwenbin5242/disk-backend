@@ -25,23 +25,22 @@ router.get('/regcode', reqHandler(async function(req, res) {
 }));
 
 /**
- * @api {post} /user/register 01.用户注册
+ * @api {post} /user/register 01.用户注册(后台)
  * @apiName 用户注册
  * @apiGroup 用户模块
  *
- * @apiParam {String} username 用户名.
- * @apiParam {String} password 密码.
- * @apiParam {String} belongs 用户归属.
- * @apiParam {String} mail .
- * @apiParam {String} code .
+ * @apiParam {String} username 用户名(手机号)
+ * @apiParam {String} password 密码
+ * @apiParam {String} email 邮件地址 可选
+ * @apiParam {String} code 验证码 可选
  *
  * @apiSuccess {String} code 响应码, 如： 200, 0，……
  * @apiSuccess {String} message 响应信息
  * @apiSuccess {Object} data 数据对象数组
  */
 router.post('/register', reqHandler(async function(req, res) {
-    let {username, password, belongs = '', mail, code} = req.body;
-    const result = await userServ.postUserRegister(username, password, belongs, mail, code);
+    let {username, password, email, code} = req.body;
+    const result = await userServ.postUserRegister(username, password, email, code);
     res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
 }));
 
