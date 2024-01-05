@@ -43,7 +43,7 @@ async function task(tempfile, diskid) {
                 if (!files || !files.length) {
                     break;
                 }
-                logger.info(`已读取sqllite数据库数据:${offset * limit + files.length}条`);
+                logger.info(`已读取sqlite数据库数据:${offset * limit + files.length}条`);
                 offset ++; 
                 let insertQ =  `INSERT INTO disk_${diskid} (id, fid, parent_path, server_filename, path, file_size, md5, isdir, category, server_mtime, local_mtime) VALUES`;
                 let list = [];

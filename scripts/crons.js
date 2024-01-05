@@ -7,7 +7,7 @@ const diskDB = mongodber.use('disk');
 
 module.exports = function jobs() {
     logger.info('crons Jobs start ')
-    cron.schedule('*/10 * * * * *', async () => {
+    cron.schedule('0 0 0 */1 * *', async () => {
         logger.info(`check bd token`)
         const disks = await diskDB.collection('disks').find().toArray()
         for(let disk of disks) {

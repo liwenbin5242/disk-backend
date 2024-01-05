@@ -105,4 +105,32 @@ router.get('/disks/files/search', reqHandler(async function(req, res) {
     const result = await corsServ.searchUserShareFiles( diskid, urldecodes(path ||''), urldecodes(key),);
     return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
 }));
+
+/**
+ * @api {get} /cors/disks/files/shareurl 04.获取文件分享链接
+ * @apiName 获取文件分享链接
+ * @apiGroup 分享模块v1
+ *
+ * @apiParam {String} diskid 网盘id
+ * @apiParam {String} path 父级路径
+ * @apiParam {String} filename 文件名 
+ *
+ * @apiSuccess {String} code 响应码, 如： 200, 0，……
+ * @apiSuccess {String} message 响应信息
+ * @apiSuccess {Object} data 数据对象数组
+ * @apiSuccess {Object} data.files 文件数组
+ * @apiSuccess {Object} data.total 文件按总数量
+ * @apiSuccess {String} data.files.category 文件类型  1: '视频',2: '音频',3: '图片',4: '文档',5: '应用',6: '其他',7: '种子'
+ * @apiSuccess {String} data.files.ctm 创建时间
+ * @apiSuccess {Number} data.files.filesize 文件大小 kb
+ * @apiSuccess {Number} data.files.isdir  是否文件夹 0:文件 1:文件夹 文件夹可以继续进入下级目录
+ * @apiSuccess {String} data.files.parent_path  父级路径 
+ * @apiSuccess {String} data.files.server_filename  文件名   
+ * @apiSuccess {String} data.files.server_mtime  文件修改时间   
+ */
+router.get('/disks/files/shareurl', reqHandler(async function(req, res) {
+    let { diskid, path, filename,  } = req.query;
+    const result = await corsServ.getShareFileUrl( diskid, urldecodes(path ||''), urldecodes(filename),);
+    return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
+}));
 module.exports = router;

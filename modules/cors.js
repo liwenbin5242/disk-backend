@@ -9,7 +9,8 @@ const _ = require('lodash');
 const config = require('config');
 moment.locale('zh-cn');
 const pool = require('../utils/mysql')
-
+const { v4: uuidv4 } = require('uuid');
+const { logger } = require('../utils/logger');
 /**
  * 采集端触发器更新缓存文件
  * @param {string} username 用户名
@@ -109,8 +110,48 @@ async function searchUserShareFiles(diskid, path = '', key,) {
     return returnData;
 }
 
+
+/**
+ * get share file url
+ * @param {string} diskid 网盘id
+ * @param {string} path 文件目录的路径
+ * @param {string} filename 文件名
+ */
+async function getShareFileUrl(diskid, path = '', filename,) {
+    const returnData = {};
+    try {
+        const url = await redis.get(`${diskid}:${path}:${filename}`)
+        if(url) {
+            returnData.url = JSON.parse(url).url
+            returnData.code = JSON.parse(url).code
+        } else {
+            const disk = await diskDB.collection('disks').findOne({_id: ObjectID(diskid)}) 
+            if( !disk || !disk.cookies ) {
+                throw new Error('cookie不存在')
+            }
+            // 先获取文件的fsid
+            const data = await utils.bdapis.getFileListByToken(disk.access_token, path, 'time', 1, 0, 1)
+            const list = data?.data?.list??[]
+            const file = list.find(l => {return l.server_filename === filename})
+            if (!file) {
+                throw new Error('云端文件不存在')
+            }
+            const code = uuidv4().slice(-4); // ⇨ '1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed'
+            const expireday = 7
+            const res = await utils.bdapis.fileShare(disk.cookies, expireday, code,[], 4,[file.fs_id])
+            await redis.set(`${diskid}:${path}:${filename}`, {code, url: res.data.shorturl}, expireday * 24 * 60 * 60)
+            returnData.code = code
+            returnData.url = res.data.shorturl
+        }
+    } catch(err) {
+        logger.error(err.message)
+    }
+    return returnData;
+}
+
 module.exports = {
     postUserShare,
     getUserShareFiles,
     searchUserShareFiles,
+    getShareFileUrl
 };
