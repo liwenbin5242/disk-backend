@@ -16,6 +16,7 @@ const memberRotes = require('./routes/member');
 const filesRotes = require('./routes/files');
 const agentRotes = require('./routes/agent');
 const cdkeyRotes = require('./routes/cdkey');
+const robotRotes = require('./routes/robot');
 const corsV2Rotes = require('./routes/cors_v2');
 jobs()
 const app = express();
@@ -49,6 +50,7 @@ app.use('/api/cors', corsRotes);
 
 app.use('/api/cors_v2', corsV2Rotes);
 app.use('/api/cdkey', cdkeyRotes);
+app.use('/api/robot', robotRotes);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

@@ -47,33 +47,46 @@ async function getUserShareFiles(diskid, parent_path,) {
     const returnData = {
         list: [],
     };
+    if(!diskid) {
+        throw new Error('请先添加网盘');
+    }
     const disk = await diskDB.collection('disks').findOne({ _id: ObjectID(diskid) });
     if (!disk) {
         throw new Error('网盘不存在');
     }
-    let legal = false;
-    const sharedisk = await diskDB.collection('share_disks').findOne({diskid});
-    const paths = sharedisk?.paths ?? []
-    for(let path of paths) {
-        if(parent_path.search(path) === 0) {
-            legal = true
-        } 
+    try {
+        let legal = false;
+        const sharedisk = await diskDB.collection('share_disks').findOne({diskid});
+        const paths = sharedisk?.paths ?? []
+        for(let path of paths) {
+            if(parent_path.search(path) === 0) {
+                legal = true
+            } 
+        }
+        // if (!legal) {
+        //     throw new Error('网盘目录非法');
+        // }
+        const query = `SELECT * FROM disk_${diskid} WHERE parent_path = ?  ORDER BY server_filename ASC`
+        const data = await pool.query(query, [parent_path])
+        returnData.list = (data[0]??[]).map(item => { return {
+            id: parseInt(item.id),
+            category: parseInt(item.category),
+            isFolder: item.isdir == '1'? true: false,
+            server_filename: item.server_filename,
+            parent_path: item.parent_path,
+            size: parseInt(item.file_size),
+            updateDate: parseInt(item.local_mtime),
+            uploadDate: parseInt(item.server_mtime)
+        }})
+    } catch(error) {
+        logger.error(error.message)
+        if(error.code === 'ER_NO_SUCH_TABLE') {
+            throw new Error('请先上传同步db文件再试')
+        } else {
+            throw new Error('获取目录出错')
+        }
     }
-    // if (!legal) {
-    //     throw new Error('网盘目录非法');
-    // }
-    const query = `SELECT * FROM disk_${diskid} WHERE parent_path = ?  ORDER BY server_filename ASC`
-    const data = await pool.query(query, [parent_path])
-    returnData.list = (data[0]??[]).map(item => { return {
-        id: parseInt(item.id),
-        category: parseInt(item.category),
-        isFolder: item.isdir == '1'? true: false,
-        server_filename: item.server_filename,
-        parent_path: item.parent_path,
-        size: parseInt(item.file_size),
-        updateDate: parseInt(item.local_mtime),
-        uploadDate: parseInt(item.server_mtime)
-    }})
+  
     return returnData;
 }
 

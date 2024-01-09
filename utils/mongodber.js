@@ -15,6 +15,7 @@ Mongodber.prototype.init = async function (dbs_conf) {
         let db_url = dbs_conf[name];
         MongoClient = new MongoClient(db_url.host, {useUnifiedTopology: true,});
         try {
+            logger.info(`mongo url: ${db_url.host}`)
             this.dbs[name] = await MongoClient.connect();
         } catch (e) {
             throw new Error(`Init ${name} failed: ${e.message}`);

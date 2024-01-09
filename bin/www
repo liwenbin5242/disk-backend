@@ -15,6 +15,7 @@ async function initDb() {
 async function initRedis() {
     const redisConfig = config.get('REDIS');
     await new Promise((resolve) => {
+        logger.info(`Redis url: ${redisConfig.host}:${redisConfig.port}`);
         rediser.init(redisConfig, function (err) {
             if (err) {
                 logger.error('Connect Redis Error: ' + err);

@@ -26,13 +26,12 @@ async function getUserRegcode(mail) {
 
 /**
  * 用户注册账号
- * @param {账号} username 用户名
+ * @param {账号} username 用户名(建议使用手机号)
  * @param {密码} password 密码
  */
 async function postUserRegister(username, password, email, code) {
     const returnData = {};
-    let member
-    const cd = await redis.get(mail)
+    const cd = await redis.get(email)
     if(!cd || JSON.parse(cd) != code) {
         // throw new Error('注册失败，验证码有误');
     }
@@ -43,7 +42,7 @@ async function postUserRegister(username, password, email, code) {
         username,
         password: await argonEncryption(password),
         phone: '',
-        email,
+        email: '',
         name: '',
         avatar: `${config.get('app.url')}/imgs/avatar.jpg`,
         role: 'admin', // admin, member,

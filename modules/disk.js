@@ -67,6 +67,9 @@ async function getDiskFileslist(id, dir, order = 'time', web, folder, showempty)
  */
 async function getDiskSearch(id, key, dir) {
     let returnData = {};
+    if (!id) {
+        throw new Error('请先添加网盘');
+    }
     const disk = await diskDB.collection('disks').findOne({ _id: ObjectId(id) });
     if (!disk) {
         throw new Error('网盘不存在');

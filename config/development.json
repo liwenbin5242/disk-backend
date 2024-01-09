@@ -13,7 +13,7 @@
     },
     "MONGODBS": {
         "disk": {
-            "host": "mongodb://disk:qazwsxedc%40qaz@101.42.29.187:10001/disk?authSource=disk"
+            "host": "mongodb://disk:qazwsxedc40cer47fsdf8erqaz@43.143.243.237:17017/disk?authSource=disk"
         }
     },
     "PG": {
@@ -25,8 +25,8 @@
         "idleTimeoutMillis": 3000
     },
     "MYSQL": {
-        "port": "20010",
-        "host": "101.42.29.187",
+        "port": "13306",
+        "host": "43.143.243.237",
         "user": "pan",
         "database": "pan",
         "password": "wP84CiF52KzhYZEG"
