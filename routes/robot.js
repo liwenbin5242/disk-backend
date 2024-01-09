@@ -162,4 +162,60 @@ router.delete('/cdkey/classify/:id',  reqHandler(async function(req, res) {
 }));
 
 
+/**
+ * @api {post} /api/robot/cdkey 09.添加机器人cdkey
+ * @apiName 添加机器人cdkey
+ * @apiGroup 机器人
+ *
+ * @apiParam {string} classify_id 分类名称.
+ * @apiParam {number} nums 数量.
+ *
+ * @apiSuccess {String} code 响应码, 如： 200, 0，……
+ * @apiSuccess {String} message 响应信息
+ * @apiSuccess {Object} data 数据对象数组
+ */
+router.post('/cdkey',  reqHandler(async function(req, res) {
+    const {classify_id , nums } = req.body
+    const {username, } = req.user
+    const result = await robotServ.postCDkey( classify_id, nums )
+    return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
+}));
+
+
+/**
+ * @api {delete} /api/robot/cdkey 10.删除cdkey
+ * @apiName 删除cdkey
+ * @apiGroup 机器人
+ *
+ * @apiSuccess {String} code 响应码, 如： 200, 0，……
+ * @apiSuccess {String} message 响应信息
+ * @apiSuccess {Object} data 数据对象数组
+ */
+router.delete('/cdkey/:id',  reqHandler(async function(req, res) {
+    const {id} = req.params
+    const result = await robotServ.deleteCDkey(id)
+    return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
+}));
+
+
+/**
+ * @api {get} /api/robot/cdkey/list 11.获取cdkey列表
+ * @apiName 获取cdkey分表
+ * @apiGroup 机器人
+ *
+ * @apiParam {number} limit 
+ * @apiParam {number} offset 
+ * @apiParam {string} classify_id 
+ *
+ * @apiSuccess {String} code 响应码, 如： 200, 0，……
+ * @apiSuccess {String} message 响应信息
+ * @apiSuccess {Object} data 数据对象数组
+ */
+router.get('/cdkey/list',  reqHandler(async function(req, res) {
+    const {limit, offset, classify_id, key, used} = req.query
+    const result = await robotServ.getCDkeyList( limit, offset,classify_id, key, used)
+    return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
+}));
+
+
 module.exports = router;

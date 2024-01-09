@@ -5,6 +5,7 @@ const utils = require('../lib/utils');
 const moment = require('moment');
 const { ObjectID } = require('mongodb');
 const _ = require('lodash');
+const { v4: uuidv4 } = require('uuid');
 
 moment.locale('zh-cn');
 
@@ -81,7 +82,7 @@ async function putConfig(_id, name , disk_id, disk_name, first_reply, nomatch_re
  * @param {用户} username 
  */
 
-async function postConfig( name, username ) {
+async function postCDkeyClassify( name, username ) {
     let returnData = {};
     const insertData = {
         name, username, ctm: new Date, utm: new Date
@@ -110,8 +111,43 @@ async function getCDkeyClassifyList( limit = 20, offset = 0, username) {
     const query = {
         username
     }
-    returnData.list = await diskDB.collection('robot_cdkey_classify').find(query).skip(parseInt(offset)).limit(parseInt(limit)).toArray()
+    const pipeline = [{
+        $match: query
+    }, {
+        $lookup: {
+            from: 'robot_cdkey',
+            let: {
+              fkey: '$_id',
+            },
+            pipeline: [
+              { $match: { $expr: { $and: [{ $eq: ['$classify_id', '$$fkey'] }] } } },
+              {
+                $project: {
+                  _id: 0,
+                  used: 1,
+                }
+              }
+            ],
+            as: 'cdkeys'
+          }
+    },
+    {
+        $project: {
+            _id:1,
+            name:1,
+            ctm:1,
+            nums: {$size: '$cdkeys'},
+            used:  { $size: { $filter: { input: "$cdkeys", as: "cdkey", cond: { $eq: ["$$cdkey.used", true] } } } }
+        }
+    },
+    {
+        $skip: parseInt(offset)
+    }, {
+        $limit: parseInt(limit)
+    }]
+    returnData.list = await diskDB.collection('robot_cdkey_classify').aggregate(pipeline).toArray()
     returnData.total = await diskDB.collection('robot_cdkey_classify').countDocuments(query)
+   
     return returnData
 }
 
@@ -129,12 +165,75 @@ async function putCDkeyClassify(_id, name, username ) {
     await diskDB.collection('robot_cdkey_classify').updateOne({_id: ObjectID(_id), username}, {$set: updateData})
     return returnData
 }
+
+
+/**
+ * 生成cdkey
+ * @param {分类id} classify_id 
+ * @param {数量} nums 
+ */
+
+async function postCDkey( classify_id, nums ) {
+    let returnData = {};
+    const insertArray = []
+    for(let i=0; i<nums; i++) {
+        insertArray.push({
+            key: uuidv4().replace(/-/g, ''),
+            classify_id:  ObjectID(classify_id),
+            used: false,
+            ctm: new Date,
+    })}
+    await diskDB.collection('robot_cdkey').insertMany(insertArray)
+    return returnData
+}
+
+/**
+ * cdkey列表
+ * @param {}  limit
+ * @param {}  offset
+ */
+async function getCDkeyList( limit = 20, offset = 0,classify_id, key, used) {
+    let returnData = {};
+    const query = {
+        classify_id: ObjectID(classify_id)
+    }
+    if(key) query.key = key
+    if(used === 'true') query.used = true
+    if(used === 'false') query.used = false
+    const pipeline = [{
+        $match: query
+    },
+    {
+        $skip: parseInt(offset)
+    }, {
+        $limit: parseInt(limit)
+    }]
+    returnData.list = await diskDB.collection('robot_cdkey').aggregate(pipeline).toArray()
+    returnData.total = await diskDB.collection('robot_cdkey').countDocuments(query)
+    return returnData
+}
+
+/**
+ * 删除cdkey
+ * @param {id} id 
+ */
+async function deleteCDkey(id) {
+    let returnData = {};
+    await diskDB.collection('robot_cdkey').deleteOne({_id: ObjectID(id)})
+    return returnData
+}
+
+
 module.exports = {
     postConfig,
     deleteConfig,
     getConfigList,
     putConfig,
+    postCDkeyClassify,
     putCDkeyClassify,
     getCDkeyClassifyList,
-    deleteCDkeyClassify
+    deleteCDkeyClassify,
+    postCDkey,
+    getCDkeyList,
+    deleteCDkey
 };
