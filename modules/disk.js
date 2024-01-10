@@ -130,12 +130,16 @@ async function fileManage(username, id, opera, filelist) {
 /**
  * 网盘绑定cookie
  * @param {账号} username
- * @param {id} id
+ * @param {id} disk_id
  * @param {cookie} cookie
  */
-async function addCookie(username, id, cookie) {
+async function addCookie(username, disk_id, cookie) {
     let returnData = {};
-    await diskDB.collection('disks').updateOne({ _id: ObjectId(id), username }, { $set: { cookie } });
+    const res = await utils.bdapis.getBDstoken(cookie)
+    if(res.data.errno!==0) {
+        throw new Error('cookie验证有误,请核对后再试')
+    }
+    await diskDB.collection('disks').updateOne({ _id: ObjectId(disk_id), username }, { $set: { cookie, bdstoken:res.data.login_info.bdstoken }});
     return returnData;
 }
 
@@ -152,18 +156,50 @@ async function addBdstoken(username, id, bdstoken) {
 }
 
 /**
+ * 刷新群组
+ * @param {账号} username
+ * @param {id} id
+ */
+async function flushGroups(username, disk_id) {
+    let returnData = {};
+    const disk = await diskDB.collection('disks').findOne({username, _id: ObjectId(disk_id) });
+    if (!disk || !disk.cookie) {
+        throw new Error('网盘或cookie不存在');
+    }
+    let insertData = []
+    let start = 0
+    let limit = 1000
+    while(1) {
+        const data = await utils.bdapis.getGroups(disk.cookie, start, limit);
+        start+=limit
+        if(data.data.errno === 0 && data.data.records) {
+            insertData = insertData.concat(data.data.records)
+            if(insertData.length >= data.data.count) {
+                break
+            }
+        } else {
+            break
+        }
+    }
+    insertData.forEach(d => {
+        d.disk_id = disk_id
+        d.username = username
+    })
+    await diskDB.collection('disk_group').deleteMany({disk_id, username})
+    await diskDB.collection('disk_group').insertMany(insertData)
+    return returnData;
+}
+
+/**
  * 获取群组
  * @param {账号} username
  * @param {id} id
  */
-async function getGroups(username, id, start, limit) {
+async function getGroups(username, disk_id, limit =100, offset=0) {
     let returnData = {};
-    const disk = await diskDB.collection('disks').findOne({ _id: ObjectId(id) });
-    if (!disk || !disk.cookie) {
-        throw new Error('网盘或cookie不存在');
-    }
-    const data = await utils.bdapis.getGroups(disk.cookie, start, limit);
-    returnData = data.data;
+    const data = await diskDB.collection('disk_group').find({username, disk_id}).sort({ctime:-1}).skip(offset).limit(limit).toArray()
+    const total =  await diskDB.collection('disk_group').countDocuments({username, disk_id})
+    returnData = {list:data, total};
     return returnData;
 }
 
@@ -417,6 +453,7 @@ module.exports = {
     fileManage,
     filePrecreate,
     fileTransfer,
+    flushGroups,
     getGroups,
     getGrouplistshare,
     getGroupshareinfo,
