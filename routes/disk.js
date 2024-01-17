@@ -322,19 +322,17 @@ router.post('/file/transfer',  reqHandler(async function(req, res) {
 }));
 
 /**
- * @api {post} /disk/file/dbfile 14.手动上传db文件到对应网盘生成目录树
- * @apiName 上传db文件到对应网盘生成目录树
+ * @api {post} /disk/file/dbfile 14.分片上传db文件
+ * @apiName 分片上传db文件
  * @apiGroup 网盘模块
- *
- * @apiParam {String} diskid 网盘id.
  *
  * @apiSuccess {String} code 响应码, 如： 200, 0，……
  * @apiSuccess {String} msg 响应信息
  * @apiSuccess {Object} data 数据对象数组
  */
 router.post('/file/dbfile', reqHandler(async function(req, res) {
-    const { diskid } = req.query;
-    const result = await diskServ.postDbfile(diskid, req);
+    const {disk_id, chunks, chunk, md5, filename, timestamp} = req.query
+    const result = await diskServ.postDbfile(req, disk_id, chunks, chunk, md5, filename, timestamp);
     res.json({code: returnCode.SUCCESS, data: result, msg: 'ok'});
 }));
 

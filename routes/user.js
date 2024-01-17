@@ -163,23 +163,29 @@ router.post('/disks/code', reqHandler(async function(req, res) {
 }));
 
 /**
- * @api {post} /user/disks/share 09.用户新增(修改)分享网盘及网盘下文件夹
- * @apiName 用户分享网盘及网盘下文件夹
+ * @api {post} /user/disks/share 09.用户新增目录
+ * @apiName 用户新增目录
  * @apiGroup 用户网盘分享模块
  *
  * @apiParam {String} diskid 网盘id
- * @apiParam {Boolean} used 是否启用
- * @apiParam {Array} paths 目录路径
- * @apiParam {String} remark 备注
+ * @apiParam {String} baidu_name 网盘名称
+ * @apiParam {String} title 目录名称
+ * @apiParam {String} type 文件类型 1网盘文件 2好友文件 3群组文件 
+ * @apiParam {String} path 网盘目录路径
+ * @apiParam {String} filename 文件名称
+ * @apiParam {String} cagegory 文件类型
+ * @apiParam {String} isdir 是否目录
+ * @apiParam {String} parent_id 父级id、
+ * @apiParam {String} order 排序号码
  *
  * @apiSuccess {String} code 响应码, 如： 200, 0，……
  * @apiSuccess {String} message 响应信息
  * @apiSuccess {Object} data 数据对象数组
  */
 router.post('/disks/share', reqHandler(async function(req, res) {
-    const {diskid, paths, used = true, remark} = req.body;
+    const {diskid, baidu_name, name, type, path, parent_id, filename, cagegory, isdir, order} = req.body;
     const {username, _id: userid} = req.user
-    const result = await userServ.postShare(username, diskid, paths, used, remark, userid);
+    const result = await userServ.postShare(username, diskid, baidu_name, name, type, path, parent_id, filename, cagegory, isdir, order);
     return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
 }));
 

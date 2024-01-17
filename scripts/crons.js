@@ -16,8 +16,12 @@ module.exports = function jobs() {
         }
     })
     
-    cron.schedule('*/10 * * * * *', async ()=> {
-        const res = await pool.query('SELECT 1;')
+    cron.schedule('*/60 * * * * *', async ()=> {
+        await pool.query('SELECT 1;')
+        logger.info(`check mysql status end`)
+    })
+    cron.schedule('*/60 * * * * *', async ()=> {
+        await pool.query('SELECT 1;')
         logger.info(`check mysql status end`)
     })
 }

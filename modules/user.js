@@ -10,6 +10,8 @@ const redis = require('../utils/rediser');
 const _ = require('lodash');
 const mailer = require('../utils/mailer')
 const config = require('config')
+const { v4: uuidv4 } = require('uuid');
+
 moment.locale('zh-cn');
 
 /**
@@ -39,6 +41,7 @@ async function postUserRegister(username, password, email, code) {
     const _id = ObjectID(utils.md5ID(username));
     const userInfo = {
         _id,
+        code: uuidv4().slice(-6),
         username,
         password: await argonEncryption(password),
         phone: '',
@@ -221,10 +224,10 @@ async function deleteDisk(username, id) {
 }
 
 /**
- * 用户分享网盘及网盘下文件夹
+ * 用户新增目录
  * @param {*} username
  */
-async function postShare(username, diskid, paths, used, remark, userid) {
+async function postShare(username, diskid, baidu_name, name, type, path, parent_id ='', filename, cagegory, isdir, order) {
     const returnData = {};
     const user = await diskDB.collection('users').findOne({ username, expires: {$gte: new Date}});
     if (!user) {
@@ -234,21 +237,7 @@ async function postShare(username, diskid, paths, used, remark, userid) {
     if(!disk) {
         throw new Error('网盘不存在');
     }
-    const _id = `${username}-${diskid}`;
-    await diskDB.collection('share_disks').updateOne({ _id }, {
-        $set: {
-            paths,
-            used,
-            remark,
-            utm: new Date(),
-        },
-        $setOnInsert: {
-            userid,
-            username,
-            diskid,
-            ctm: new Date(),
-        }
-    }, { upsert: true });
+    await diskDB.collection('share_files').insertOne({username, diskid, baidu_name, name, type, path, parent_id, filename, cagegory, isdir, order});
     return returnData;
 }
 
@@ -259,7 +248,7 @@ async function postShare(username, diskid, paths, used, remark, userid) {
 async function deleteShare(id) {
     const returnData = {};
     const _id = id;
-    await diskDB.collection('share_disks').deleteOne({ _id });
+    await diskDB.collection('share_files').deleteOne({ _id });
     return returnData;
 }
 
@@ -269,10 +258,7 @@ async function deleteShare(id) {
  */
 async function getShare(username) {
     const returnData = {};
-    const shareDisks = await diskDB.collection('share_disks').find({ username }, {sort:{ ctm: -1}}).toArray();
-    shareDisks.forEach(disk => {
-        disk.paths = disk.paths.map(e => {return{ parent_path: e.parent_path, server_filename: e.server_filename}})
-    })
+    const shareDisks = await diskDB.collection('share_files').find({ username }, {sort:{order: 1, ctm: -1}}).toArray();
     returnData.list = shareDisks
     return returnData;
 }
@@ -281,9 +267,9 @@ async function getShare(username) {
  * 更新用户已分享网盘以及网盘下文件列表
  * @param {*} username
  */
-async function putShare(remark, id) {
+async function putShare(id, username, diskid, baidu_name, name, type, path, parent_id, order) {
     const returnData = {};
-    await diskDB.collection('share_disks').updateOne({ _id: id}, {$set:{ remark}});
+    await diskDB.collection('share_files').updateOne({ _id: id}, {$set:{ username, diskid, baidu_name, name, type, path, parent_id, order }});
     return returnData;
 }
 

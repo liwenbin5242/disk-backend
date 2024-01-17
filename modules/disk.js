@@ -12,6 +12,7 @@ const _ = require('lodash');
 const splitFileStream = require('split-file-stream');
 const { logger } = require('../utils/logger');
 const { task: genTreeMysql} = require('../scripts/gen_dir_tree_mysql') 
+require('events').EventEmitter.defaultMaxListeners = 0;
 moment.locale('zh-cn');
 
 /**
@@ -400,29 +401,30 @@ async function fileCreate(username, id, path, size, isdir, block_list, uploadid)
     return returnData;
 }
 
+
 /**
- * 上传db文件到对应网盘生成目录树(文件可能较大,采用异步处理任务的方式)
- * @param {网盘id} diskid
- * @param {db文件} file
+ * 分片上传db文件
+ * @param {网盘id} disk_id
+ * @param {当前片段的索引} chunk
+ * @param {共有多少分片} chunks
+ * @param {文件名} filename
+ * @param {文件md5} md5
  */
-async function postDbfile(diskid, req) {
+async function postDbfile(req, disk_id, chunks, chunk, md5, filename, timestamp) {
     let returnData = {};
-    const disk = await diskDB.collection('disks').findOne({ _id: ObjectId(diskid) });
+    const disk = await diskDB.collection('disks').findOne({ _id: ObjectId(disk_id) });
     if (!disk) {
         throw new Error('网盘不存在');
     }
     // 更新网盘状态,设置为pending
-    await diskDB.collection('disks').updateOne({ _id: ObjectId(diskid) }, {$set: {dir_tree_status: 'pending'}});
-    const tempdir = node_path.join(__dirname, `../temp/${diskid}/`);
+    await diskDB.collection('disks').updateOne({ _id: ObjectId(disk_id) }, {$set: {dir_tree_status: 'pending'}});
+    const tempdir = node_path.join(__dirname, `../temp/${disk_id}/${timestamp}/`);
+    await fs.mkdirSync(tempdir, {recursive: true})
     let tempfile = ''
     const result = await new Promise(async (resolve, reject) => { // 异步执行
-        const exists = await fs.existsSync(tempdir);
-        if (!exists) {
-            await fs.mkdirSync(tempdir);
-        }
         const fileStream = req.pipe(req.busboy)
         fileStream.on('file', (name, file, info) => {
-            tempfile = node_path.join(tempdir, `${info.filename}`);
+            tempfile = node_path.join(tempdir, `${chunk}`);
             const writeStream = fs.createWriteStream(`${tempfile}`);
             file.pipe(writeStream);
           });
@@ -438,13 +440,64 @@ async function postDbfile(diskid, req) {
             return resolve(false);
         });
     })
-    // 开始异步执行文件入pgsql库
-    if(result) {
-        // genTreepg(tempfile, diskid)
-        genTreeMysql(tempfile, diskid)
+    const files = await fs.readdirSync(tempdir)
+    if(files.length == chunks) {
+        // 定义要合并的分片文件路径数组
+        const filePaths = files.sort((a,b)=> {return parseInt(a)- parseInt(b)}).map(file => {return `${tempdir}${file}`});
+        // 合并文件
+        const result = await utils.mergeFile(filePaths,`${tempdir}${filename}`)
+        if(result.done && md5=== utils.md5(fs.readFileSync(`${tempdir}${filename}`))) { //
+            genTreeMysql(`${tempdir}${filename}`, disk_id)
+        }
     }
     return returnData;
 }
+
+/**
+ * 上传db文件到对应网盘生成目录树(文件可能较大,采用异步处理任务的方式)
+ * @param {网盘id} diskid
+ * @param {db文件} file
+ */
+// async function postDbfile(diskid, req) {
+//     let returnData = {};
+//     const disk = await diskDB.collection('disks').findOne({ _id: ObjectId(diskid) });
+//     if (!disk) {
+//         throw new Error('网盘不存在');
+//     }
+//     // 更新网盘状态,设置为pending
+//     await diskDB.collection('disks').updateOne({ _id: ObjectId(diskid) }, {$set: {dir_tree_status: 'pending'}});
+//     const tempdir = node_path.join(__dirname, `../temp/${diskid}/`);
+//     let tempfile = ''
+//     const result = await new Promise(async (resolve, reject) => { // 异步执行
+//         const exists = await fs.existsSync(tempdir);
+//         if (!exists) {
+//             await fs.mkdirSync(tempdir);
+//         }
+//         const fileStream = req.pipe(req.busboy)
+//         fileStream.on('file', (name, file, info) => {
+//             tempfile = node_path.join(tempdir, `${info.filename}`);
+//             const writeStream = fs.createWriteStream(`${tempfile}`);
+//             file.pipe(writeStream);
+//           });
+//         fileStream.on('close', () => {
+//             logger.info('db文件上传成功');
+//             return resolve(true);
+//         });
+//         fileStream.on('field', (name, value, info) => {
+//             logger.info('files', name, value, info);
+//           });
+//         fileStream.on('error', (error) => {
+//             logger.error('db文件上传失败', error);
+//             return resolve(false);
+//         });
+//     })
+//     // 开始异步执行文件入pgsql库
+//     if(result) {
+//         // genTreepg(tempfile, diskid)
+//         genTreeMysql(tempfile, diskid)
+//     }
+//     return returnData;
+// }
 module.exports = {
     addBdstoken,
     addCookie,

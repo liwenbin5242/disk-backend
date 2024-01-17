@@ -56,7 +56,7 @@ async function getUserShareFiles(diskid, parent_path,) {
     }
     try {
         let legal = false;
-        const sharedisk = await diskDB.collection('share_disks').findOne({diskid});
+        const sharedisk = await diskDB.collection('share_files').findOne({diskid});
         const paths = sharedisk?.paths ?? []
         for(let path of paths) {
             if(parent_path.search(path) === 0) {
@@ -151,7 +151,7 @@ async function getShareFileUrl(diskid, path = '', filename,) {
             }
             const code = uuidv4().slice(-4); // ⇨ '1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed'
             const expireday = 7
-            const res = await utils.bdapis.fileShare(disk.cookies, expireday, code,[], 4,[file.fs_id])
+            const res = await utils.bdapis.fileShare(disk.cookies, expireday, code,[], 4, [file.fs_id])
             await redis.set(`${diskid}:${path}:${filename}`, {code, url: res.data.shorturl}, expireday * 24 * 60 * 60)
             returnData.code = code
             returnData.url = res.data.shorturl

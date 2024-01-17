@@ -6,7 +6,7 @@
     "configurations": [
     
         {
-            "type": "pwa-node",
+            "type": "node",
             "request": "launch",
             "name": "启动程序",
             "skipFiles": [
@@ -15,7 +15,7 @@
             "program": "${workspaceFolder}\\bin\\www",
         },
         {
-            "type": "pwa-node",
+            "type": "node",
             "request": "launch",
             "name": "test",
             "skipFiles": [
@@ -23,7 +23,7 @@
             ],
             "program": "${workspaceFolder}\\t.js"
         }, {
-            "type": "pwa-node",
+            "type": "node",
             "request": "launch",
             "name": "t3",
             "skipFiles": [
@@ -31,7 +31,7 @@
             ],
             "program": "${workspaceFolder}\\t3.js"
         },{
-            "type": "pwa-node",
+            "type": "node",
             "request": "launch",
             "name": "addwatermark",
             "skipFiles": [

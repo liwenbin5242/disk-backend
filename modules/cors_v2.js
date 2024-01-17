@@ -37,15 +37,20 @@ async function getUserConfig(userid) {
 
 /**
  * 获取用户分享的网盘列表以及目录
- * @param {用户id} userid 用户id
+ * @param {code} code 用户code
  */
-async function getUserShareDisks() {
+async function getUserShareDisks(code) {
     const returnData = {};
-    const sharedisks = await diskDB.collection('share_disks').find({ used: true}, {projection: {
+    const user = await diskDB.collection('users').findOne({code,})
+    if(!user) {
+        throw new Error('请核对正确的地址')
+    }
+    if( user.expires <new Date) {
+        throw new Error('目录已过期,请续费')  
+    }
+    const sharedisks = await diskDB.collection('share_files').find({ username: user.username}, {projection: {
         _id: 0,
-        paths: 1,
-        remark: 1,
-        diskid: 1,
+        username: 0
     }}).toArray();
     returnData.disks = sharedisks;
     return returnData;
@@ -63,7 +68,7 @@ async function getUserShareV2(diskid, dir, order= 'name', web = 'web', folder = 
         throw new Error('网盘不存在');
     }
     let legal = false;
-    const sharedisk = await diskDB.collection('share_disks').findOne({diskid});
+    const sharedisk = await diskDB.collection('share_files').findOne({diskid});
     const paths = sharedisk?.paths ?? []
     for(let path of paths) {
         if(dir.search(path) === 0) {
@@ -102,7 +107,7 @@ async function searchFilesShareV2(diskid, dir, key) {
         throw new Error('网盘不存在');
     }
     let legal = false;
-    const sharedisk = await diskDB.collection('share_disks').findOne({diskid});
+    const sharedisk = await diskDB.collection('share_files').findOne({diskid});
     const paths = sharedisk?.paths ?? []
     for(let path of paths) {
         if(dir.search(path) === 0) {
