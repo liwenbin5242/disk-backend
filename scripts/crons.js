@@ -4,7 +4,7 @@ const { logger } = require('../utils/logger');
 const utils = require('../lib/utils');
 const pool = require('../utils/mysql')
 const diskDB = mongodber.use('disk');
-
+const {task} = require('./robot')
 module.exports = function jobs() {
     logger.info('crons Jobs start ')
     cron.schedule('0 0 0 */1 * *', async () => {
@@ -15,10 +15,9 @@ module.exports = function jobs() {
             await diskDB.colletion('disks').updateOne({_id: disk._id}, {$set:{refresh_token:refresh_token.data.refresh_token, access_token:refresh_token.data.access_token, }})
         }
     })
-    
-    cron.schedule('*/60 * * * * *', async ()=> {
-        await pool.query('SELECT 1;')
-        logger.info(`check mysql status end`)
+    cron.schedule('*/20 * * * * *', async ()=> {
+        await task()
+        logger.info(`robot task runing`)
     })
     cron.schedule('*/60 * * * * *', async ()=> {
         await pool.query('SELECT 1;')
