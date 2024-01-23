@@ -33,7 +33,7 @@ async function task() {
                 continue
             }
             if(cfg.first_reply) {  // 添加完成后回复                                        
-                const msg = {"send_type":3,"receiver":[`${rec.uk}`],"msg_type":1,"msg":`${cfg.first_reply}`,"fs_ids":[],"receiver_name":[`${rec.uname}`]}
+                const msg = `{"send_type":3,"receiver":["${rec.uk}"],"msg_type":1,"msg":"${cfg.first_reply}","fs_ids":[],"receiver_name":["${rec.uname}"]}`
                 let {data: {errno}} = await utils.bdapis.sendMsg(disk.cookie, msg)
                 if(errno) {
                     logger.error(`发送first reply出错,errno:${errno}`)  
