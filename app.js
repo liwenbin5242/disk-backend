@@ -14,7 +14,6 @@ const diskRotes = require('./routes/disk');
 const corsRotes = require('./routes/cors');
 const memberRotes = require('./routes/member');
 const filesRotes = require('./routes/files');
-const agentRotes = require('./routes/agent');
 const cdkeyRotes = require('./routes/cdkey');
 const robotRotes = require('./routes/robot');
 const corsV2Rotes = require('./routes/cors_v2');
@@ -44,7 +43,6 @@ app.use('/api/user', userRotes);
 app.use('/api/disk', diskRotes);
 app.use('/api/member', memberRotes);
 app.use('/api/files', filesRotes);
-app.use('/api/agent', agentRotes);
 
 app.use('/api/cors', corsRotes);
 

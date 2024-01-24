@@ -76,6 +76,21 @@ async function putConfig(_id, name , disk_id, disk_name, first_reply, nomatch_re
     return returnData
 }
 
+
+/**
+ * 修改配置状态
+ * @param {id}  id
+ * @param {id}  status
+ * @param {用户名} username 
+ */
+async function putConfigStatus(id, status, username) {
+    let returnData = {};
+    const updateData = {
+       status, utm: new Date
+    }
+    await diskDB.collection('robot_config').updateOne({_id: ObjectID(id), username}, {$set: updateData})
+    return returnData
+}
 /**
  * 新增分类
  * @param {分类名称} name 
@@ -229,6 +244,7 @@ module.exports = {
     deleteConfig,
     getConfigList,
     putConfig,
+    putConfigStatus,
     postCDkeyClassify,
     putCDkeyClassify,
     getCDkeyClassifyList,

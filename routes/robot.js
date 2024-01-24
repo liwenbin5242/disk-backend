@@ -55,6 +55,25 @@ router.put('/config',  reqHandler(async function(req, res) {
 }));
 
 /**
+ * @api {put} /api/robot/config/status 0.开启/关闭机器人配置
+ * @apiName 开启/关闭机器人配置
+ * @apiGroup 机器人
+ *
+ * @apiParam {string} id 配置id.
+ * @apiParam {number} status 状态 1 开启 0关闭
+ *
+ * @apiSuccess {String} code 响应码, 如： 200, 0，……
+ * @apiSuccess {String} message 响应信息
+ * @apiSuccess {Object} data 数据对象数组
+ */
+router.put('/config/status',  reqHandler(async function(req, res) {
+    const {id, status} = req.body
+    const {username} = req.user
+    const result = await robotServ.putConfigStatus( id, status, username)
+    return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
+}));
+
+/**
  * @api {get} /api/robot/config/list 03.获取配置列表
  * @apiName 获取配置列表
  * @apiGroup 机器人

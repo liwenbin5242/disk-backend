@@ -15,7 +15,7 @@ module.exports = function jobs() {
             await diskDB.colletion('disks').updateOne({_id: disk._id}, {$set:{refresh_token:refresh_token.data.refresh_token, access_token:refresh_token.data.access_token, }})
         }
     })
-    cron.schedule('*/20 * * * * *', async ()=> {
+    cron.schedule('*/30 * * * * *', async ()=> {
         await task()
         logger.info(`robot task runing`)
     })
