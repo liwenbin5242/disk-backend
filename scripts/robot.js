@@ -16,6 +16,7 @@ moment.locale('zh-cn');
 async function task() {
     // 获取运行中 status == 1的task
     const cfgs = await diskDB.collection('robot_config').find({ status: 1 }).toArray();
+    logger.info(`已读取到${cfgs.length}条配置`)
     for(let cfg of cfgs) {
         // judge the username in the cfg whether expired?
         const user = await diskDB.collection('users').findOne({username: cfg.username, expires: {$gt: new Date}})

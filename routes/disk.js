@@ -158,7 +158,7 @@ router.get('/groups', reqHandler(async function(req, res) {
 
 
 /**
- * @api {post} /disk/groups 15.刷新网盘群组列表到db
+ * @api {post} /disk/groups/flush 15.刷新网盘群组列表到db
  * @apiName 刷新网盘群组列表到db
  * @apiGroup 网盘模块
  *
@@ -168,8 +168,8 @@ router.get('/groups', reqHandler(async function(req, res) {
  * @apiSuccess {String} msg 响应信息
  * @apiSuccess {Object} data 数据对象数组
  */
-router.post('/groups', reqHandler(async function(req, res) {
-    const {disk_id,} = req.body;
+router.post('/groups/flush', reqHandler(async function(req, res) {
+    const {disk_id} = req.body;
     const result = await diskServ.flushGroups(req.user.username, disk_id);
     res.json({code: returnCode.SUCCESS, data: result, msg: 'ok'});
 }));

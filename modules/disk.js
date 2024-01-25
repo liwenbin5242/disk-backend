@@ -183,8 +183,10 @@ async function flushGroups(username, disk_id) {
         }
     }
     insertData.forEach(d => {
+        d._id= utils.md5ID(gid)
         d.disk_id = disk_id
         d.username = username
+        d.ctm = new Date()
     })
     await diskDB.collection('disk_group').deleteMany({disk_id, username})
     await diskDB.collection('disk_group').insertMany(insertData)

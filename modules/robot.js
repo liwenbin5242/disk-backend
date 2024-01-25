@@ -238,6 +238,100 @@ async function deleteCDkey(id) {
     return returnData
 }
 
+/**
+ * 获取机器人规则列表
+ * @param {配置id} config_id 
+ * @param {} limit 
+ * @param {} offset 
+ */
+async function getRuleList( config_id, limit, offset,) {
+    let returnData = {};
+    const query = {
+        config_id
+    }
+    const pipeline = [{
+        $match: query
+    },
+    {
+        $lookup:{
+            from: 'robot_cdkey_classify',
+            let: {
+              fkey: '$classify_id',
+            },
+            pipeline: [
+              { $match: { $expr: { $and: [{ $eq: ['$_id',  { $toObjectId: "$$fkey" }] }] } } },
+              {
+                $project: {
+                   _id:0,
+                  classify_name: '$name',
+                }
+              }
+            ],
+            as: 'classify'
+        }
+    },
+    {
+        $replaceRoot: { newRoot: { $mergeObjects: ['$$ROOT', { $arrayElemAt: ['$classify', 0] }] } }
+    },
+    {
+        $skip: parseInt(offset)
+    }, {
+        $limit: parseInt(limit)
+    }]
+    returnData.list = await diskDB.collection('robot_rule').aggregate(pipeline).toArray()
+    returnData.total = await diskDB.collection('robot_rule').countDocuments(query)
+    return returnData
+}
+
+/**
+ * 新增机器人规则
+ * @param {规则名称} name 
+ * @param {配置id} config_id 
+ * @param {分类id} classify_id 
+ * @param {回复的文字内容} reply_content 
+ * @param {回复的文件} reply_file 
+ * @param {加入的群组} groups 
+ */
+async function postRule(name, config_id, classify_id, reply_content, reply_file, group_ids) {
+    let returnData = {};
+    const groups = await diskDB.collection('disk_group').find({_id: {$in:group_ids.map(id => {return ObjectID(id)})}}).toArray()
+    const insertData = {
+        name, config_id, classify_id, reply_content, reply_file, group_ids, groups, ctm: new Date, utm: new Date
+    }
+    await diskDB.collection('robot_rule').insertOne(insertData)
+    return returnData
+}
+
+/**
+ * 修改机器人规则
+ * @param {规则id} id 
+ * @param {规则名称} name 
+ * @param {配置id} config_id 
+ * @param {分类id} classify_id 
+ * @param {回复的文字内容} reply_content 
+ * @param {回复的文件} reply_file 
+ * @param {加入的群组} groups 
+ */
+async function putRule(id, name, config_id, classify_id, reply_content, reply_file, group_ids) {
+    let returnData = {};
+    const groups = await diskDB.collection('disk_group').find({_id: {$in:group_ids.map(id => {return ObjectID(id)})}}).toArray()
+    const updateData = {
+        name, config_id, classify_id, reply_content, reply_file, group_ids, groups, utm: new Date
+    };
+    await diskDB.collection('robot_rule').updateOne({_id: ObjectID(id)}, {$set: updateData})
+    return returnData
+}
+
+/**
+ * 删除机器人规则
+ * @param {规则id} id 
+ */
+async function deleteRule(id, ) {
+    let returnData = {};
+    await diskDB.collection('robot_rule').deleteOne({_id: ObjectID(id)})
+    return returnData
+}
+
 
 module.exports = {
     postConfig,
@@ -251,5 +345,9 @@ module.exports = {
     deleteCDkeyClassify,
     postCDkey,
     getCDkeyList,
-    deleteCDkey
+    deleteCDkey,
+    getRuleList,
+    postRule,
+    putRule,
+    deleteRule
 };

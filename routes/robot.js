@@ -236,5 +236,87 @@ router.get('/cdkey/list',  reqHandler(async function(req, res) {
     return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
 }));
 
+/**
+ * @api {get} /api/robot/rule/list 13.获取规则列表
+ * @apiName 获取规则列表
+ * @apiGroup 机器人
+ *
+ * @apiParam {number} limit 
+ * @apiParam {number} offset 
+ * @apiParam {string} config_id 
+ *
+ * @apiSuccess {String} code 响应码, 如： 200, 0，……
+ * @apiSuccess {String} message 响应信息
+ * @apiSuccess {Object} data 数据对象数组
+ */
+router.get('/rule/list',  reqHandler(async function(req, res) {
+    const {limit, offset, config_id} = req.query
+    const result = await robotServ.getRuleList( config_id, limit, offset, )
+    return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
+}));
 
+/**
+ * @api {post} /api/robot/rule 14.新增规则
+ * @apiName 新增规则
+ * @apiGroup 机器人
+ *
+ * @apiParam {string} name 规则名称
+ * @apiParam {string} config_id 配置id
+ * @apiParam {string} classify_id 卡密分类id
+ * @apiParam {string} reply_content 回复内容
+ * @apiParam {string} reply_file 回复文件
+ * @apiParam {array} groups 加入的群组
+ *
+ * @apiSuccess {String} code 响应码, 如： 200, 0，……
+ * @apiSuccess {String} message 响应信息
+ * @apiSuccess {Object} data 数据对象数组
+ */
+router.post('/rule',  reqHandler(async function(req, res) {
+    const {name, config_id, classify_id, reply_content, reply_file, group_ids } = req.body
+    const result = await robotServ.postRule( name, config_id, classify_id, reply_content, reply_file, group_ids )
+    return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
+}));
+
+
+/**
+ * @api {put} /api/robot/rule 15.修改规则
+ * @apiName 修改规则
+ * @apiGroup 机器人
+ *
+ * @apiParam {string} id 规则id
+ * @apiParam {string} name 规则名称
+ * @apiParam {string} config_id 配置id
+ * @apiParam {string} classify_id 卡密分类id
+ * @apiParam {string} reply_content 回复内容
+ * @apiParam {string} reply_file 回复文件
+ * @apiParam {array} groups 加入的群组
+ *
+ * @apiSuccess {String} code 响应码, 如： 200, 0，……
+ * @apiSuccess {String} message 响应信息
+ * @apiSuccess {Object} data 数据对象数组
+ */
+router.put('/rule',  reqHandler(async function(req, res) {
+    const {id, name, config_id, classify_id, reply_content, reply_file, group_ids } = req.body
+    const result = await robotServ.putRule(id, name, config_id, classify_id, reply_content, reply_file, group_ids )
+    return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
+}));
+
+
+
+/**
+ * @api {delete} /api/robot/rule 15.删除规则
+ * @apiName 删除规则
+ * @apiGroup 机器人
+ *
+ * @apiParam {string} id 规则id
+ *
+ * @apiSuccess {String} code 响应码, 如： 200, 0，……
+ * @apiSuccess {String} message 响应信息
+ * @apiSuccess {Object} data 数据对象数组
+ */
+router.delete('/rule/:id',  reqHandler(async function(req, res) {
+    const {id } = req.params
+    const result = await robotServ.deleteRule(id,)
+    return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
+}));
 module.exports = router;
