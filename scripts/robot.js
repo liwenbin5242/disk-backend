@@ -33,7 +33,7 @@ async function task() {
             if(friended){
                 continue
             }
-            let {data: {errno, userinfo={}}} = await utils.bdapis.addFriend(disk.cookie, rec.uk, disk.bdstoken, rec.msg_id) 
+            let {data: {errno}} = await utils.bdapis.addFriend(disk.cookie, rec.uk, disk.bdstoken, rec.msg_id) 
             if(errno) {
                 logger.error(`获取addFriend出错,errno:${errno}`)  
                 continue
@@ -48,10 +48,53 @@ async function task() {
                     await await diskDB.collection('disk_err_log').insertOne({disk_id: cfg.disk_id, username: cfg.username, uname: rec.uname, uk: rec.uk, apiname: 'first reply', ctm:new Date})
                 }
             }
-            // 2. 获取有没有
+        }
+        // 查询此配置下规则列表
+        const rules = await diskDB.collection('robot_rule').find({config_id: cfg._id.toString()}).toArray()
+        if( rules.length) {
+            // 拉取msg box
+            let {data: {errno, sessions=[]}} = await utils.bdapis.imboxMsgPull(disk.cookie)
+            if(errno) logger.error(`获取会话出错,disk_id:${disk._id},cookie:${disk.cookie}`)
+            let unreadSessions = sessions.filter(session => {return session.unreadcount > 0 && session.account_type===0 && session.sessiontype === 3})
+            for (let unreadSession of unreadSessions ) {
+                // 设置消息已读
+                let {data: {errno}} = await utils.bdapis.clearMsgBox(disk.cookie,unreadSession.sessionid)
+                if(errno) logger.error(`清除session出错,disk_id:${disk._id},cookie:${disk.cookie}`)
+                const msgrecords = unreadSession.msgrecord.filter(rec => {return rec.msgtype===100 &&  rec.sendtype===3 && rec.from_uk!== disk.uk}).slice(0, unreadSession.unreadcount)
+                let matched = false
+                for(let  msgrecord of msgrecords ) {
+                    const cdkey = await diskDB.collection('robot_cdkey').findOne({key: msgrecord.msg.trim(), used: false})
+                    if(cdkey){
+                        const rule = await diskDB.collection('robot_rule').findOne({config_id: cfg._id.toString(), classify_id: cdkey.classify_id.toString()})
+                        if(rule) matched = true
+                        let group_name
+                        let reply_files
+                        if(rule.reply_content) { //  发消息
+                            const msg = `{"send_type":3,"receiver":["${msgrecord.from_uk}"],"msg_type":1,"msg":"${rule.reply_content}","fs_ids":[],"receiver_name":["${unreadSession.sessionname}"]}`
+                            let {data: {errno}} = await utils.bdapis.sendMsg(disk.cookie, msg)
+                            if(errno) logger.error(`回复消息出错,disk_id:${disk._id},cookie:${disk.cookie}`)
+                        }
+                        if(rule.groups.length) { // 进入群组
+                            for(let group of rule.groups) {
+                                let {data} =await utils.bdapis.addUser(disk.cookie, group.gid, JSON.stringify([msgrecord.from_uk]), disk.bdstoken)
+                                if(data.errno == '2100') logger.error(`已经在群组了`)
+                                if(data.errno == '2119') logger.error(`群组满`)
+                                if(data.errno == '0') {
+                                    logger.info(`添加成功`)
+                                    group_name = data.groupinfo[0].name
+                                    break
+                                }
+                            }
+                        }
+                        if(rule.reply_files) {
+                            // 回复文件
+                        }
+                        await diskDB.collection('robot_cdkey').updateOne({key: msgrecord.msg.trim(), used: false}, {$set: {config_id: cfg._id.toString(), sessionname: unreadSession.sessionname, used: true, usetm: new Date, reply_content: rule.reply_content, group_name, reply_files}})
+                    }
+                }
+            }
         }
     }
-    return returnData;
 }
 
 

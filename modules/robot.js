@@ -6,6 +6,7 @@ const moment = require('moment');
 const { ObjectID } = require('mongodb');
 const _ = require('lodash');
 const { v4: uuidv4 } = require('uuid');
+const urldecode = require('urldecode');
 
 moment.locale('zh-cn');
 
@@ -207,12 +208,15 @@ async function postCDkey( classify_id, nums ) {
  * @param {}  limit
  * @param {}  offset
  */
-async function getCDkeyList( limit = 20, offset = 0,classify_id, key, used) {
+async function getCDkeyList( limit = 20, offset = 0,classify_id, key, used, sessionname, config_id) {
     let returnData = {};
     const query = {
-        classify_id: ObjectID(classify_id)
+       
     }
+    if(classify_id)  query.classify_id = ObjectID(classify_id)
+    if(config_id)  query.config_id = config_id
     if(key) query.key = key
+    if(sessionname) query.sessionname = {$regex: (urldecode(sessionname).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))}
     if(used === 'true') query.used = true
     if(used === 'false') query.used = false
     const pipeline = [{

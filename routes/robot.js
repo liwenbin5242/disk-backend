@@ -231,8 +231,8 @@ router.delete('/cdkey/:id',  reqHandler(async function(req, res) {
  * @apiSuccess {Object} data 数据对象数组
  */
 router.get('/cdkey/list',  reqHandler(async function(req, res) {
-    const {limit, offset, classify_id, key, used} = req.query
-    const result = await robotServ.getCDkeyList( limit, offset,classify_id, key, used)
+    const {limit, offset, classify_id, key, used, sessionname, config_id} = req.query
+    const result = await robotServ.getCDkeyList( limit, offset,classify_id, key, used, (sessionname), config_id)
     return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
 }));
 
