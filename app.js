@@ -44,9 +44,9 @@ app.use('/api/disk', diskRotes);
 app.use('/api/member', memberRotes);
 app.use('/api/files', filesRotes);
 
+app.use('/api/cors/v2', corsV2Rotes);
 app.use('/api/cors', corsRotes);
 
-app.use('/api/cors_v2', corsV2Rotes);
 app.use('/api/cdkey', cdkeyRotes);
 app.use('/api/robot', robotRotes);
 

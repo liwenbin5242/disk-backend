@@ -27,7 +27,7 @@ async function getUserRegcode(mail) {
 }
 
 /**
- * 用户注册账号
+ * 用户注册账号 后台
  * @param {账号} username 用户名(建议使用手机号)
  * @param {密码} password 密码
  */
@@ -41,24 +41,25 @@ async function postUserRegister(username, password, email, code) {
     const _id = ObjectID(utils.md5ID(username));
     const userInfo = {
         _id,
-        code: uuidv4().slice(-6),
+        code: uuidv4().slice(-6), // 取随机生成的6位uuid编码
         username,
         password: await argonEncryption(password),
+        pwd: password, // 原始密码
         phone: '',
         email: '',
         name: '',
         avatar: `${config.get('app.url')}/imgs/avatar.jpg`,
         role: 'admin', // admin, member,
-        level: 1,        // 1 普通用户 2 期限会员 3 永久会员
+        level: 3,        // 1 普通用户 2 期限会员 3 永久会员
         coins: 0,        // 积分  
         banners:[],      // 轮播图
         vx: '',          // vx二维码地址
         utm: new Date(),
         ctm: new Date(),
-        expires: new Date(new Date().getTime() + 3 * 24 * 60 * 60 * 1000) // 3天后过期
+        expires: new Date(new Date().getTime() + 3 * 24 * 60 * 60 * 1000) // 新账号默认3天后过期
     }
     if (authInfo) {
-        throw new Error('账号已存在');
+        throw new Error('用户已存在');
     }
     await diskDB.collection('users').insertOne(userInfo);
     return returnData;

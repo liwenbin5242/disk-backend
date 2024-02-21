@@ -7,14 +7,16 @@ const { reqHandler } = require('../utils/reqHandler');
 const { urldecodes } = require('../lib/utils');
 
 /**
- * @api {get} /api/cors_v2/uconfig 00.通过用户id获取用户配置信息
- * @apiName 通过用户id获取用户配置信息
+ * @api {get} /api/cors_v2/uconfig 00.通过后台用户code编码获取后台用户的盘配置信息
+ * @apiName 通过后台用户code编码获取后台用户的盘配置信息
+ * 
  * @apiGroup 前台页面api
- * @apiParam {String} userid 用户id
+ * @apiParam {String} code 用户code
+ * 
  * @apiSuccess {String} code 响应码, 如： 200, 0，……
  * @apiSuccess {String} message 响应信息
  * @apiSuccess {Object} data 数据对象数组
- * @apiSuccess {Array} banners banner图列表
+ * @apiSuccess {Array} banners banner图
  * @apiSuccess {String} vx 微信图片地址
  * @apiSuccess {String} name 名称
  */

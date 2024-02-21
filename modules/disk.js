@@ -137,8 +137,12 @@ async function fileManage(username, id, opera, filelist) {
 async function addCookie(username, disk_id, cookie) {
     let returnData = {};
     const res = await utils.bdapis.getBDstoken(cookie)
-    if(res.data.errno!==0) {
+    if(res.data.errno!== 0) {
         throw new Error('cookie验证有误,请核对后再试')
+    }
+    const disk = await diskDB.collection('disks').findOne({username, _id: ObjectId(disk_id)}) 
+    if(res.data.login_info.uk!== disk.uk) {
+        throw new Error('cookie对应网盘用户不匹配,请核对后再试')
     }
     await diskDB.collection('disks').updateOne({ _id: ObjectId(disk_id), username }, { $set: { cookie, bdstoken:res.data.login_info.bdstoken }});
     return returnData;
