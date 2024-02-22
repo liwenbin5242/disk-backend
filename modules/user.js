@@ -228,17 +228,17 @@ async function deleteDisk(username, id) {
  * 用户新增目录
  * @param {*} username
  */
-async function postShare(username, diskid, baidu_name, name, type, path, parent_id ='', filename, cagegory, isdir, order) {
+async function postShare(username, disk_id, title, sort, type, path, parent_id ='', name, cagegory) {
     const returnData = {};
     const user = await diskDB.collection('users').findOne({ username, expires: {$gte: new Date}});
     if (!user) {
         throw new Error('授权已过期,请联系管理员');
     }
-    const disk = await diskDB.collection('disks').findOne({ _id: ObjectID(diskid), username });
+    const disk = await diskDB.collection('disks').findOne({ _id: ObjectID(disk_id), username });
     if(!disk) {
         throw new Error('网盘不存在');
     }
-    await diskDB.collection('share_files').insertOne({username, diskid, baidu_name, name, type, path, parent_id, filename, cagegory, isdir, order});
+    await diskDB.collection('share_files').insertOne({username, disk_id, title, sort: parseInt(sort), type, path, parent_id, name, cagegory});
     return returnData;
 }
 
@@ -246,10 +246,9 @@ async function postShare(username, diskid, baidu_name, name, type, path, parent_
  * 用户删除分享网盘
  * @param {*} username
  */
-async function deleteShare(id) {
+async function deleteShare(_id) {
     const returnData = {};
-    const _id = id;
-    await diskDB.collection('share_files').deleteOne({ _id });
+    await diskDB.collection('share_files').deleteOne({ _id: ObjectID(_id), });
     return returnData;
 }
 
@@ -259,7 +258,34 @@ async function deleteShare(id) {
  */
 async function getShare(username) {
     const returnData = {};
-    const shareDisks = await diskDB.collection('share_files').find({ username }, {sort:{order: 1, ctm: -1}}).toArray();
+    const pipeline = [{
+        $match: {username}
+    },
+    {
+        $lookup: {
+            from: 'disks',
+            let: {
+              fkey: '$disk_id',
+            },
+            pipeline: [
+              { $match: { $expr: { $and: [{ $eq: ['$_id',  { $toObjectId: "$$fkey" }] }] } } },
+              {
+                $project: {
+                  _id: 0,
+                  baidu_name: 1,
+                }
+              }
+            ],
+            as: 'disk'
+          }
+    },
+    {
+        $replaceRoot: { newRoot: { $mergeObjects: ['$$ROOT', { $arrayElemAt: ['$disk', 0] }] } }
+    },
+    {
+        $sort: {sort: 1, ctm: -1}
+    }]
+    const shareDisks = await diskDB.collection('share_files').aggregate(pipeline).toArray();
     returnData.list = shareDisks
     return returnData;
 }

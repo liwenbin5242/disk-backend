@@ -167,25 +167,23 @@ router.post('/disks/code', reqHandler(async function(req, res) {
  * @apiName 用户新增目录
  * @apiGroup 用户网盘分享模块
  *
- * @apiParam {String} diskid 网盘id
- * @apiParam {String} baidu_name 网盘名称
+ * @apiParam {String} disk_id 网盘id
  * @apiParam {String} title 目录名称
+ * @apiParam {String} sort 排序
  * @apiParam {String} type 文件类型 1网盘文件 2好友文件 3群组文件 
  * @apiParam {String} path 网盘目录路径
- * @apiParam {String} filename 文件名称
+ * @apiParam {String} name 文件名称
  * @apiParam {String} cagegory 文件类型
- * @apiParam {String} isdir 是否目录
- * @apiParam {String} parent_id 父级id、
- * @apiParam {String} order 排序号码
+ * @apiParam {String} parent_id 父级id
  *
  * @apiSuccess {String} code 响应码, 如： 200, 0，……
  * @apiSuccess {String} message 响应信息
  * @apiSuccess {Object} data 数据对象数组
  */
 router.post('/disks/share', reqHandler(async function(req, res) {
-    const {diskid, baidu_name, name, type, path, parent_id, filename, cagegory, isdir, order} = req.body;
-    const {username, _id: userid} = req.user
-    const result = await userServ.postShare(username, diskid, baidu_name, name, type, path, parent_id, filename, cagegory, isdir, order);
+    const {disk_id, title, sort, type, path, parent_id ='', name, cagegory} = req.body;
+    const {username} = req.user
+    const result = await userServ.postShare(username, disk_id, title, sort, type, path, parent_id, name, cagegory);
     return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
 }));
 

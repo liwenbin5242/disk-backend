@@ -11,19 +11,23 @@ moment.locale('zh-cn');
  * 获取用户基本配置
  * @param {用户id} userid 用户id
  */
-async function getUserConfig(userid) {
+async function getUserConfig(code) {
     const returnData = {
         banners: [],
         wx: '',
         name: '',
-        avatar:''
+        title: '',
+        avatar:'',
+        notice:'',
     };
-    const user = await diskDB.collection('users').findOne({_id: ObjectID(userid), expires: {$gte: new Date}}, {projection: {
+    const user = await diskDB.collection('users').findOne({code, expires: {$gte: new Date}}, {projection: {
         _id: 0,
         banners: 1,
         wx: 1,
         name: 1,
-        avatar: 1
+        title: 1,
+        avatar: 1,
+        notice: 1,
     }});
     if(!user) {
         throw new Error('参数错误,用户不存在')
@@ -32,6 +36,8 @@ async function getUserConfig(userid) {
     returnData.wx = user.wx;
     returnData.name = user.name;
     returnData.avatar = user.avatar;
+    returnData.title = user.title;
+    returnData.notice = user.notice;
     return returnData;
 }
 
