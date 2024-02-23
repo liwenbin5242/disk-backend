@@ -234,22 +234,6 @@ router.put('/disks/share', reqHandler(async function(req, res) {
     return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
 }));
 
-/**
- * @api {post} /user/miniapp/secret 01.用户添加绑定小程序appid和AppSecret
- * @apiName 用户添加绑定小程序appid和AppSecret
- * @apiGroup 后台管理微信小程序相关
- *
- * @apiSuccess {String} code 响应码, 如： 200, 0，……
- * @apiSuccess {String} message 响应信息
- * @apiSuccess {Object} data 数据对象数组
- */
-router.post('/miniapp/secret', reqHandler(async function(req, res) {
-    const {appid, secret} = req.body
-    const {username} = req.user
-    const result = await userServ.postMiniappSecret(username, appid, secret);
-    return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
-}));
-
 
 /**
  * @api {delete} /user/disks/:id  08.用户解绑网盘

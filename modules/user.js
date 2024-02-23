@@ -300,29 +300,6 @@ async function putShare(id, username, diskid, baidu_name, name, type, path, pare
     return returnData;
 }
 
-/**
- * 用户保存appid及密钥
- * @param {*} username
- */
-async function postMiniappSecret(username, appid, secret) {
-    const returnData = {};
-    // 获取接口调用凭证
-    const exists = await await diskDB.collection('wechat_access').findOne({ appid, secret});
-    const $set = {
-        appid, secret,
-    }
-    if(!exists) {
-        const result = await utils.wechatapis.getAccessToken(appid, secret);
-        if(!result.access_token) throw new Error('请检查appid和secret')
-        $set.access_token = result.access_token
-        $set.expires_in = result.expires_in
-        $set.utm = new Date
-    } 
-    await diskDB.collection('wechat_access_users').updateOne({ username }, {$set: {appid, utm: new Date}, $setOnInsert: {ctm: new Date,}}, {upsert: true})
-    await diskDB.collection('wechat_access').updateOne({ appid }, {$set, $setOnInsert: {ctm: new Date,}}, {upsert: true});
-    return returnData;
-}
-
 module.exports = {
     getUserRegcode,
     postUserRegister,
@@ -336,6 +313,5 @@ module.exports = {
     postShare,
     deleteShare,
     putShare,
-    getShare,
-    postMiniappSecret
+    getShare
 };
