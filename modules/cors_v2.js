@@ -144,17 +144,17 @@ async function getUserShareDisks(code, parent_id) {
 
 /**
  * 获取文件列表
- * @param {网盘id} diskid 网盘id
+ * @param {网盘id} disk_id 网盘id
  * @param {目录} dir 目录
  */
-async function getUserShareV2(diskid, dir, order= 'name', web = 'web', folder = 0, showempty = 1) {
+async function getUserShareV2(disk_id, dir, order= 'name', web = 'web', folder = 0, showempty = 1) {
     const returnData = {}
-    const disk = await diskDB.collection('disks').findOne({ _id: ObjectID(diskid) });
+    const disk = await diskDB.collection('disks').findOne({ _id: ObjectID(disk_id) });
     if (!disk) {
         throw new Error('网盘不存在');
     }
     let legal = false;
-    const sharedisk = await diskDB.collection('share_files').findOne({diskid});
+    const sharedisk = await diskDB.collection('share_files').findOne({disk_id});
     const paths = sharedisk?.paths ?? []
     for(let path of paths) {
         if(dir.search(path) === 0) {

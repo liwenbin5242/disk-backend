@@ -41,37 +41,37 @@ async function postUserShare(username, files, diskid) {
 
 /**
  * 获取缓存文件目录树文件列表
- * @param {string} diskid 网盘id
+ * @param {string} disk_id 网盘id
  */
-async function getUserShareFiles(diskid, parent_path,) {
+async function getUserShareFiles(disk_id, parent_path,) {
     const returnData = {
         list: [],
     };
-    if(!diskid) {
+    if(!disk_id) {
         throw new Error('请先添加网盘');
     }
-    const disk = await diskDB.collection('disks').findOne({ _id: ObjectID(diskid) });
+    const disk = await diskDB.collection('disks').findOne({ _id: ObjectID(disk_id) });
     if (!disk) {
         throw new Error('网盘不存在');
     }
     try {
         let legal = false;
-        const sharedisk = await diskDB.collection('share_files').findOne({diskid});
-        const paths = sharedisk?.paths ?? []
-        for(let path of paths) {
-            if(parent_path.search(path) === 0) {
-                legal = true
-            } 
-        }
+        // const sharedisk = await diskDB.collection('share_files').findOne({disk_id});
+        // const paths = sharedisk?.paths ?? []
+        // for(let path of paths) {
+        //     if(parent_path.search(path) === 0) {
+        //         legal = true
+        //     } 
+        // }
         // if (!legal) {
         //     throw new Error('网盘目录非法');
         // }
-        const query = `SELECT * FROM disk_${diskid} WHERE parent_path = ?  ORDER BY server_filename ASC`
+        const query = `SELECT * FROM disk_${disk_id} WHERE parent_path = ?  ORDER BY server_filename ASC`
         const data = await pool.query(query, [parent_path])
         returnData.list = (data[0]??[]).map(item => { return {
             id: parseInt(item.id),
             category: parseInt(item.category),
-            isFolder: item.isdir == '1'? true: false,
+            isdir: item.isdir == '1'? true: false,
             server_filename: item.server_filename,
             parent_path: item.parent_path,
             size: parseInt(item.file_size),

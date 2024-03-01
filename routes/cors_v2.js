@@ -61,7 +61,7 @@ router.get('/user/info', reqHandler(async function(req, res) {
 }));
 
 /**
- * @api {get} /api/cors/v2/uconfig 00.通过后台用户code编码获取后台用户的盘配置信息（banner图、微信二维码等信息、）
+ * @api {get} /api/cors/v2/uconfig 03.通过后台用户code编码获取后台用户的盘目录配置信息（banner图、微信二维码等信息、）
  * @apiName 通过后台用户code编码获取后台用户的盘配置信息
  * 
  * @apiGroup 前台页面api
@@ -83,7 +83,7 @@ router.get('/uconfig', reqHandler(async function(req, res) {
 }));
 
 /**
- * @api {get} /api/cors/v2/disks/list 01.通过后台用户code获取共享的网盘目录列表
+ * @api {get} /api/cors/v2/disks/paths 04.通过后台用户code获取共享的网盘目录列表(目录列表是在后台自己创建的一个树状目录)
  * @apiName 通过后台用户code获取共享的网盘目录列表
  * @apiGroup 前台页面api
  * @apiParam   {String} code 后台用户code
@@ -98,7 +98,7 @@ router.get('/uconfig', reqHandler(async function(req, res) {
  * @apiSuccess {String} paths.path 路径
  * @apiSuccess {String} paths.category 文件类型
  */
-router.get('/disks/list', reqHandler(async function(req, res) {
+router.get('/disks/paths', reqHandler(async function(req, res) {
     const { code, parent_id ='' } = req.query;
     const result = await corsServ.getUserShareDisks(code, parent_id);
     return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
@@ -107,26 +107,25 @@ router.get('/disks/list', reqHandler(async function(req, res) {
 /**
  * @api {get} /cors/v2/disks/files 02.获取用户下共享的网盘文件目录列表
  * @apiName 获取用户下共享的网盘文件列表
- * @apiGroup 前台页面api
- * @apiParam {String} diskid 网盘id
+ * @apiGroup 弃用
+ * @apiParam {String} disk_id 网盘id
  * @apiParam {String} dir 目录
  * @apiSuccess {String} code 响应码, 如： 200, 0，……
  * @apiSuccess {String} message 响应信息
  * @apiSuccess {Object} data 数据对象数组
  * @apiSuccess {Object} data.list 文件数组
  * @apiSuccess {String} data.list.category 文件类型  1: '视频',2: '音频',3: '图片',4: '文档',5: '应用',6: '其他',7: '种子'
-
  */
 router.get('/disks/files', reqHandler(async function(req, res) {
-    let { diskid, dir} = req.query;
-    const result = await corsServ.getUserShareV2( diskid, urldecodes(dir || ''),);
+    let { disk_id, dir} = req.query;
+    const result = await corsServ.getUserShareV2( disk_id, urldecodes(dir || ''),);
     return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
 }));
 
 /**
  * @api {get} /cors/v2/disks/files/search 03.搜索文件
  * @apiName 搜索文件
- * @apiGroup 前台页面api
+ * @apiGroup 弃用
  * @apiParam {String} diskid 网盘id
  * @apiParam {String} dir 目录
  * @apiParam {String} key 目录

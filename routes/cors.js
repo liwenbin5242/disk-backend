@@ -46,33 +46,28 @@ router.get('/disks', reqHandler(async function(req, res) {
 }));
 
 /**
- * @api {get} /cors/disks/files 02.获取用户下db网盘文件列表
+ * @api {get} /api/cors/disks/files 03.获取网盘目录文件列表
  * @apiName 获取网盘列表
- * @apiGroup 分享模块v1
+ * @apiGroup 前台页面api
  *
- * @apiParam {String} username 用户名
- * @apiParam {String} diskid 网盘id
+ * @apiParam {String} disk_id 网盘id
  * @apiParam {String} parent_path 父级路径
- * @apiParam {String} condition 查询条件 
- * @apiParam {String} offset 偏移量 当前页数*每页条数
- * @apiParam {String} limit 每页条数 
  *
  * @apiSuccess {String} code 响应码, 如： 200, 0，……
  * @apiSuccess {String} message 响应信息
  * @apiSuccess {Object} data 数据对象数组
- * @apiSuccess {Object} data.files 文件数组
- * @apiSuccess {Object} data.total 文件按总数量
- * @apiSuccess {String} data.files.category 文件类型  1: '视频',2: '音频',3: '图片',4: '文档',5: '应用',6: '其他',7: '种子'
- * @apiSuccess {String} data.files.ctm 创建时间
- * @apiSuccess {Number} data.files.filesize 文件大小 kb
- * @apiSuccess {Number} data.files.isdir  是否文件夹 0:文件 1:文件夹 文件夹可以继续进入下级目录
- * @apiSuccess {String} data.files.parent_path  父级路径 
- * @apiSuccess {String} data.files.server_filename  文件名   
- * @apiSuccess {String} data.files.server_mtime  文件修改时间   
+ * @apiSuccess {Object} data.list 文件数组
+ * @apiSuccess {String} data.list.category 文件类型  1: '视频',2: '音频',3: '图片',4: '文档',5: '应用',6: '其他',7: '种子'
+ * @apiSuccess {String} data.list.ctm 创建时间
+ * @apiSuccess {Number} data.list.filesize 文件大小 kb
+ * @apiSuccess {Number} data.list.isdir  是否文件夹 0:文件 1:文件夹 文件夹可以继续进入下级目录
+ * @apiSuccess {String} data.list.parent_path  父级路径 
+ * @apiSuccess {String} data.list.server_filename  文件名   
+ * @apiSuccess {String} data.list.server_mtime  文件修改时间   
  */
 router.get('/disks/files', reqHandler(async function(req, res) {
-    let { diskid, parent_path, offset = 0, limit = 20 } = req.query;
-    const result = await corsServ.getUserShareFiles( diskid, urldecodes(parent_path ||''), offset, limit);
+    let { disk_id, parent_path, offset = 0, limit = 20 } = req.query;
+    const result = await corsServ.getUserShareFiles( disk_id, urldecodes(parent_path ||''), offset, limit);
     return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
 }));
 
