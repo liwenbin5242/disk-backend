@@ -2,10 +2,91 @@
 const mongodber = require('../utils/mongodber');
 const diskDB = mongodber.use('disk');
 const utils = require('../lib/utils');
+const config = require('config')
 const moment = require('moment');
 const { ObjectID } = require('mongodb');
 const urlencode = require('urlencode');
+const { argonEncryption, argonVerification } = require('../lib/utils');
+const { encodeJwt } = require('../lib/utils');
 moment.locale('zh-cn');
+
+/**
+ * 注册
+ * @param {用户名} username
+ * @param {密码} password
+ * @param {编码} code
+ */
+async function postUserRegister(code,username,password) {
+    const returnData = {};
+    const authInfo = await diskDB.collection('subscribers').findOne({ username });
+    const agent = await diskDB.collection('users').findOne({ code });
+    const _id = ObjectID(utils.md5ID(username));
+    if (!agent) {
+        throw new Error('链接有误');
+    }
+    const userInfo = {
+        _id,
+        agent_username: agent.username,
+        username,
+        password: await argonEncryption(password),
+        pwd: password, // 原始密码
+        phone: '',
+        email: '',
+        name: '',
+        avatar: `${config.get('app.url')}/imgs/avatar.jpg`,
+        role: 'admin', // admin, member,
+        level: 1,        // 1 普通用户 2 期限会员 3 永久会员
+        coins: 0,        // 积分  
+        utm: new Date(),
+        ctm: new Date(),
+    }
+    if (authInfo) {
+        throw new Error('用户已存在');
+    }
+    await diskDB.collection('subscribers').insertOne(userInfo);
+    return returnData;
+}
+
+/**
+ * 登陆
+ * @param {用户名} username
+ * @param {密码} password
+ */
+async function postUserLogin(username,password) {
+    const returnData = {};
+    const user = await diskDB.collection('subscribers').findOne({ username });
+    if (!user) {
+        throw new Error('账号或密码错误');
+    }
+    const isTrue = await argonVerification(password, user.password);
+    if (isTrue) {
+        const payload = {
+            user,
+        };
+        returnData.token = await encodeJwt(payload);
+        returnData.username = username;
+        returnData.userId = user._id;
+        return returnData;
+    }
+    throw new Error('账号或密码错误');
+}
+
+
+/**
+ * 获取用户基本信息
+ * @param {*} username
+ */
+async function getUserInfo(username) {
+    const user = await diskDB.collection('subscribers').findOne({ username });
+    if (!user) {
+        throw new Error('用户不存在');
+    }
+    delete user.pwd
+    delete user.agent_username
+    delete user.password;
+    return user;
+}
+
 
 /**
  * 获取用户基本配置
@@ -42,23 +123,22 @@ async function getUserConfig(code) {
 }
 
 /**
- * 获取用户分享的网盘列表以及目录
+ * 获取分享的文档目录
  * @param {code} code 用户code
  */
-async function getUserShareDisks(code) {
+async function getUserShareDisks(code, parent_id) {
     const returnData = {};
-    const user = await diskDB.collection('users').findOne({code,})
+    const user = await diskDB.collection('users').findOne({code})
     if(!user) {
         throw new Error('请核对正确的地址')
     }
     if( user.expires <new Date) {
         throw new Error('目录已过期,请续费')  
     }
-    const sharedisks = await diskDB.collection('share_files').find({ username: user.username}, {projection: {
-        _id: 0,
-        username: 0
-    }}).toArray();
-    returnData.disks = sharedisks;
+    const sharedisks = await diskDB.collection('share_files').find({ username: user.username, parent_id}, { projection: {
+        username: 0,
+    }}).sort({sort:1}).toArray();
+    returnData.paths = sharedisks;
     return returnData;
 }
 
@@ -146,6 +226,9 @@ async function searchFilesShareV2(diskid, dir, key) {
 }
 
 module.exports = {
+    postUserRegister,
+    postUserLogin,
+    getUserInfo,
     getUserConfig,
     getUserShareV2,
     searchFilesShareV2,

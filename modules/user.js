@@ -226,19 +226,39 @@ async function deleteDisk(username, id) {
 
 /**
  * 用户新增目录
- * @param {*} username
+ * @param {String} username
+ * @param {String} disk_id 网盘id
+ * @param {String} title 目录名称
+ * @param {String} sort 排序
+ * @param {String} type 文件类型 1网盘文件 2好友文件 3群组文件 
+ * @param {String} path 网盘目录路径
+ * @param {String} name 文件名称
+ * @param {String} category 文件类型
+ * @param {String} parent_id 父级id
  */
-async function postShare(username, disk_id, title, sort, type, path, parent_id ='', name, cagegory) {
+async function postShare(username, disk_id = '', title, sort, type=1, path ='', parent_id ='', name='', category=6) {
     const returnData = {};
     const user = await diskDB.collection('users').findOne({ username, expires: {$gte: new Date}});
     if (!user) {
         throw new Error('授权已过期,请联系管理员');
     }
-    const disk = await diskDB.collection('disks').findOne({ _id: ObjectID(disk_id), username });
-    if(!disk) {
-        throw new Error('网盘不存在');
-    }
-    await diskDB.collection('share_files').insertOne({username, disk_id, title, sort: parseInt(sort), type, path, parent_id, name, cagegory});
+    if(disk_id) {
+        const disk = await diskDB.collection('disks').findOne({ _id: ObjectID(disk_id), username });
+        if(!disk) {
+            throw new Error('网盘不存在');
+        }
+    } 
+    await diskDB.collection('share_files').insertOne({username, disk_id, title, sort: parseInt(sort), type, path, parent_id, name, category});
+    return returnData;
+}
+
+/**
+ * 更新用户已分享网盘以及网盘下文件列表
+ * @param {*} username
+ */
+async function putShare(_id, disk_id = '', title, sort, type=1, path ='', parent_id ='', name='', category=6) {
+    const returnData = {};
+    await diskDB.collection('share_files').updateOne({ _id: ObjectID(_id)}, {$set:{disk_id , title, sort: parseInt(sort), type, path , parent_id , name, category }});
     return returnData;
 }
 
@@ -248,55 +268,30 @@ async function postShare(username, disk_id, title, sort, type, path, parent_id =
  */
 async function deleteShare(_id) {
     const returnData = {};
-    await diskDB.collection('share_files').deleteOne({ _id: ObjectID(_id), });
+    await diskDB.collection('share_files').deleteOne({ _id: ObjectID(_id),});
     return returnData;
 }
 
 /**
- * 获取用户已分享网盘以及网盘下文件列表
+ * 获取用户文档目录
  * @param {*} username
  */
 async function getShare(username) {
     const returnData = {};
     const pipeline = [{
-        $match: {username}
-    },
-    {
-        $lookup: {
-            from: 'disks',
-            let: {
-              fkey: '$disk_id',
-            },
-            pipeline: [
-              { $match: { $expr: { $and: [{ $eq: ['$_id',  { $toObjectId: "$$fkey" }] }] } } },
-              {
-                $project: {
-                  _id: 0,
-                  baidu_name: 1,
-                }
-              }
-            ],
-            as: 'disk'
-          }
-    },
-    {
-        $replaceRoot: { newRoot: { $mergeObjects: ['$$ROOT', { $arrayElemAt: ['$disk', 0] }] } }
-    },
-    {
-        $sort: {sort: 1, ctm: -1}
+        $match: { username }
+    },{
+        $sort: {sort:1}
     }]
-    const shareDisks = await diskDB.collection('share_files').aggregate(pipeline).toArray();
-    returnData.list = shareDisks
-    return returnData;
-}
+    const share_disks = await diskDB.collection('share_files').aggregate(pipeline).toArray();
+    const disk_ids = share_disks.filter(share_disk=> {return share_disk.disk_id}).map(share_disk => { return ObjectID(share_disk.disk_id) })
+    const disks = await diskDB.collection('disks').find({_id: {$in:disk_ids}}).toArray()
+    share_disks.forEach(share_disk=> {
+        const disk =disks.find(disk => {return disk._id.toString() === share_disk.disk_id})
+        if(disk) share_disk.baidu_name= disk.baidu_name
+    })
 
-/**
- * 更新用户已分享网盘以及网盘下文件列表
- * @param {*} username
- */
-async function putShare(id, username, diskid, baidu_name, name, type, path, parent_id, order) {
-    const returnData = {};
-    await diskDB.collection('share_files').updateOne({ _id: id}, {$set:{ username, diskid, baidu_name, name, type, path, parent_id, order }});
+    returnData.list = utils.array2Tree(share_disks, '_id', 'parent_id', 'children')
     return returnData;
 }
 

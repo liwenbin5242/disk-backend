@@ -173,7 +173,7 @@ router.post('/disks/code', reqHandler(async function(req, res) {
  * @apiParam {String} type 文件类型 1网盘文件 2好友文件 3群组文件 
  * @apiParam {String} path 网盘目录路径
  * @apiParam {String} name 文件名称
- * @apiParam {String} cagegory 文件类型
+ * @apiParam {String} category 文件类型
  * @apiParam {String} parent_id 父级id
  *
  * @apiSuccess {String} code 响应码, 如： 200, 0，……
@@ -181,9 +181,9 @@ router.post('/disks/code', reqHandler(async function(req, res) {
  * @apiSuccess {Object} data 数据对象数组
  */
 router.post('/disks/share', reqHandler(async function(req, res) {
-    const {disk_id, title, sort, type, path, parent_id ='', name, cagegory} = req.body;
+    const {disk_id, title, sort, type, path, parent_id ='', name, category} = req.body;
     const {username} = req.user
-    const result = await userServ.postShare(username, disk_id, title, sort, type, path, parent_id, name, cagegory);
+    const result = await userServ.postShare(username, disk_id, title, sort, type, path, parent_id, name, category);
     return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
 }));
 
@@ -229,8 +229,8 @@ router.get('/disks/share', reqHandler(async function(req, res) {
  * @apiSuccess {Object} data 数据对象数组
  */
 router.put('/disks/share', reqHandler(async function(req, res) {
-    const { remark, id} = req.body
-    const result = await userServ.putShare( remark, id);
+    const {_id, disk_id, title, sort, type, path, parent_id ='', name, category} = req.body
+    const result = await userServ.putShare( _id, disk_id, title, sort, type, path, parent_id, name, category);
     return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
 }));
 

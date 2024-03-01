@@ -7,7 +7,61 @@ const { reqHandler } = require('../utils/reqHandler');
 const { urldecodes } = require('../lib/utils');
 
 /**
- * @api {get} /api/cors_v2/uconfig 00.通过后台用户code编码获取后台用户的盘配置信息（banner图、微信二维码等信息、）
+ * @api {post} /api/cors/v2/user/register 00.用户注册
+ * @apiName 用户注册
+ * 
+ * @apiGroup 前台页面api
+ * @apiParam {String} code 代理用户code，http://aassc.cn/aaaaaa，aaaaaa即后台用户code
+ * @apiParam {String} username 用户名
+ * @apiParam {String} password 密码
+ * 
+ * @apiSuccess {String} code 响应码, 如： 200, 0，……
+ * @apiSuccess {String} message 响应信息
+ * @apiSuccess {Object} data 数据对象数组
+ */
+router.post('/user/register', reqHandler(async function(req, res) {
+    const {code, username, password} = req.body;
+    const result = await corsServ.postUserRegister(code, username, password);
+    return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
+}));
+
+/**
+ * @api {post} /api/cors/v2/user/login 01.用户登陆
+ * @apiName 用户登陆
+ * 
+ * @apiGroup 前台页面api
+ * @apiParam {String} code 代理用户code，http://aassc.cn/aaaaaa，aaaaaa即后台用户code
+ * @apiParam {String} username 用户名
+ * @apiParam {String} password 密码
+ * 
+ * @apiSuccess {String} code 响应码, 如： 200, 0，……
+ * @apiSuccess {String} message 响应信息
+ * @apiSuccess {Object} data 数据对象数组
+ */
+router.post('/user/login', reqHandler(async function(req, res) {
+    const { username, password} = req.body;
+    const result = await corsServ.postUserLogin( username, password);
+    return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
+}));
+
+/**
+ * @api {get} /api/cors/v2/user/info 02.获取用户基本信息
+ * @apiName 获取用户基本信息
+ * 
+ * @apiGroup 前台页面api
+ * 
+ * @apiSuccess {String} code 响应码, 如： 200, 0，……
+ * @apiSuccess {String} message 响应信息
+ * @apiSuccess {Object} data 数据对象数组
+ */
+router.get('/user/info', reqHandler(async function(req, res) {
+    const { username } = req.query;
+    const result = await corsServ.getUserInfo( username, );
+    return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
+}));
+
+/**
+ * @api {get} /api/cors/v2/uconfig 00.通过后台用户code编码获取后台用户的盘配置信息（banner图、微信二维码等信息、）
  * @apiName 通过后台用户code编码获取后台用户的盘配置信息
  * 
  * @apiGroup 前台页面api
@@ -29,25 +83,29 @@ router.get('/uconfig', reqHandler(async function(req, res) {
 }));
 
 /**
- * @api {get} /api/cors_v2/disks/list 01.通过后台用户code获取共享的网盘目录列表
+ * @api {get} /api/cors/v2/disks/list 01.通过后台用户code获取共享的网盘目录列表
  * @apiName 通过后台用户code获取共享的网盘目录列表
  * @apiGroup 前台页面api
  * @apiParam   {String} code 后台用户code
  * @apiSuccess {String} code 响应码, 如： 200, 0，……
  * @apiSuccess {String} message 响应信息
  * @apiSuccess {Object} data 数据对象数组
- * @apiSuccess {Array} disks 网盘数组
- * @apiSuccess {String} disks.diskid 网盘id
- * @apiSuccess {String} disks.name 网盘名称
+ * @apiSuccess {Array} paths 文档数据
+ * @apiSuccess {String} paths._id 文档id
+ * @apiSuccess {String} paths.disk_id 对应disk_id
+ * @apiSuccess {String} paths.title 文档标题名称
+ * @apiSuccess {String} paths.name 文件名称
+ * @apiSuccess {String} paths.path 路径
+ * @apiSuccess {String} paths.category 文件类型
  */
 router.get('/disks/list', reqHandler(async function(req, res) {
-    const { code } = req.query;
-    const result = await corsServ.getUserShareDisks(code);
+    const { code, parent_id ='' } = req.query;
+    const result = await corsServ.getUserShareDisks(code, parent_id);
     return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
 }));
 
 /**
- * @api {get} /cors_v2/disks/files 02.获取用户下共享的网盘文件目录列表
+ * @api {get} /cors/v2/disks/files 02.获取用户下共享的网盘文件目录列表
  * @apiName 获取用户下共享的网盘文件列表
  * @apiGroup 前台页面api
  * @apiParam {String} diskid 网盘id
@@ -66,7 +124,7 @@ router.get('/disks/files', reqHandler(async function(req, res) {
 }));
 
 /**
- * @api {get} /cors_v2/disks/files/search 03.搜索文件
+ * @api {get} /cors/v2/disks/files/search 03.搜索文件
  * @apiName 搜索文件
  * @apiGroup 前台页面api
  * @apiParam {String} diskid 网盘id
