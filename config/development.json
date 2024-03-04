@@ -1,0 +1,49 @@
+{
+    "app": {
+        "name": "disk-backend",
+        "port": 3101,
+        "url": "http://127.0.0.1:3101",
+        "env": "dev"
+    },
+    "SECRET": "baidudicksecret",
+    "REDIS": {
+        "port": 6379,
+        "host": "127.0.0.1",
+        "password": ""
+    },
+    "MONGODBS": {
+        "disk": {
+            "host": "mongodb://disk:qazwsxedc40cer47fsdf8erqaz@43.143.243.237:17017/disk?authSource=disk"
+        }
+    },
+    "PG": {
+        "port": 5432,
+        "host": "127.0.0.1",
+        "user": "disk",
+        "password": "123456",
+        "max": 20,
+        "idleTimeoutMillis": 3000
+    },
+    "MYSQL": {
+        "port": "13306",
+        "host": "43.143.243.237",
+        "user": "pan",
+        "database": "pan",
+        "password": "wP84CiF52KzhYZEG"
+    },
+    "jwtSimple": {
+        "secret": "EmZuVAjWHdkztCrNDvkMlTVmZMomFmnh",
+        "encode": "HS256"
+    },
+    "privateKey": "EmZuVAjWHdkztCrNDvkMlTVmZMomFmnh",
+    "CORS": [
+        "http://localhost:9528"
+    ],
+    "AuthServer": "http://api.gopan.live",
+    "BaiDuDisk": {
+        "clientid": "Xo5gDASeVZRxHArna5hviweIGkllqetf",
+        "clientsecret": "GVpNxBBQ3P79GTcGWPfnds5jk7Um6EM8",
+        "signkey": "$bzmHeFRou$a=kUk@BCO-sid^Y@Zy0dW",
+        "redirecturi": "http://disk.aassc.cn/oauth_redirect"
+    }
+}

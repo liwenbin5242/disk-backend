@@ -1,0 +1,25 @@
+{
+  "apps": [
+    {
+      "name": "disk-backend",
+      "cwd": "./",
+      "script": "bin/www",
+      "log_date_format": "YYYY-MM-DD HH:mm:ss",
+      "exec_mode": "cluster",
+      "instances": "max",
+      "min_uptime": "200s",
+      "max_restarts": 10,
+      "max_memory_restart": "1024M",
+      "watch": false,
+      "merge_logs": true,
+      "exec_interpreter": "node",
+      "autorestart": false,
+      "vizion": false,
+      "error_file": "./logs/err.log",
+      "out_file": "./logs/out.log",
+      "env": {
+        "NODE_ENV": "development"
+      }
+    }
+  ]
+}
