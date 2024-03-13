@@ -70,6 +70,7 @@ async function getUserShareFiles(disk_id, parent_path,) {
         const data = await pool.query(query, [parent_path])
         returnData.list = (data[0]??[]).map(item => { return {
             id: parseInt(item.id),
+            disk_id,
             category: parseInt(item.category),
             is_folder: item.isdir == '1'? true: false,
             server_filename: item.server_filename,
