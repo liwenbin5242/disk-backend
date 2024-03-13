@@ -135,10 +135,18 @@ async function getUserShareDisks(code, parent_id) {
     if( user.expires <new Date) {
         throw new Error('目录已过期,请续费')  
     }
-    const sharedisks = await diskDB.collection('share_files').find({ username: user.username, parent_id}, { projection: {
+    const share_disks = await diskDB.collection('share_files').find({ username: user.username, parent_id}, { projection: {
         username: 0,
     }}).sort({sort:1}).toArray();
-    returnData.paths = sharedisks;
+    const disk_ids = share_disks.filter(share_disk=> {return share_disk.disk_id}).map(share_disk => { return ObjectID(share_disk.disk_id) })
+    const disks = await diskDB.collection('disks').find({_id: {$in:disk_ids}}).toArray()
+    share_disks.forEach(share_disk=> {
+        const disk =disks.find(disk => {return disk._id.toString() === share_disk.disk_id})
+        if(disk) share_disk.baidu_name= disk.baidu_name
+    })
+
+    returnData.list = utils.array2Tree(share_disks, '_id', 'parent_id', 'children')
+    returnData.paths = share_disks;
     return returnData;
 }
 
