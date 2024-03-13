@@ -9,8 +9,7 @@ const moment = require('moment')
 
 module.exports = function jobs() {
     logger.info('crons Jobs start ')
-    cron.schedule('*/30 * * * * *', async () => {
-        // '0 0 0 */3 * *'
+    cron.schedule('0 0 0 */1 * *', async () => {
         logger.info(`check bd token`)
         const tm = moment().subtract(20, 'days') // 获取20天前的数据进行更新
         const disks = await diskDB.collection('disks').find({uptime: {$lt: new Date(tm)}}).toArray()

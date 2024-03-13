@@ -46,8 +46,8 @@ router.get('/disks', reqHandler(async function(req, res) {
 }));
 
 /**
- * @api {get} /api/cors/disks/files 03.获取网盘目录文件列表
- * @apiName 获取网盘列表
+ * @api {get} /api/cors/disks/files 05.获取网盘目录下文件列表
+ * @apiName 获取网盘目录下文件列表
  * @apiGroup 前台页面api
  *
  * @apiParam {String} disk_id 网盘id
@@ -72,9 +72,9 @@ router.get('/disks/files', reqHandler(async function(req, res) {
 }));
 
 /**
- * @api {get} /cors/disks/files/search 03.搜索文件
+ * @api {get} /cors/disks/files/search 06.搜索文件
  * @apiName 搜索文件
- * @apiGroup 分享模块v1
+ * @apiGroup 前台页面api
  *
  * @apiParam {String}  code 必选
  * @apiParam {String} disk_id 网盘id(可选)
@@ -107,7 +107,7 @@ router.get('/disks/files/search', reqHandler(async function(req, res) {
  * @apiName 获取文件分享链接
  * @apiGroup 分享模块v1
  *
- * @apiParam {String} diskid 网盘id
+ * @apiParam {String} disk_id 网盘id
  * @apiParam {String} path 父级路径
  * @apiParam {String} filename 文件名 
  *
@@ -125,8 +125,8 @@ router.get('/disks/files/search', reqHandler(async function(req, res) {
  * @apiSuccess {String} data.files.server_mtime  文件修改时间   
  */
 router.get('/disks/files/shareurl', reqHandler(async function(req, res) {
-    let { diskid, path, filename,  } = req.query;
-    const result = await corsServ.getShareFileUrl( diskid, urldecodes(path ||''), urldecodes(filename),);
+    let { disk_id, path, filename,  } = req.query;
+    const result = await corsServ.getShareFileUrl( disk_id, urldecodes(path ||''), urldecodes(filename),);
     return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
 }));
 module.exports = router;

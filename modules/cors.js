@@ -100,13 +100,14 @@ async function getUserShareFiles(disk_id, parent_path,) {
 async function searchUserShareFiles(disk_id, path = '', key, code, ) {
     const returnData = {
         list: [],
-      
     };
     if(!code) throw Error('参数错误')
     if(!key) return returnData
     const user =  await diskDB.collection('users').findOne({ code });
     if(!user) throw Error('参数错误')
-    const disks = await diskDB.collection('disks').find({ username: user.username }).toArray();
+    const query = { username: user.username }
+    if(disk_id) query._id = ObjectID(disk_id)
+    const disks = await diskDB.collection('disks').find(query).toArray();
     const disk_ids = disks.map(disk => {return disk._id.toString()})
     
     // const query = `SELECT * FROM disk_${disk_id} WHERE server_filename REGEXP ? ORDER BY server_filename ASC`

@@ -11,34 +11,34 @@ moment.locale('zh-cn');
 
 /**
  * 用户充值/扣除学币
- * @param {string} inviter 管理者
+ * @param {string} agent_username 管理者
  * @param {string} username 用户名
  * @param {number} coins 学币
  */
-async function postMemberRecharge(inviter, username, coins) {
+async function postMemberRecharge(agent_username, username, coins) {
     const returnData = {};
-    const member = await diskDB.collection('users').findOne({ username, inviter });
+    const member = await diskDB.collection('subscribers').findOne({ username, agent_username });
     if (!member) {
         throw new Error('用户不存在');
     }
     if(coins+ member.coins < 0) {
         throw new Error('充值/扣除用户学币数量非法');
     }
-    await diskDB.collection('users').updateOne({ username, inviter }, {$inc: {coins}});
+    await diskDB.collection('subscribers').updateOne({ username, agent_username }, {$inc: {coins}});
     return returnData;
 }
 
 
 /**
  * 等级变更
- * @param {string} inviter 所属
+ * @param {string} agent_username 所属
  * @param {string} username 用户名
  * @param {number} level 用户等级
  * @param {number} days 期限会员天数
  */
-async function postMemberLevel(inviter, username, level, days) {
+async function postMemberLevel(agent_username, username, level, days) {
     const returnData = {};
-    const member = await diskDB.collection('users').findOne({ username, inviter });
+    const member = await diskDB.collection('subscribers').findOne({ username, agent_username });
     level = parseInt(level)
     const $set = {level}
     if (!member) {
@@ -51,7 +51,7 @@ async function postMemberLevel(inviter, username, level, days) {
             $set.expires = new Date(new Date().getTime() + days * 24 * 60 * 60 * 1000)
         }
     }
-    await diskDB.collection('users').updateOne({ username, inviter }, {$set});
+    await diskDB.collection('subscribers').updateOne({ username, agent_username }, {$set});
     return returnData;
 }
 
@@ -66,7 +66,7 @@ async function getMemberList(username, offset = 0, limit = 20) {
         members: [],
         total: 0
     };
-    const members = await diskDB.collection('users').find({ inviter: username }, {projection: {
+    const members = await diskDB.collection('subscribers').find({ agent_username: username }, {projection: {
         username: 1,
         phone:1,
         name:1,
@@ -77,7 +77,7 @@ async function getMemberList(username, offset = 0, limit = 20) {
         ctm:1,
     }, sort:{ ctm: 1}}).skip(parseInt(offset)).limit(parseInt(limit)).toArray();
     returnData.members = members
-    returnData.total = await diskDB.collection('users').countDocuments({ inviter: username });
+    returnData.total = await diskDB.collection('subscribers').countDocuments({ agent_username: username });
     return returnData;
 }
 

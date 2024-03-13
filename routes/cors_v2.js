@@ -123,7 +123,7 @@ router.get('/disks/files', reqHandler(async function(req, res) {
 }));
 
 /**
- * @api {get} /cors/v2/disks/files/search 03.搜索文件
+ * @api {get} /cors/v2/disks/files/search 03.搜索文件(通过api搜索)
  * @apiName 搜索文件
  * @apiGroup 弃用
  * @apiParam {String} diskid 网盘id
