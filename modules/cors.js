@@ -71,7 +71,7 @@ async function getUserShareFiles(disk_id, parent_path,) {
         returnData.list = (data[0]??[]).map(item => { return {
             id: parseInt(item.id),
             category: parseInt(item.category),
-            isdir: item.isdir == '1'? true: false,
+            is_folder: item.isdir == '1'? true: false,
             server_filename: item.server_filename,
             name: item.server_filename,
             parent_path: item.parent_path,
