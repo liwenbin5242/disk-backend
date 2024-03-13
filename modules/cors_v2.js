@@ -126,7 +126,7 @@ async function getUserConfig(code) {
  * 获取分享的文档目录
  * @param {code} code 用户code
  */
-async function getUserShareDisks(code, parent_id) {
+async function getUserShareDisks(code) {
     const returnData = {};
     const user = await diskDB.collection('users').findOne({code})
     if(!user) {
@@ -135,7 +135,7 @@ async function getUserShareDisks(code, parent_id) {
     if( user.expires <new Date) {
         throw new Error('目录已过期,请续费')  
     }
-    const share_disks = await diskDB.collection('share_files').find({ username: user.username, parent_id}, { projection: {
+    const share_disks = await diskDB.collection('share_files').find({ username: user.username}, { projection: {
         username: 0,
     }}).sort({sort:1}).toArray();
     const disk_ids = share_disks.filter(share_disk=> {return share_disk.disk_id}).map(share_disk => { return ObjectID(share_disk.disk_id) })
