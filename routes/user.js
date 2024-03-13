@@ -174,6 +174,7 @@ router.post('/disks/code', reqHandler(async function(req, res) {
  * @apiParam {String} path 网盘目录路径
  * @apiParam {String} name 文件名称
  * @apiParam {String} category 文件类型
+ * @apiParam {String} is_folder 是否文件夹
  * @apiParam {String} parent_id 父级id
  *
  * @apiSuccess {String} code 响应码, 如： 200, 0，……
@@ -181,9 +182,9 @@ router.post('/disks/code', reqHandler(async function(req, res) {
  * @apiSuccess {Object} data 数据对象数组
  */
 router.post('/disks/share', reqHandler(async function(req, res) {
-    const {disk_id, title, sort, type, path, parent_id ='', name, category} = req.body;
+    const {disk_id, title, sort, type, path, parent_id ='', name, category, is_folder} = req.body;
     const {username} = req.user
-    const result = await userServ.postShare(username, disk_id, title, sort, type, path, parent_id, name, category);
+    const result = await userServ.postShare(username, disk_id, title, sort, type, path, parent_id, name, category, is_folder);
     return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
 }));
 
