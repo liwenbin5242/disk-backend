@@ -145,8 +145,7 @@ async function getUserShareDisks(code, parent_id) {
         if(disk) share_disk.baidu_name= disk.baidu_name
     })
 
-    returnData.list = utils.array2Tree(share_disks, '_id', 'parent_id', 'children')
-    returnData.paths = share_disks;
+    returnData.paths = utils.array2Tree(share_disks, '_id', 'parent_id', 'children')
     return returnData;
 }
 
