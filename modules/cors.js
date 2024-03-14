@@ -117,7 +117,7 @@ async function searchUserShareFiles(disk_id, path = '', key, code, ) {
     // const count = `SELECT COUNT(*) FROM disk_${disk_id} WHERE server_filename REGEXP ? `
     const tasks = []
     for(disk_id of disk_ids) {
-        const query = `SELECT * FROM disk_${disk_id} WHERE server_filename REGEXP ? ORDER BY server_filename ASC`
+        const query = `SELECT * FROM disk_${disk_id} WHERE server_filename REGEXP ? ORDER BY server_filename ASC LINIT 1000`
         tasks.push( pool.query(query, [key]))
     }
     // const [data, num] = await Promise.all([pool.query(query, [key]), pool.query(count,[key])]) 
