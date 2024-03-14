@@ -258,7 +258,7 @@ async function postShare(username, disk_id = '', title, sort, type=1, path ='', 
  */
 async function putShare(_id, disk_id = '', title, sort, type=1, path ='', parent_id ='', name='', category=6) {
     const returnData = {};
-    await diskDB.collection('share_files').updateOne({ _id: ObjectID(_id)}, {$set:{disk_id , title, sort: parseInt(sort), type, path , parent_id , name, category }});
+    await diskDB.collection('share_files').updateOne({ _id: ObjectID(_id)}, {$set:{disk_id , title, sort: parseInt(sort), type, path, parent_id , name, category }});
     return returnData;
 }
 

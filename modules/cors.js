@@ -76,6 +76,7 @@ async function getUserShareFiles(disk_id, parent_path,) {
             server_filename: item.server_filename,
             name: item.server_filename,
             parent_path: item.parent_path,
+            path: item.parent_path+  item.server_filename,
             size: parseInt(item.file_size),
             updateDate: parseInt(item.local_mtime),
             uploadDate: parseInt(item.server_mtime)
@@ -135,6 +136,8 @@ async function searchUserShareFiles(disk_id, path = '', key, code, ) {
         category: parseInt(item.category),
         isdir: item.isdir == '1'? true: false,
         server_filename: item.server_filename,
+        name: item.server_filename,
+        path: item.parent_path + item.server_filename,
         parent_path: item.parent_path,
         size: parseInt(item.file_size),
         updateDate: parseInt(item.local_mtime),
