@@ -90,7 +90,7 @@ router.post('/verify', reqHandler(async function(req, res) {
 }));
 
 /**
- * @api {get} /member/m3u8 05.获取视频流文件
+ * @api {get} /member/m3u8 05.获取流文件
  * @apiName 获取视频流文件
  * @apiGroup 会员模块
  *

@@ -11,6 +11,7 @@ moment.locale('zh-cn');
 const pool = require('../utils/mysql')
 const { v4: uuidv4 } = require('uuid');
 const { logger } = require('../utils/logger');
+const urlencode = require('urlencode')
 /**
  * 采集端触发器更新缓存文件
  * @param {string} username 用户名
@@ -150,24 +151,24 @@ async function searchUserShareFiles(disk_id, path = '', key, code, ) {
 
 /**
  * get share file url
- * @param {string} diskid 网盘id
+ * @param {string} disk_id 网盘id
  * @param {string} path 文件目录的路径
  * @param {string} filename 文件名
  */
-async function getShareFileUrl(diskid, path = '', filename,) {
+async function getShareFileUrl(disk_id, path = '', filename,) {
     const returnData = {};
     try {
-        const url = await redis.get(`${diskid}:${path}:${filename}`)
-        if(url) {
-            returnData.url = JSON.parse(url).url
-            returnData.code = JSON.parse(url).code
+        const share_file = await redis.get(`${disk_id}:${path}:${filename}`)
+        if(share_file) {
+            returnData.url = JSON.parse(share_file).url
+            returnData.code = JSON.parse(share_file).code
         } else {
-            const disk = await diskDB.collection('disks').findOne({_id: ObjectID(diskid)}) 
-            if( !disk || !disk.cookies ) {
+            const disk = await diskDB.collection('disks').findOne({_id: ObjectID(disk_id)}) 
+            if( !disk || !disk.cookie ) {
                 throw new Error('cookie不存在')
             }
             // 先获取文件的fsid
-            const data = await utils.bdapis.getFileListByToken(disk.access_token, path, 'time', 1, 0, 1)
+            const data = await utils.bdapis.getFileListByToken(disk.access_token, urlencode(path), 'time', 1, 0, 1)
             const list = data?.data?.list??[]
             const file = list.find(l => {return l.server_filename === filename})
             if (!file) {
@@ -175,8 +176,8 @@ async function getShareFileUrl(diskid, path = '', filename,) {
             }
             const code = uuidv4().slice(-4); // ⇨ '1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed'
             const expireday = 7
-            const res = await utils.bdapis.fileShare(disk.cookies, expireday, code,[], 4, [file.fs_id])
-            await redis.set(`${diskid}:${path}:${filename}`, {code, url: res.data.shorturl}, expireday * 24 * 60 * 60)
+            const res = await utils.bdapis.fileShare(disk.cookie, expireday, code,[], 4, [file.fs_id])
+            await redis.set(`${disk_id}:${path}:${filename}`, {code, url: res.data.shorturl}, expireday * 24 * 60 * 60)
             returnData.code = code
             returnData.url = res.data.shorturl
         }

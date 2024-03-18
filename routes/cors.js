@@ -103,12 +103,12 @@ router.get('/disks/files/search', reqHandler(async function(req, res) {
 }));
 
 /**
- * @api {get} /cors/disks/files/shareurl 04.获取文件分享链接
- * @apiName 获取文件分享链接
- * @apiGroup 分享模块v1
+ * @api {get} /cors/disks/files/shareurl 07.获取盘文件提取链接
+ * @apiName 获取盘文件提取链接
+ * @apiGroup 前台页面api
  *
  * @apiParam {String} disk_id 网盘id
- * @apiParam {String} path 父级路径
+ * @apiParam {String} parent_path 父级路径
  * @apiParam {String} filename 文件名 
  *
  * @apiSuccess {String} code 响应码, 如： 200, 0，……
@@ -125,8 +125,8 @@ router.get('/disks/files/search', reqHandler(async function(req, res) {
  * @apiSuccess {String} data.files.server_mtime  文件修改时间   
  */
 router.get('/disks/files/shareurl', reqHandler(async function(req, res) {
-    let { disk_id, path, filename,  } = req.query;
-    const result = await corsServ.getShareFileUrl( disk_id, urldecodes(path ||''), urldecodes(filename),);
+    let { disk_id, parent_path, filename,  } = req.query;
+    const result = await corsServ.getShareFileUrl( disk_id, urldecodes(parent_path ||''), urldecodes(filename),);
     return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
 }));
 module.exports = router;
