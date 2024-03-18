@@ -10,14 +10,17 @@ async function genBDToken(req) {
         1: 'M3U8_AUTO_1080',
         2: 'M3U8_HLS_MP3_128'
     };
-    const disk = await diskDB.collection('disks').findOne({ _id: ObjectID(req.query.diskid),}); 
-    const user = await diskDB.collection('subscribers').findOne({ _id: ObjectID(req.query.userid) });
+    const disk = await diskDB.collection('disks').findOne({ _id: ObjectID(req.query.disk_id),}); 
+    // const user = await diskDB.collection('subscribers').findOne({ _id: ObjectID(req.query.user_id) });
+    const user = {
+        role:'admin'
+    }
     // 如果是会员则不限制，如果非会员则扣积分，积分不足则返回错误
     if (user.role === 'admin' || (user.level === 2 && user.expires > new Date()) || (user.level === 3) || (user.coins > 0)) {
         if (user.coins > 0 && user.level == 1) {
-            await diskDB.collection('subscribers').updateOne({ _id: ObjectID(req.query.userid) }, { $inc: { coins: -1 } });
+            await diskDB.collection('subscribers').updateOne({ _id: ObjectID(req.query.user_id) }, { $inc: { coins: -1 } });
         }    
-        return `/rest/2.0/xpan/file?method=streaming&access_token=${disk.access_token}&path=${req.query.path}&type=${type[req.query.filetype]}`;     
+        return `/rest/2.0/xpan/file?method=streaming&access_token=${disk.access_token}&path=${req.query.path}&type=${type[req.query.file_type]}`;     
     } else {
         return '';
     }

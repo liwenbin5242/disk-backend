@@ -25,7 +25,7 @@ app.use(busboy());
 app.use('*', responseTime(),);
 app.use(urlecodes);
 
-app.use('/api/member/m3u8', ipControl(), proxy.do());
+app.use('/api/file/m3u8', ipControl(), proxy.do());
 
 app.use(express.json({limit: '50mb'}));
 app.use(express.urlencoded({ extended: true, limit: '50mb'}));
