@@ -236,7 +236,7 @@ async function deleteDisk(username, id) {
  * @param {String} category 文件类型
  * @param {String} parent_id 父级id
  */
-async function postShare(username, disk_id = '', title, sort, type=1, path ='', parent_id ='', name='', category=6, is_folder) {
+async function postShare(username, disk_id = '', title, sort, type=1, path ='', parent_id ='', name='', category = 6, is_folder) {
     const returnData = {};
     const user = await diskDB.collection('users').findOne({ username, expires: {$gte: new Date}});
     if (!user) {
@@ -248,7 +248,11 @@ async function postShare(username, disk_id = '', title, sort, type=1, path ='', 
             throw new Error('网盘不存在');
         }
     } 
-    await diskDB.collection('share_files').insertOne({username, disk_id, title, sort: parseInt(sort), type, path, parent_id, name, category, is_folder});
+    let parent_path =''
+    if(disk_id) {
+         parent_path =  path.slice(0, path.length- name.length)
+    }
+    await diskDB.collection('share_files').insertOne({username, disk_id, title, sort: parseInt(sort), type, path,parent_path, parent_id, name, server_filename: name, category, is_folder});
     return returnData;
 }
 
@@ -258,7 +262,11 @@ async function postShare(username, disk_id = '', title, sort, type=1, path ='', 
  */
 async function putShare(_id, disk_id = '', title, sort, type=1, path ='', parent_id ='', name='', category=6) {
     const returnData = {};
-    await diskDB.collection('share_files').updateOne({ _id: ObjectID(_id)}, {$set:{disk_id , title, sort: parseInt(sort), type, path, parent_id , name, category }});
+    let parent_path =''
+    if(disk_id) {
+         parent_path =  path.slice(0, path.length- name.length)
+    }
+    await diskDB.collection('share_files').updateOne({ _id: ObjectID(_id)}, {$set:{disk_id , title, sort: parseInt(sort), type, path, parent_id , name,server_filename: name, category }});
     return returnData;
 }
 
