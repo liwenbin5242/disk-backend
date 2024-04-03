@@ -30,4 +30,3 @@ async function genBDToken(req) {
 module.exports = {
     genBDToken
 };
-
