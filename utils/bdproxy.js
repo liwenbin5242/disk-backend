@@ -1,7 +1,7 @@
 const mongodber = require('../utils/mongodber');
 const diskDB = mongodber.use('disk');
 const { ObjectID } = require('mongodb');
-
+const urlencode = require('urlencode');
 /**
  * 获取文件的m3u8地址
  */
@@ -19,8 +19,8 @@ async function genBDToken(req) {
     if (user.role === 'admin' || (user.level === 2 && user.expires > new Date()) || (user.level === 3) || (user.coins > 0)) {
         if (user.coins > 0 && user.level == 1) {
             await diskDB.collection('subscribers').updateOne({ _id: ObjectID(req.query.user_id) }, { $inc: { coins: -1 } });
-        }    
-        return `/rest/2.0/xpan/file?method=streaming&access_token=${disk.access_token}&path=${req.query.path}&type=${type[req.query.file_type]}`;     
+        }                                                                                   // 此处urlencode
+        return `/rest/2.0/xpan/file?method=streaming&access_token=${disk.access_token}&path=${urlencode(req.query.path)}&type=${type[req.query.file_type]}`;     
     } else {
         return '';
     }
