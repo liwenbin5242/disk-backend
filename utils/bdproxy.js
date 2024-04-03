@@ -20,7 +20,7 @@ async function genBDToken(req) {
         if (user.coins > 0 && user.level == 1) {
             await diskDB.collection('subscribers').updateOne({ _id: ObjectID(req.query.user_id) }, { $inc: { coins: -1 } });
         }                                                                                   // 此处urlencode
-        return `/rest/2.0/xpan/file?method=streaming&access_token=${disk.access_token}&path=${req.query.path}&type=${type[req.query.file_type]}`;     
+        return `/rest/2.0/xpan/file?method=streaming&access_token=${disk.access_token}&path=${encodeURIComponent(req.query.path) }&type=${type[req.query.file_type]}`;     
     } else {
         return '';
     }
@@ -30,3 +30,4 @@ async function genBDToken(req) {
 module.exports = {
     genBDToken
 };
+
