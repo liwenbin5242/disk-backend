@@ -136,6 +136,7 @@ async function searchUserShareFiles(disk_id, path = '', key, code, ) {
         disk_id: item.disk_id,
         category: parseInt(item.category),
         isdir: item.isdir == '1'? true: false,
+        is_folder: item.isdir == '1'? true: false,
         server_filename: item.server_filename,
         name: item.server_filename,
         path: item.parent_path + item.server_filename,
