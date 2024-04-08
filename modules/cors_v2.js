@@ -52,9 +52,13 @@ async function postUserRegister(code,username,password) {
  * @param {用户名} username
  * @param {密码} password
  */
-async function postUserLogin(username,password) {
+async function postUserLogin(code, username,password) {
     const returnData = {};
-    const user = await diskDB.collection('subscribers').findOne({ username });
+    const agent =await diskDB.collection('users').findOne({ code });
+    if (!agent) {
+        throw new Error('url地址有误');
+    }
+    const user = await diskDB.collection('subscribers').findOne({agent_username: agent.username, username });
     if (!user) {
         throw new Error('账号或密码错误');
     }

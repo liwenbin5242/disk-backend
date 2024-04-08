@@ -39,8 +39,8 @@ router.post('/user/register', reqHandler(async function(req, res) {
  * @apiSuccess {Object} data 数据对象数组
  */
 router.post('/user/login', reqHandler(async function(req, res) {
-    const { username, password} = req.body;
-    const result = await corsServ.postUserLogin( username, password);
+    const { code, username, password} = req.body;
+    const result = await corsServ.postUserLogin(code, username, password);
     return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
 }));
 
