@@ -35,7 +35,8 @@ async function postUserRegister(code,username,password) {
         name: '',
         avatar: `${config.get('app.url')}/imgs/avatar.jpg`,
         role: 'admin', // admin, member,
-        level: 1,        // 1 普通用户 2 期限会员 3 永久会员
+        level: 1,        // 1 普通用户 2 期限会员 
+        expires: new Date(),        // 到期时间
         coins: 0,        // 积分  
         utm: new Date(),
         ctm: new Date(),
@@ -70,6 +71,9 @@ async function postUserLogin(code, username,password) {
         returnData.token = await encodeJwt(payload);
         returnData.username = username;
         returnData.userId = user._id;
+        returnData.level = user.level;
+        returnData.coins = user.coins;
+        returnData.expires = user.expires;
         return returnData;
     }
     throw new Error('账号或密码错误');
@@ -236,6 +240,26 @@ async function searchFilesShareV2(diskid, dir, key) {
     return returnData;
 }
 
+/**
+ * 获取文件许可
+ * @param {网盘id} disk_id 网盘id
+ * @param {文件路径} path 文件路径
+ * @param {} token 
+ */
+async function getFilesPermission(disk_id, path, token) {
+    const returnData = {
+        permission: false
+    };
+    const { user } = await utils.decodeJwt(token)
+    const file = await diskDB.collection('subscriber_files').findOne({username: user.username, disk_id, path });
+    if( file ) {
+        returnData.permission = true
+    } else {
+        const subscriber = await diskDB.collection('subscribers').findOne({username: user.username, $or:[{expires:{$gte: new Date}}, {coins:{$gt:0}}] });
+        if(subscriber) returnData.permission = true
+    }
+    return returnData
+}
 module.exports = {
     postUserRegister,
     postUserLogin,
@@ -244,4 +268,5 @@ module.exports = {
     getUserShareV2,
     searchFilesShareV2,
     getUserShareDisks,
+    getFilesPermission,
 };

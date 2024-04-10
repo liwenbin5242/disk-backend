@@ -4,7 +4,7 @@ const router = express.Router();
 const corsServ = require('../modules/cors_v2');
 const returnCode = require('../utils/returnCodes');
 const { reqHandler } = require('../utils/reqHandler');
-const { urldecodes } = require('../lib/utils');
+const { urldecodes, decodeJwt } = require('../lib/utils');
 
 /**
  * @api {post} /api/cors/v2/user/register 00.用户注册
@@ -125,7 +125,7 @@ router.get('/disks/files', reqHandler(async function(req, res) {
 /**
  * @api {get} /cors/v2/disks/files/search 03.搜索文件(通过api搜索)
  * @apiName 搜索文件
- * @apiGroup 弃用
+ * @apiGroup 前台页面api
  * @apiParam {String} diskid 网盘id
  * @apiParam {String} dir 目录
  * @apiParam {String} key 目录
@@ -140,6 +140,25 @@ router.get('/disks/files', reqHandler(async function(req, res) {
 router.get('/disks/files/search', reqHandler(async function(req, res) {
     let { diskid, dir, key} = req.query;
     const result = await corsServ.searchFilesShareV2( diskid, urldecodes(dir || ''), key);
+    return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
+}));
+
+/**
+ * @api {post} /cors/v2/disks/files/permission 05.获取文件许可
+ * @apiName 获取文件许可
+ * @apiGroup 前台页面api
+ * @apiParam {String} disk_id 网盘id
+ * @apiParam {String} path 文件路径
+ * 
+ * @apiSuccess {String} code 响应码, 如： 200, 0，……
+ * @apiSuccess {String} message 响应信息
+ * @apiSuccess {Object} data 数据对象数组
+
+ */
+router.post('/disks/files/permission', reqHandler(async function(req, res) {
+    let { path, disk_id} = req.body;
+    const token = req.headers.authorization.slice(7)
+    const result = await corsServ.getFilesPermission( disk_id, path, token);
     return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
 }));
 
