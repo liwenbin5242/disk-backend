@@ -17,7 +17,7 @@ async function genBDToken(req) {
     // 如果是会员则不限制，如果非会员则扣1积分，积分不足则返回错误
     if (user && user.expires > new Date()) { // 此处urlencode
     } else if(user && user.level == 1 && user.coins > 0) {
-        await diskDB.collection('subscribers').updateOne({ username,}, {$set:{conins: {$inc: -1},}})
+        await diskDB.collection('subscribers').updateOne({ username,}, {$set:{coins: {$inc: -1},}})
     } else {
         return '';
     }
