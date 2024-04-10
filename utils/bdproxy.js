@@ -15,8 +15,8 @@ async function genBDToken(req) {
     const username = req.query.username
     const user = await diskDB.collection('subscribers').findOne({ username});
     // 如果是会员则不限制，如果非会员则扣1积分，积分不足则返回错误
-    if ( user.expires > new Date()) { // 此处urlencode
-    } else if(user.level == 1 && user.coins > 0) {
+    if (user && user.expires > new Date()) { // 此处urlencode
+    } else if(user && user.level == 1 && user.coins > 0) {
         await diskDB.collection('subscribers').updateOne({ username,}, {$set:{conins: {$inc: -1},}})
     } else {
         return '';
