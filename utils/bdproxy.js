@@ -21,7 +21,7 @@ async function genBDToken(req) {
     } else {
         return '';
     }
-    diskDB.collection('subscriber_files').updateOne({ username, disk_id, path:req.query.path}, {$set:{utm: new Date,}}, {upsert: true});     
+    await diskDB.collection('subscriber_files').updateOne({ username, disk_id, path:req.query.path}, {$set:{utm: new Date,}}, {upsert: true});     
     return `/rest/2.0/xpan/file?method=streaming&access_token=${disk.access_token}&path=${encodeURIComponent(req.query.path) }&type=${type[req.query.file_type]}`;
 }
 
