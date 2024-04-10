@@ -254,9 +254,13 @@ async function getFilesPermission(disk_id, path, token) {
     const file = await diskDB.collection('subscriber_files').findOne({username: user.username, disk_id, path });
     if( file ) {
         returnData.permission = true
+        returnData.username = user.username
+
     } else {
         const subscriber = await diskDB.collection('subscribers').findOne({username: user.username, $or:[{expires:{$gte: new Date}}, {coins:{$gt:0}}] });
-        if(subscriber) returnData.permission = true
+        if(subscriber) {
+        returnData.username = user.username
+        returnData.permission = true}
     }
     return returnData
 }
