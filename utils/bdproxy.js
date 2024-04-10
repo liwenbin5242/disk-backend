@@ -12,16 +12,16 @@ async function genBDToken(req) {
         2: 'M3U8_HLS_MP3_128'
     };
     const disk = await diskDB.collection('disks').findOne({ _id: ObjectID(req.query.disk_id),}); 
-    let {user} = await decodeJwt(req?.headers?.authorization??''.slice(7));
-    user = await diskDB.collection('subscribers').findOne({ username: user.username });
+    const username = req.query.username
+    const user = await diskDB.collection('subscribers').findOne({ username});
     // 如果是会员则不限制，如果非会员则扣1积分，积分不足则返回错误
     if ( user.expires > new Date()) { // 此处urlencode
     } else if(user.level == 1 && user.coins > 0) {
-        await diskDB.collection('subscribers').updateOne({ username: user.username,}, {$set:{conins: {$inc: -1},}})
+        await diskDB.collection('subscribers').updateOne({ username,}, {$set:{conins: {$inc: -1},}})
     } else {
         return '';
     }
-    diskDB.collection('subscriber_files').updateOne({ username: user.username, disk_id, path:req.query.path}, {$set:{utm: new Date,}}, {upsert: true});     
+    diskDB.collection('subscriber_files').updateOne({ username, disk_id, path:req.query.path}, {$set:{utm: new Date,}}, {upsert: true});     
     return `/rest/2.0/xpan/file?method=streaming&access_token=${disk.access_token}&path=${encodeURIComponent(req.query.path) }&type=${type[req.query.file_type]}`;
 }
 
