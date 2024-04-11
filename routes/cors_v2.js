@@ -2,6 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const corsServ = require('../modules/cors_v2');
+const diskServ = require('../modules/disk');
 const returnCode = require('../utils/returnCodes');
 const { reqHandler } = require('../utils/reqHandler');
 const { urldecodes, decodeJwt } = require('../lib/utils');
@@ -161,5 +162,25 @@ router.post('/disks/files/permission', reqHandler(async function(req, res) {
     const result = await corsServ.getFilesPermission( disk_id, path, token);
     return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
 }));
+
+
+/**
+ * @api {post} /cors/v2/disks/files/links 03.查询文件详细信息
+ * @apiName 查询文件详细信息
+ * @apiGroup 网盘模块
+ *
+ * @apiParam {String} fs_ids 文件id.
+ * @apiParam {String} disk_id 网盘id.
+ *
+ * @apiSuccess {String} code 响应码, 如： 200, 0，……
+ * @apiSuccess {String} msg 响应信息
+ * @apiSuccess {Object} data 数据对象数组
+ */
+router.post('/disks/files/links', reqHandler(async function(req, res) {
+    const {fs_ids, disk_id} = req.body ; 
+    const result = await diskServ.getFiles(disk_id, fs_ids);
+    res.json({code: returnCode.SUCCESS, data: result, msg: 'ok'});
+}));
+
 
 module.exports = router;

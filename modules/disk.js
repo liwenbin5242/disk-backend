@@ -98,16 +98,16 @@ async function getDiskSearch(id, key, dir) {
 
 /**
  * 文件信息
- * @param {网盘id} id
+ * @param {网盘id} disk_id
  * @param {文件的fsids} fsids
  */
-async function getFiles(id, fsids) {
+async function getFiles(disk_id, fs_ids) {
     let returnData = {};
-    const disk = await diskDB.collection('disks').findOne({ _id: ObjectId(id) });
+    const disk = await diskDB.collection('disks').findOne({ _id: ObjectId(disk_id) });
     if (!disk) {
         throw new Error('网盘不存在');
     }
-    const data = await utils.bdapis.getFilemetasByToken(disk.access_token, fsids);
+    const data = await utils.bdapis.getFilemetasByToken(disk.access_token, fs_ids);
     returnData = data.data;
     return returnData;
 }
