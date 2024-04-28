@@ -280,12 +280,12 @@ async function activateCDkey(username, key) {
     if(!cdkey) {
         throw new Error('CDKEY不存在');
     }
-    if(cdkey.keyType==2) {
-        await diskDB.collection('subscribers').updateOne({username, agent_username: user.agent_username}, {$inc: {coins: cdkey.coins}})
+    if(cdkey.keyType==1) {
+        await diskDB.collection('subscribers').updateOne({username, agent_username: user.agent_username}, {$set:{level:1,}, $inc: {coins: cdkey.coins}})
         await diskDB.collection('member_cdkeys').updateOne({key, agent_username: user.agent_username}, {$set: {username, actived: true, activedtm: new Date}})
     }
-    if(cdkey.keyType==1) {
-        await diskDB.collection('subscribers').updateOne({username, agent_username: user.agent_username}, {$set:{expires: new Date(user.expires.getTime() + cdkey.expiration * 24* 60 *60 *1000)}})
+    if(cdkey.keyType==2) {
+        await diskDB.collection('subscribers').updateOne({username, agent_username: user.agent_username}, {$set:{level:2, expires: new Date(user.expires.getTime() + cdkey.expiration * 24* 60 *60 *1000)}})
         await diskDB.collection('member_cdkeys').updateOne({key, agent_username: user.agent_username}, {$set: {username, actived: true, activedtm: new Date}})
     }
    
