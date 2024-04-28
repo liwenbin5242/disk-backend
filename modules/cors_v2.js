@@ -285,7 +285,7 @@ async function activateCDkey(username, key) {
         await diskDB.collection('member_cdkeys').updateOne({key, agent_username: user.agent_username}, {$set: {username, actived: true, activedtm: new Date}})
     }
     if(cdkey.keyType==1) {
-        await diskDB.collection('subscribers').updateOne({username, agent_username: user.agent_username}, {$set: {expires}})
+        await diskDB.collection('subscribers').updateOne({username, agent_username: user.agent_username}, {$set:{expires: new Date(user.expires.getTime() + cdkey.expiration * 24* 60 *60 *1000)}})
         await diskDB.collection('member_cdkeys').updateOne({key, agent_username: user.agent_username}, {$set: {username, actived: true, activedtm: new Date}})
     }
    
