@@ -6,6 +6,7 @@ const moment = require('moment');
 const { ObjectID } = require('mongodb');
 const redis = require('../utils/rediser');
 const _ = require('lodash');
+const { v4: uuidv4 } = require('uuid');
 
 moment.locale('zh-cn');
 
@@ -124,10 +125,73 @@ async function getM3u8(username, belongs, diskid, filetype, path) {
     return (await utils.bdapis.getFileSteam(disk.access_token, path, filetype))
 }
 
+
+/**
+ * 生成CDkey
+ * @param {数量} num 
+ * @param {天} day 
+ */
+async function postCDkey(keyType, num, day, coins,agent_username) {
+    let returnData = {};
+    const array = []
+    for (let i=0; i<num; i++) {
+        const code = uuidv4().slice(-10);
+        array.push({
+            username:'',
+            agent_username,
+            keyType,
+            actived: false,
+            activedtm: '',
+            key: code,
+            expiration: day? day: 0,
+            coins: coins? coins:0,
+            ctm: new Date
+        })
+    }
+    await diskDB.collection('member_cdkeys').insert(array)
+    return returnData
+}
+
+/**
+ * 删除CDkey
+ * @param {id} id 
+ */
+async function deleteCDkey(id) {
+    let returnData = {};
+    await diskDB.collection('member_cdkeys').deleteOne({_id: ObjectID(id)})
+    return returnData
+}
+
+/**
+ * CDkey列表
+ * @param {是否已激活}  actived
+ * @param {}  limit
+ * @param {}  offset
+ */
+async function getCDkeyList(actived,keyType, agent_username, limit = 20, offset = 0,) {
+    let returnData = {};
+    const query = {agent_username}
+    if(typeof actived !== "undefined") {
+        query.actived = actived == 'true'? true: false
+    }
+    if(keyType) {
+        query.keyType = parseInt(keyType)
+    }
+    returnData.list = await diskDB.collection('member_cdkeys').find(query).skip(parseInt(offset)).limit(parseInt(limit)).toArray()
+    returnData.total = await diskDB.collection('member_cdkeys').countDocuments(query)
+    return returnData
+}
+
+
+
 module.exports = {
     postMemberRecharge,
     postMemberLevel,
     getMemberList,
     memberVerify,
-    getM3u8
+    getM3u8,
+    getCDkeyList,
+    deleteCDkey,
+ 
+    postCDkey
 };

@@ -183,4 +183,23 @@ router.post('/disks/files/links', reqHandler(async function(req, res) {
 }));
 
 
+/**
+ * @api {post} /api/cors/v2/user/dokey 04.激活cdkey
+ * @apiName 激活cdkey
+ * @apiGroup cdkey
+ *
+ * @apiParam {string} cdkey 
+
+ * @apiSuccess {String} code 响应码, 如： 200, 0，……
+ * @apiSuccess {String} message 响应信息
+ * @apiSuccess {Object} data 数据对象数组
+ */
+router.post('/user/dokey',  reqHandler(async function(req, res) {
+    const {key} = req.body
+    const {username} = req.user
+    const result = await corsServ.activateCDkey(username, key)
+    return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
+}));
+
+
 module.exports = router;

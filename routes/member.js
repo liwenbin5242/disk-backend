@@ -110,4 +110,60 @@ router.post('/verify', reqHandler(async function(req, res) {
 //     return res.send(result.data)
 // });
 
+
+
+/**
+ * @api {post} /api/cdkey 01.批量生成cdkey
+ * @apiName 批量生成cdkey
+ * @apiGroup cdkey
+ *
+ * @apiParam {number} num 数量.
+ * @apiParam {number} day cdkey有效天数.
+ * @apiParam {number} coins 学币数量.
+ *
+ * @apiSuccess {String} code 响应码, 如： 200, 0，……
+ * @apiSuccess {String} message 响应信息
+ * @apiSuccess {Object} data 数据对象数组
+ */
+router.post('/cdkey',  reqHandler(async function(req, res) {
+    const result = await memberServ.postCDkey( req.body.keyType, req.body.num,  req.body.day, req.body.coins, req.user.username)
+    return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
+}));
+
+/**
+ * @api {post} /api/member/cdkey 02.获取cdkey列表
+ * @apiName 获取cdkey列表
+ * @apiGroup cdkey
+ *
+ * @apiParam {boolean} actived 是否已激活.
+ * @apiParam {number} limit 
+ * @apiParam {number} offset 
+ *
+ * @apiSuccess {String} code 响应码, 如： 200, 0，……
+ * @apiSuccess {String} message 响应信息
+ * @apiSuccess {Object} data 数据对象数组
+ */
+router.get('/cdkey/list',  reqHandler(async function(req, res) {
+    const {limit, offset, actived, keyType} = req.query
+    const result = await memberServ.getCDkeyList(actived, keyType, req.user.username, limit, offset)
+    return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
+}));
+
+/**
+ * @api {delete} /api/cdkey 03.获取cdkey列表
+ * @apiName 获取cdkey列表
+ * @apiGroup cdkey
+ *
+ * @apiSuccess {String} code 响应码, 如： 200, 0，……
+ * @apiSuccess {String} message 响应信息
+ * @apiSuccess {Object} data 数据对象数组
+ */
+router.delete('/cdkey/:id',  reqHandler(async function(req, res) {
+    const {id} = req.params
+    const result = await memberServ.deleteCDkey(id)
+    return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
+}));
+
+
+
 module.exports = router;

@@ -265,6 +265,32 @@ async function getFilesPermission(disk_id, path, token) {
     }
     return returnData
 }
+
+/**
+ * 激活cdkey
+ * @param {用户名}  username
+ * @param {CDkey}  key
+ */
+async function activateCDkey(username, key) {
+    const user = await diskDB.collection('subscribers').findOne({username})
+    const cdkey = await diskDB.collection('member_cdkeys').findOne({key, actived: false})
+    if(!user) {
+        throw new Error('用户不存在');
+    }
+    if(!cdkey) {
+        throw new Error('CDKEY不存在');
+    }
+    if(cdkey.keyType==2) {
+        await diskDB.collection('subscribers').updateOne({username, agent_username: user.agent_username}, {$inc: {coins: cdkey.coins}})
+        await diskDB.collection('member_cdkeys').updateOne({key, agent_username: user.agent_username}, {$set: {username, actived: true, activedtm: new Date}})
+    }
+    if(cdkey.keyType==1) {
+        await diskDB.collection('subscribers').updateOne({username, agent_username: user.agent_username}, {$set: {expires}})
+        await diskDB.collection('member_cdkeys').updateOne({key, agent_username: user.agent_username}, {$set: {username, actived: true, activedtm: new Date}})
+    }
+   
+    return {}
+}
 module.exports = {
     postUserRegister,
     postUserLogin,
@@ -274,4 +300,5 @@ module.exports = {
     searchFilesShareV2,
     getUserShareDisks,
     getFilesPermission,
+    activateCDkey,
 };
