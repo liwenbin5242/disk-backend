@@ -195,8 +195,7 @@ router.post('/disks/files/links', reqHandler(async function(req, res) {
  * @apiSuccess {Object} data 数据对象数组
  */
 router.post('/user/dokey',  reqHandler(async function(req, res) {
-    const {key} = req.body
-    const {username} = req.user
+    const {key, username} = req.body
     const result = await corsServ.activateCDkey(username, key)
     return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
 }));
