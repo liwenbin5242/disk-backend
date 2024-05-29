@@ -200,5 +200,22 @@ router.post('/user/dokey',  reqHandler(async function(req, res) {
     return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
 }));
 
+/**
+ * @api {post} /api/cors/v2/agent/info 04.获取轮播图
+ * @apiName 获取轮播图
+ * @apiGroup code
+ *
+ * @apiParam {string} code 
+
+ * @apiSuccess {String} code 响应码, 如： 200, 0，……
+ * @apiSuccess {String} message 响应信息
+ * @apiSuccess {Object} data 数据对象数组
+ */
+router.get('/agent/info',  reqHandler(async function(req, res) {
+    const { code} = req.query
+    const result = await corsServ.getAgentInfo(code)
+    return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
+}));
+
 
 module.exports = router;

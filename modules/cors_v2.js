@@ -267,6 +267,17 @@ async function getFilesPermission(disk_id, path, token) {
 }
 
 /**
+ * 获取代理信息
+ * @param {用户名}  code
+ */
+async function getAgentInfo(code) {
+    const returnData = {}
+    const banners = await diskDB.collection('banners').find({code, status:1}).toArray()
+    returnData.banners = banners
+    return returnData
+}
+
+/**
  * 激活cdkey
  * @param {用户名}  username
  * @param {CDkey}  key
@@ -302,4 +313,5 @@ module.exports = {
     getUserShareDisks,
     getFilesPermission,
     activateCDkey,
+    getAgentInfo,
 };

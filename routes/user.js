@@ -254,4 +254,72 @@ router.delete('/disks/:id', reqHandler(async function(req, res) {
 }));
 
 
+/**
+ * @api {get} /config/banners 
+ * @apiName 获取banners
+ * @apiGroup 用户模块
+ *
+ *
+ * @apiSuccess {String} code 响应码, 如： 200, 0，……
+ * @apiSuccess {String} message 响应信息
+ * @apiSuccess {Object} data 数据对象数组
+ */
+router.get('/config/banners', reqHandler(async function(req, res) {
+    const {limit, offset} = req.query
+    const result = await userServ.getBanners(req.user.username, limit, offset);
+    return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
+}));
+
+
+/**
+ * @api {delete} /config/banners
+ * @apiName 删除banners
+ * @apiGroup 用户模块
+ *
+ * @apiParam {String} :id banner id
+ *
+ * @apiSuccess {String} code 响应码, 如： 200, 0，……
+ * @apiSuccess {String} message 响应信息
+ * @apiSuccess {Object} data 数据对象数组
+ */
+router.delete('/config/banners', reqHandler(async function(req, res) {
+    const {id} = req.body;
+    const result = await userServ.deleteBanners(id);
+    return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
+}));
+
+/**
+ * @api {post} /config/banners
+ * @apiName 新增banners
+ * @apiGroup 用户模块
+ *
+ * @apiParam {String} :id banner id
+ *
+ * @apiSuccess {String} code 响应码, 如： 200, 0，……
+ * @apiSuccess {String} message 响应信息
+ * @apiSuccess {Object} data 数据对象数组
+ */
+router.post('/config/banners', reqHandler(async function(req, res) {
+    const {status, img_url, redirect_url, sort} = req.body
+    const result = await userServ.postBanners(req.user.username,req.user.code, status, img_url, redirect_url, sort );
+    return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
+}));
+
+/**
+ * @api {put} /config/banners
+ * @apiName 修改banners
+ * @apiGroup 用户模块
+ *
+ * @apiParam {String} :id banner id
+ *
+ * @apiSuccess {String} code 响应码, 如： 200, 0，……
+ * @apiSuccess {String} message 响应信息
+ * @apiSuccess {Object} data 数据对象数组
+ */
+router.put('/config/banners', reqHandler(async function(req, res) {
+    const {_id,status, img_url, redirect_url, sort} = req.body
+    const result = await userServ.putBanners(_id ,status, img_url, redirect_url, sort );
+    return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
+}));
+
 module.exports = router;

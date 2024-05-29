@@ -315,6 +315,55 @@ async function getShare(username) {
     return returnData;
 }
 
+/**
+ * 获取用户文档目录
+ * @param {*} username
+ */
+async function getBanners(username,  limit = 20, offset = 0,) {
+    const returnData = {};
+    const pipeline = [{
+        $match: { username }
+    },{
+        $sort: {sort:1}
+    }, {$skip: parseInt(offset)}, {$limit: parseInt(limit)}]
+    const banners = await diskDB.collection('banners').aggregate(pipeline).toArray();
+    const total = await diskDB.collection('banners').countDocuments({ username });
+
+    returnData.list = banners
+    returnData.total = total
+    return returnData;
+}
+
+/**
+ * 获取用户文档目录
+ * @param {*} username
+ */
+async function putBanners(id ,status, img_url, redirect_url, sort ) {
+    const returnData = {};
+    await diskDB.collection('banners').update({_id: ObjectID(id)}, {$set:{img_url, status, redirect_url, sort, utm: new Date}});
+    return returnData;
+}
+
+/**
+ * 获取用户文档目录
+ * @param {*} username
+ */
+async function postBanners(username, code, status, img_url, redirect_url, sort) {
+    const returnData = {};
+    await diskDB.collection('banners').insertOne( {username, code, ctm: new Date, status, img_url, redirect_url, sort, utm: new Date});
+    return returnData;
+}
+
+/**
+ * 获取用户文档目录
+ * @param {*} username
+ */
+async function deleteBanners(id) {
+    const returnData = {};
+    await diskDB.collection('banners').deleteOne({_id: ObjectID(id)},);
+    return returnData;
+}
+
 module.exports = {
     getUserRegcode,
     postUserRegister,
@@ -328,5 +377,9 @@ module.exports = {
     postShare,
     deleteShare,
     putShare,
-    getShare
+    getShare,
+    getBanners,
+    putBanners,
+    postBanners,
+    deleteBanners
 };
