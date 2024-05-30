@@ -39,7 +39,6 @@
     "CORS": [
         "http://localhost:9528"
     ],
-    "AuthServer": "http://api.gopan.live",
     "BaiDuDisk": {
         "clientid": "Xo5gDASeVZRxHArna5hviweIGkllqetf",
         "clientsecret": "GVpNxBBQ3P79GTcGWPfnds5jk7Um6EM8",
