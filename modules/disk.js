@@ -2,7 +2,6 @@
 const mongodber = require('../utils/mongodber');
 const diskDB = mongodber.use('disk');
 const moment = require('moment');
-const busboy = require('busboy');
 const node_path = require('path');
 const utils = require('../lib/utils');
 const { ObjectId } = require('mongodb');
@@ -427,7 +426,7 @@ async function postDbfile(req, disk_id, chunks, chunk, md5, filename, timestamp)
     const tempdir = node_path.join(__dirname, `../temp/${disk_id}/${timestamp}/`);
     await fs.mkdirSync(tempdir, {recursive: true})
     let tempfile = ''
-    const result = await new Promise(async (resolve, reject) => { // 异步执行
+    await new Promise(async (resolve, reject) => { // 异步执行
         const fileStream = req.pipe(req.busboy)
         fileStream.on('file', (name, file, info) => {
             tempfile = node_path.join(tempdir, `${chunk}`);
@@ -453,6 +452,7 @@ async function postDbfile(req, disk_id, chunks, chunk, md5, filename, timestamp)
         // 合并文件
         const result = await utils.mergeFile(filePaths,`${tempdir}${filename}`)
         if(result.done && md5=== utils.md5(fs.readFileSync(`${tempdir}${filename}`))) { //
+            logger.info('文件md5摘要校验成功')
             genTreeMysql(`${tempdir}${filename}`, disk_id)
         }
     }

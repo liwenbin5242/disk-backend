@@ -114,14 +114,12 @@ async function searchUserShareFiles(disk_id, path = '', key, code, ) {
     const disks = await diskDB.collection('disks').find(query).toArray();
     const disk_ids = disks.map(disk => {return disk._id.toString()})
     
-    // const query = `SELECT * FROM disk_${disk_id} WHERE server_filename REGEXP ? ORDER BY server_filename ASC`
-    // const count = `SELECT COUNT(*) FROM disk_${disk_id} WHERE server_filename REGEXP ? `
     const tasks = []
     for(disk_id of disk_ids) {
-        const query = `SELECT * FROM disk_${disk_id} WHERE server_filename REGEXP ? ORDER BY server_filename ASC LIMIT 100`
-        tasks.push( pool.query(query, [key]))
+        const query = `SELECT * FROM disk_${disk_id} WHERE MATCH(path) AGAINST(${key}) ORDER BY server_filename ASC category DESC;`
+        tasks.push( pool.query(query))
     }
-    // const [data, num] = await Promise.all([pool.query(query, [key]), pool.query(count,[key])]) 
+   
     const results = await Promise.all(tasks) 
     let list = []
     for(let i=0; i<results.length; i++) {
@@ -139,13 +137,12 @@ async function searchUserShareFiles(disk_id, path = '', key, code, ) {
         is_folder: item.isdir == '1'? true: false,
         server_filename: item.server_filename,
         name: item.server_filename,
-        path: item.parent_path + item.server_filename,
+        path: item.path,
         parent_path: item.parent_path,
         size: parseInt(item.file_size),
         updateDate: parseInt(item.local_mtime),
         uploadDate: parseInt(item.server_mtime)
     }})
-    // returnData.total = num[0][0]['COUNT(*)']
     return returnData;
 }
 

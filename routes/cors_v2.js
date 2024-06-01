@@ -201,7 +201,7 @@ router.post('/user/dokey',  reqHandler(async function(req, res) {
 }));
 
 /**
- * @api {post} /api/cors/v2/agent/info 04.获取轮播图
+ * @api {post} /api/cors/v2/agent/info 04.获取agent info
  * @apiName 获取轮播图
  * @apiGroup code
  *

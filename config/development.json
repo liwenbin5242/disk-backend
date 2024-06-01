@@ -26,10 +26,10 @@
     },
     "MYSQL": {
         "port": "13306",
-        "host": "43.143.243.237",
+        "host": "45.204.11.215",
         "user": "pan",
         "database": "pan",
-        "password": "wP84CiF52KzhYZEG"
+        "password": "57zp2ZFKsaAWNZZP"
     },
     "jwtSimple": {
         "secret": "EmZuVAjWHdkztCrNDvkMlTVmZMomFmnh",

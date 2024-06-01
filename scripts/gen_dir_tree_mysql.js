@@ -24,6 +24,7 @@ async function task(tempfile, diskid) {
         await pool.query(`CREATE TABLE IF not EXISTS disk_${diskid} (
             id bigint,
             fid bigint, 
+            path: varchar(250) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
             parent_path varchar(250) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
             server_filename varchar(250) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL, 
             file_size bigint,
@@ -36,10 +37,9 @@ async function task(tempfile, diskid) {
             INDEX idx_parent_path (parent_path),
             INDEX idx_server_filename (server_filename)
         ) `);
-        // 修改引擎为MyISAM 支持全文检索
-        await pool.query(`ALTER TABLE disk_${diskid}
-            ENGINE=MyISAM AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'db文件表' ROW_FORMAT = Dynamic;
-        `)
+        // 新增全文检索 索引，索引字段是  parent_path 与 server_filename
+        await pool.query(`CREATE FULLTEXT INDEX full_text disk_${diskid} ON (path) WITH PARSER ngram;`)
+     
         let cond = true;
         while ( cond ) {
             try {
@@ -53,17 +53,15 @@ async function task(tempfile, diskid) {
                 }
                 logger.info(`已读取sqllite数据库数据:${offset * limit + files.length}条`);
                 offset ++; 
-                let insertQ =  `INSERT INTO disk_${diskid} (id, fid, parent_path, server_filename, file_size, md5, isdir, category, server_mtime, local_mtime) VALUES ?`;
+                let insertQ =  `INSERT INTO disk_${diskid} (id, fid, path, parent_path, server_filename, file_size, md5, isdir, category, server_mtime, local_mtime) VALUES ?`;
                 let columns = [];
                 for (let file of files ) {
                     try {
-                        columns.push([file.id, file.fid, `${file.parent_path}`, `${file.server_filename}`, file.file_size,`${file.md5}`,file.isdir,file.category,file.server_mtime, file.local_mtime])
-                        // columns.push(`(${file.id}, ${file.fid}, '${file.parent_path}', '${file.server_filename}', ${file.file_size},'${file.md5}',${file.isdir},${file.category},${file.server_mtime}, ${file.local_mtime})`) 
+                        columns.push([file.id, file.fid,`${file.parent_path}${file.server_filename}`, `${file.parent_path}`, `${file.server_filename}`, file.file_size,`${file.md5}`,file.isdir,file.category,file.server_mtime, file.local_mtime])
                     }  catch (err) {
                         logger.error(err.message);
                     }
                 }
-                // insertQ+=columns.join(',')
                 await pool.query(insertQ, [columns]);
                 logger.info(`已插入mysql数据库数据:${ files.length}条`)
             } catch (err) {
