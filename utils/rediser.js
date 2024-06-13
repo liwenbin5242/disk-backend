@@ -47,6 +47,18 @@ Rediser.prototype.set = async function (key, value, time) {
     }
 };
 
+
+Rediser.prototype.lpush = async function (key, value) {
+    let self = this;
+    self.redis.lpush(key, value)
+};
+
+Rediser.prototype.lrange = async function (key,start, stop) {
+    let self = this;
+    return await self.redis.lrange(key, start, stop)
+};
+
+
 Rediser.prototype.del = function (key, callback) {
     callback = callback || function () { };
     this.redis.del(key, callback);

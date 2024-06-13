@@ -8,6 +8,8 @@ const { ObjectID } = require('mongodb');
 const urlencode = require('urlencode');
 const { argonEncryption, argonVerification } = require('../lib/utils');
 const { encodeJwt } = require('../lib/utils');
+const rediser = require('../utils/rediser');
+
 moment.locale('zh-cn');
 
 /**
@@ -65,6 +67,13 @@ async function postUserLogin(code, username,password) {
     }
     const isTrue = await argonVerification(password, user.password);
     if (isTrue) {
+        // 限制登录用户数量
+        const result = await rediser.lrange(`${code}:${username}`, 0, -1)
+        if(!result.length || result.length<3) {
+            await rediser.lpush(`${code}:${username}`, username)
+        } else {
+            throw new Error('登录的设备超过限制数量');
+        }
         const payload = {
             user,
         };
