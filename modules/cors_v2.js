@@ -68,16 +68,16 @@ async function postUserLogin(code, username,password) {
     const isTrue = await argonVerification(password, user.password);
     if (isTrue) {
         // 限制登录用户数量
-        const result = await rediser.lrange(`${code}:${username}`, 0, -1)
-        if(!result.length || result.length<3) {
-            await rediser.lpush(`${code}:${username}`, username)
-        } else {
-            throw new Error('登录的设备超过限制数量');
-        }
         const payload = {
             user,
         };
         returnData.token = await encodeJwt(payload);
+        const result = await rediser.lrange(`${code}:${username}`, 0, -1)
+        if(!result.length || result.length<3) {
+            await rediser.lpush(`${code}:${username}`,  returnData.token)
+        } else {
+            throw new Error('登录的设备超过限制数量');
+        }
         returnData.username = username;
         returnData.userId = user._id;
         returnData.level = user.level;
@@ -88,6 +88,17 @@ async function postUserLogin(code, username,password) {
     throw new Error('账号或密码错误');
 }
 
+/**
+ * 登出
+ * @param {用户名} username
+ * @param {密码} password
+ */
+async function postUserLogout(code,token) {
+    let returnData = {}
+    const { user } = await utils.decodeJwt(token)
+    await rediser.lrem(`${code}:${user.username}`, token)
+    return returnData;
+}
 
 /**
  * 获取用户基本信息
@@ -315,6 +326,7 @@ async function activateCDkey(username, key) {
 module.exports = {
     postUserRegister,
     postUserLogin,
+    postUserLogout,
     getUserInfo,
     getUserConfig,
     getUserShareV2,

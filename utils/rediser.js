@@ -58,6 +58,11 @@ Rediser.prototype.lrange = async function (key,start, stop) {
     return await self.redis.lrange(key, start, stop)
 };
 
+Rediser.prototype.lrem = async function (key, value) {
+    let self = this;
+    return await self.redis.lrem(key, 0, value)
+};
+
 
 Rediser.prototype.del = function (key, callback) {
     callback = callback || function () { };

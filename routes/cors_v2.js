@@ -46,6 +46,28 @@ router.post('/user/login', reqHandler(async function(req, res) {
 }));
 
 /**
+ * @api {post} /api/cors/v2/user/login 01.用户登陆
+ * @apiName 用户登陆
+ * 
+ * @apiGroup 前台页面api
+ * @apiParam {String} code 代理用户code，http://aassc.cn/aaaaaa，aaaaaa即后台用户code
+ * @apiParam {String} username 用户名
+ * @apiParam {String} password 密码
+ * 
+ * @apiSuccess {String} code 响应码, 如： 200, 0，……
+ * @apiSuccess {String} message 响应信息
+ * @apiSuccess {Object} data 数据对象数组
+ */
+router.post('/user/logout', reqHandler(async function(req, res) {
+    const { code} = req.body;
+    const token = req.headers.authorization.slice(7)
+
+    const result = await corsServ.postUserLogout(code, token);
+    return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
+}));
+
+
+/**
  * @api {get} /api/cors/v2/user/info 02.获取用户基本信息
  * @apiName 获取用户基本信息
  * 
