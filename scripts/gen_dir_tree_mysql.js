@@ -24,7 +24,7 @@ async function task(tempfile, diskid) {
         await pool.query(`CREATE TABLE IF not EXISTS disk_${diskid} (
             id bigint,
             fid bigint, 
-            path: varchar(250) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+            path varchar(250) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
             parent_path varchar(250) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
             server_filename varchar(250) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL, 
             file_size bigint,
