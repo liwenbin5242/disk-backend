@@ -67,7 +67,7 @@ async function getUserShareFiles(disk_id, parent_path,) {
         // if (!legal) {
         //     throw new Error('网盘目录非法');
         // }
-        const query = `SELECT * FROM disk_${disk_id} WHERE parent_path = ?  ORDER BY server_filename ASC`
+        const query = `SELECT * FROM disk_${disk_id} WHERE parent_path = ?  ORDER BY category DESC, server_filename ASC`
         const data = await pool.query(query, [parent_path])
         returnData.list = (data[0]??[]).map(item => { return {
             id: parseInt(item.id),
