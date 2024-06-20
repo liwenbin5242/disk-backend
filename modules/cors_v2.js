@@ -271,6 +271,7 @@ async function getFilesPermission(disk_id, path, token) {
         permission: false
     };
     const { user } = await utils.decodeJwt(token)
+    returnData.username =  user.username
     const file = await diskDB.collection('subscriber_files').findOne({username: user.username, disk_id, path });
     if( file ) {
         returnData.permission = true
