@@ -116,7 +116,7 @@ async function searchUserShareFiles(disk_id, path = '', key, code, ) {
     
     const tasks = []
     for(disk_id of disk_ids) {
-        const query = `SELECT * FROM disk_${disk_id} WHERE MATCH(path) AGAINST(${key}) ORDER BY server_filename ASC category DESC;`
+        const query = `SELECT * FROM disk_${disk_id} WHERE MATCH(path) AGAINST('${key}') ORDER BY category DESC, server_filename ASC ;`
         tasks.push( pool.query(query))
     }
    
