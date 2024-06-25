@@ -338,9 +338,9 @@ async function getBanners(username,  limit = 20, offset = 0,) {
  * 获取用户文档目录
  * @param {*} username
  */
-async function putBanners(id ,status, img_url, redirect_url, sort ) {
+async function putBanners(id ,status, img_url, redirect_url, sort , type, share_file_id, ) {
     const returnData = {};
-    await diskDB.collection('banners').update({_id: ObjectID(id)}, {$set:{img_url, status, redirect_url, sort, utm: new Date}});
+    await diskDB.collection('banners').update({_id: ObjectID(id)}, {$set:{img_url, status, redirect_url, sort, type, share_file_id,  utm: new Date}});
     return returnData;
 }
 
@@ -348,9 +348,9 @@ async function putBanners(id ,status, img_url, redirect_url, sort ) {
  * 获取用户文档目录
  * @param {*} username
  */
-async function postBanners(username, code, status, img_url, redirect_url, sort) {
+async function postBanners(username, code, status, img_url, redirect_url, sort, type, share_file_id) {
     const returnData = {};
-    await diskDB.collection('banners').insertOne( {username, code, ctm: new Date, status, img_url, redirect_url, sort, utm: new Date});
+    await diskDB.collection('banners').insertOne( {username, code, ctm: new Date, status, img_url, redirect_url, sort, type, share_file_id, utm: new Date});
     return returnData;
 }
 

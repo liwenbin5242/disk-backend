@@ -128,6 +128,28 @@ router.get('/disks/paths', reqHandler(async function(req, res) {
 }));
 
 /**
+ * @api {get} /api/cors/v2/disks/paths 04.通过后台用户code获取共享的网盘目录列表(目录列表是在后台自己创建的一个树状目录)
+ * @apiName 通过后台用户code获取共享的网盘目录列表
+ * @apiGroup 前台页面api
+ * @apiParam   {String} code 后台用户code
+ * @apiSuccess {String} code 响应码, 如： 200, 0，……
+ * @apiSuccess {String} message 响应信息
+ * @apiSuccess {Object} data 数据对象数组
+ * @apiSuccess {Array} paths 文档数据
+ * @apiSuccess {String} paths._id 文档id
+ * @apiSuccess {String} paths.disk_id 对应disk_id
+ * @apiSuccess {String} paths.title 文档标题名称
+ * @apiSuccess {String} paths.name 文件名称
+ * @apiSuccess {String} paths.path 路径
+ * @apiSuccess {String} paths.category 文件类型
+ */
+router.get('/disks/path/id', reqHandler(async function(req, res) {
+    const {  id ,code } = req.query;
+    const result = await corsServ.getUserSharePath(id, code);
+    return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
+}));
+
+/**
  * @api {get} /cors/v2/disks/files 02.获取用户下共享的网盘文件目录列表
  * @apiName 获取用户下共享的网盘文件列表
  * @apiGroup 弃用

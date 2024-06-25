@@ -178,6 +178,34 @@ async function getUserShareDisks(code) {
 }
 
 /**
+ * 获取分享的文档目录
+ * @param {id} id 
+ * @param {code} code 
+ */
+async function getUserSharePath(id, code) {
+    const returnData = {};
+    const user = await diskDB.collection('users').findOne({code})
+    if(!user) {
+        throw new Error('请核对正确的地址')
+    }
+    if( user.expires <new Date) {
+        throw new Error('目录已过期,请续费')  
+    }
+    const share_disks = await diskDB.collection('share_files').find({_id: ObjectID(id)}, { projection: {
+        username: 0,
+    }}).sort({sort:1}).toArray();
+    const disk_ids = share_disks.filter(share_disk=> {return share_disk.disk_id}).map(share_disk => { return ObjectID(share_disk.disk_id) })
+    const disks = await diskDB.collection('disks').find({_id: {$in:disk_ids}}).toArray()
+    share_disks.forEach(share_disk=> {
+        const disk =disks.find(disk => {return disk._id.toString() === share_disk.disk_id})
+        if(disk) share_disk.baidu_name= disk.baidu_name
+    })
+
+    returnData.paths = utils.array2Tree(share_disks, '_id', 'parent_id', 'children')
+    return returnData;
+}
+
+/**
  * 获取文件列表
  * @param {网盘id} disk_id 网盘id
  * @param {目录} dir 目录
@@ -235,9 +263,6 @@ async function searchFilesShareV2(diskid, dir, key) {
             legal = true
         } 
     }
-    // if (!legal) {
-    //     throw new Error('网盘目录非法');
-    // }
     const data = await utils.bdapis.searchFileByToken(disk.access_token, key, urlencode(dir),);
     if(data?.data?.errno!==0) {
          throw new Error('文件查询出错');
@@ -336,4 +361,5 @@ module.exports = {
     getFilesPermission,
     activateCDkey,
     getAgentInfo,
+    getUserSharePath
 };
