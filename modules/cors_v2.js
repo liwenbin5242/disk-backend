@@ -318,7 +318,7 @@ async function getFilesPermission(disk_id, path, token) {
  */
 async function getAgentInfo(code) {
     const returnData = {}
-    const banners = await diskDB.collection('banners').find({code, status:1}).toArray()
+    const banners = await diskDB.collection('banners').find({code, status:1}).sort({sort:1}).toArray()
     returnData.banners = banners
     return returnData
 }

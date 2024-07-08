@@ -300,8 +300,8 @@ router.delete('/config/banners', reqHandler(async function(req, res) {
  * @apiSuccess {Object} data 数据对象数组
  */
 router.post('/config/banners', reqHandler(async function(req, res) {
-    const {status, img_url, redirect_url, sort, type, share_file_id} = req.body
-    const result = await userServ.postBanners(req.user.username,req.user.code, status, img_url, redirect_url, sort, type, share_file_id );
+    const {status, img_url, redirect_url, sort, type, position, share_file_id} = req.body
+    const result = await userServ.postBanners(req.user.username,req.user.code, status, img_url, redirect_url, sort, type, position, share_file_id );
     return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
 }));
 
@@ -317,8 +317,8 @@ router.post('/config/banners', reqHandler(async function(req, res) {
  * @apiSuccess {Object} data 数据对象数组
  */
 router.put('/config/banners', reqHandler(async function(req, res) {
-    const {_id,status, img_url, redirect_url, sort, type, share_file_id} = req.body
-    const result = await userServ.putBanners(_id ,status, img_url, redirect_url, sort, type, share_file_id );
+    const {_id,status, img_url, redirect_url, sort, type, position, share_file_id} = req.body
+    const result = await userServ.putBanners(_id ,status, img_url, redirect_url, sort, type, position, share_file_id );
     return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
 }));
 

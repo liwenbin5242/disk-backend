@@ -125,8 +125,9 @@ router.get('/disks/files/search', reqHandler(async function(req, res) {
  * @apiSuccess {String} data.files.server_mtime  文件修改时间   
  */
 router.get('/disks/files/shareurl', reqHandler(async function(req, res) {
-    let { disk_id, parent_path, filename,  } = req.query;
-    const result = await corsServ.getShareFileUrl( disk_id, urldecodes(parent_path ||''), urldecodes(filename),);
+    let { disk_id, parent_path, filename, username } = req.query;
+     
+    const result = await corsServ.getShareFileUrl( disk_id, urldecodes(parent_path ||''), urldecodes(filename), username);
     return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
 }));
 module.exports = router;

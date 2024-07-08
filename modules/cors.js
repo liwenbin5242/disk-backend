@@ -116,7 +116,7 @@ async function searchUserShareFiles(disk_id, path = '', key, code, ) {
     
     const tasks = []
     for(disk_id of disk_ids) {
-        const query = `SELECT * FROM disk_${disk_id} WHERE MATCH(path) AGAINST('${key}') ORDER BY category DESC, server_filename ASC ;`
+        const query = `SELECT * FROM disk_${disk_id} WHERE MATCH(server_filename) AGAINST('${key}') ORDER BY category DESC, server_filename ASC ;`
         tasks.push( pool.query(query))
     }
    
@@ -129,7 +129,7 @@ async function searchUserShareFiles(disk_id, path = '', key, code, ) {
         })
         list = list.concat(l)
     }
-    returnData.list = list.map(item => { return {
+    returnData.list = _.sortBy(list.map(item => { return {
         id: parseInt(item.id),
         disk_id: item.disk_id,
         category: parseInt(item.category),
@@ -142,7 +142,7 @@ async function searchUserShareFiles(disk_id, path = '', key, code, ) {
         size: parseInt(item.file_size),
         updateDate: parseInt(item.local_mtime),
         uploadDate: parseInt(item.server_mtime)
-    }})
+    }}), l => { return -l.category})
     return returnData;
 }
 
@@ -152,9 +152,14 @@ async function searchUserShareFiles(disk_id, path = '', key, code, ) {
  * @param {string} disk_id 网盘id
  * @param {string} path 文件目录的路径
  * @param {string} filename 文件名
+ * @param {string} username 用户名 
  */
-async function getShareFileUrl(disk_id, path = '', filename,) {
+async function getShareFileUrl(disk_id, path = '', filename, username) {
     const returnData = {};
+    const subscriber = await  diskDB.collection('subscribers').findOne({username, expires: {$gte: new Date}}) 
+    if(!subscriber) {
+      throw new Error('会员已到期')
+    }
     try {
         const share_file = await redis.get(`${disk_id}:${path}:${filename}`)
         if(share_file) {
