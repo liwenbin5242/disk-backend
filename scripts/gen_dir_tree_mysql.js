@@ -37,7 +37,8 @@ async function task(tempfile, diskid) {
             INDEX idx_parent_path (parent_path)
         ) `);
         // 新增全文检索 索引，索引字段是server_filename
-        await pool.query(`CREATE FULLTEXT INDEX server_filename_full_text ON disk_${diskid} (server_filename)`)
+        // await pool.query(`CREATE FULLTEXT INDEX server_filename_full_text ON disk_${diskid} (server_filename)`)
+        await pool.query(`CREATE  INDEX server_filename_full_text ON disk_${diskid} (server_filename)`)
         let cond = true;
         while ( cond ) {
             try {

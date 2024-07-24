@@ -186,7 +186,7 @@ async function flushGroups(username, disk_id) {
         }
     }
     insertData.forEach(d => {
-        d._id= utils.md5ID(gid)
+        d._id= ObjectId(utils.md5ID(d.gid))
         d.disk_id = disk_id
         d.username = username
         d.ctm = new Date()
