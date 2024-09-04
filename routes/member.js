@@ -64,8 +64,8 @@ router.post('/level', reqHandler(async function(req, res) {
  */
 router.get('/list', reqHandler(async function(req, res) {
     const { username } = req.user;
-    const { offset, limit } = req.query;
-    const result = await memberServ.getMemberList( username, offset, limit);
+    const { offset, limit, subscriber } = req.query;
+    const result = await memberServ.getMemberList( username, subscriber, offset, limit);
     res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
 }));
 

@@ -116,8 +116,10 @@ async function searchUserShareFiles(disk_id, path = '', key, code, ) {
     
     const tasks = []
     for(disk_id of disk_ids) {
-        // const query = `SELECT * FROM disk_${disk_id} WHERE MATCH(server_filename) AGAINST('${key}') ORDER BY category DESC, server_filename ASC ;`
-        const query = `SELECT * FROM disk_${disk_id} WHERE server_filename LIKE '%${key}%' ORDER BY category DESC, server_filename ASC ;`
+        // 全文检索
+        const query = `SELECT * FROM disk_${disk_id} WHERE MATCH(server_filename) AGAINST('${key}') ORDER BY category DESC, server_filename ASC ;`
+        // 模糊搜索
+        // const query = `SELECT * FROM disk_${disk_id} WHERE server_filename LIKE '%${key}%' ORDER BY category DESC, server_filename ASC ;`
         tasks.push( pool.query(query))
     }
    

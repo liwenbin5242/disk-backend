@@ -1,7 +1,6 @@
 const mongodber = require('../utils/mongodber');
 const diskDB = mongodber.use('disk');
 const { ObjectID } = require('mongodb');
-const { decodeJwt } = require('../lib/utils');
 
 /**
  * 获取文件的m3u8地址

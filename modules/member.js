@@ -62,12 +62,16 @@ async function postMemberLevel(agent_username, username, level, days) {
  * @param {number} offset
  * @param {number} limit
  */
-async function getMemberList(username, offset = 0, limit = 20) {
+async function getMemberList(username, subscriber, offset = 0, limit = 20) {
     const returnData = {
         members: [],
         total: 0
     };
-    const members = await diskDB.collection('subscribers').find({ agent_username: username }, {projection: {
+    const query = { agent_username: username }
+    if(subscriber) {
+        query.username = {$regex: subscriber}
+    }
+    const members = await diskDB.collection('subscribers').find( query, {projection: {
         username: 1,
         phone:1,
         name:1,
@@ -76,9 +80,9 @@ async function getMemberList(username, offset = 0, limit = 20) {
         coins: 1,
         level:1,
         ctm:1,
-    }, sort:{ ctm: 1}}).skip(parseInt(offset)).limit(parseInt(limit)).toArray();
+    }, sort:{ ctm: -1}}).skip(parseInt(offset)).limit(parseInt(limit)).toArray();
     returnData.members = members
-    returnData.total = await diskDB.collection('subscribers').countDocuments({ agent_username: username });
+    returnData.total = await diskDB.collection('subscribers').countDocuments( query);
     return returnData;
 }
 
