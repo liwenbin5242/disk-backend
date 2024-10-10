@@ -338,20 +338,20 @@ async function activateCDkey(username, key) {
     if(!cdkey && !cdkey2) {
         throw new Error('CDKEY不存在');
     }
-    if(cdkey.keyType==1) { // 学币
+    if(cdkey && cdkey.keyType==1) { // 学币
         await diskDB.collection('subscribers').updateOne({username, agent_username: user.agent_username}, {$set:{level:1,}, $inc: {coins: cdkey.coins}})
         await diskDB.collection('member_cdkeys').updateOne({key, agent_username: user.agent_username}, {$set: {username, actived: true, activedtm: new Date}})
     }
-    if(cdkey.keyType==2) { // 会员期限
+    if(cdkey &&  cdkey.keyType==2) { // 会员期限
         if(user.expires.getTime()<= (new Date).getTime()) user.expires = new Date()
         await diskDB.collection('subscribers').updateOne({username, agent_username: user.agent_username}, {$set:{level:2, expires: new Date(user.expires.getTime() + cdkey.expiration * 24* 60 *60 *1000)}})
         await diskDB.collection('member_cdkeys').updateOne({key, agent_username: user.agent_username}, {$set: {username, actived: true, activedtm: new Date}})
     }
-    if(cdkey2.key_type==1) { // 学币
+    if(cdkey2&& cdkey2.key_type==1) { // 学币
         await diskDB.collection('subscribers').updateOne({username, agent_username: user.agent_username}, {$set:{level:1,}, $inc: {coins: cdkey2.amount}})
         await diskDB.collection('robot_cdkey').updateOne({key}, {$set: {username, actived: true, activedtm: new Date}})
     }
-    if(cdkey2.key_type==2) { // 会员期限
+    if(cdkey2&& cdkey2.key_type==2) { // 会员期限
         if(user.expires.getTime()<= (new Date).getTime()) user.expires = new Date()
         await diskDB.collection('subscribers').updateOne({username, agent_username: user.agent_username}, {$set:{level:2, expires: new Date(user.expires.getTime() + cdkey2.amount * 24* 60 *60 *1000)}})
         await diskDB.collection('robot_cdkey').updateOne({key}, {$set: {username, actived: true, activedtm: new Date}})
