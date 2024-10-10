@@ -24,9 +24,9 @@ async function task(tempfile, diskid) {
         await pool.query(`CREATE TABLE IF not EXISTS disk_${diskid} (
             id bigint,
             fid bigint, 
-            path varchar(1000) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-            parent_path varchar(1000) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-            server_filename varchar(1000) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL, 
+            path varchar(900) NOT NULL,
+            parent_path varchar(900) NOT NULL,
+            server_filename varchar(900) NOT NULL, 
             file_size bigint,
             md5 varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
             isdir tinyint(3),
@@ -34,10 +34,10 @@ async function task(tempfile, diskid) {
             server_mtime bigint,
             local_mtime bigint,
             PRIMARY KEY (id) USING BTREE,
-            INDEX idx_parent_path (parent_path)
-        ) `);
+            FULLTEXT(server_filename) WITH PARSER ngram 
+        ) ENGINE=InnoDB CHARACTER SET utf8mb4;`);
         // 新增全文检索 索引，索引字段是server_filename
-        await pool.query(`CREATE FULLTEXT INDEX server_filename_full_text ON disk_${diskid} (server_filename)`)
+        //  await pool.query(`CREATE FULLTEXT INDEX server_filename_full_text ON disk_${diskid} (server_filename)`)
         // 新增正常索引
         // await pool.query(`CREATE INDEX server_filename ON disk_${diskid} (server_filename)`)
         let cond = true;

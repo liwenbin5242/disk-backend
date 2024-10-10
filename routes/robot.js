@@ -194,9 +194,9 @@ router.delete('/cdkey/classify/:id',  reqHandler(async function(req, res) {
  * @apiSuccess {Object} data 数据对象数组
  */
 router.post('/cdkey',  reqHandler(async function(req, res) {
-    const {classify_id , nums } = req.body
+    const {classify_id , nums, amount,  key_type} = req.body
     const {username, } = req.user
-    const result = await robotServ.postCDkey( classify_id, nums )
+    const result = await robotServ.postCDkey( classify_id, nums, amount,  key_type, username )
     return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
 }));
 

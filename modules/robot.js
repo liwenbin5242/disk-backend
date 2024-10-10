@@ -189,14 +189,18 @@ async function putCDkeyClassify(_id, name, username ) {
  * @param {数量} nums 
  */
 
-async function postCDkey( classify_id, nums ) {
+async function postCDkey( classify_id, nums, amount,  key_type, username ) {
     let returnData = {};
     const insertArray = []
     for(let i=0; i<nums; i++) {
         insertArray.push({
+            agent_id: username,
             key: uuidv4().replace(/-/g, ''),
             classify_id:  ObjectID(classify_id),
+            amount,  
+            key_type,
             used: false,
+            actived: false,
             ctm: new Date,
     })}
     await diskDB.collection('robot_cdkey').insertMany(insertArray)

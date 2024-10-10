@@ -330,11 +330,12 @@ async function getAgentInfo(code) {
  */
 async function activateCDkey(username, key) {
     const user = await diskDB.collection('subscribers').findOne({username})
-    const cdkey = await diskDB.collection('member_cdkeys').findOne({key, actived: false})
+    let cdkey = await diskDB.collection('member_cdkeys').findOne({key, actived: false})
+    let cdkey2 = await diskDB.collection('robot_cdkey').findOne({key, actived: false})
     if(!user) {
         throw new Error('用户不存在');
     }
-    if(!cdkey) {
+    if(!cdkey && !cdkey2) {
         throw new Error('CDKEY不存在');
     }
     if(cdkey.keyType==1) { // 学币
@@ -346,7 +347,15 @@ async function activateCDkey(username, key) {
         await diskDB.collection('subscribers').updateOne({username, agent_username: user.agent_username}, {$set:{level:2, expires: new Date(user.expires.getTime() + cdkey.expiration * 24* 60 *60 *1000)}})
         await diskDB.collection('member_cdkeys').updateOne({key, agent_username: user.agent_username}, {$set: {username, actived: true, activedtm: new Date}})
     }
-   
+    if(cdkey2.key_type==1) { // 学币
+        await diskDB.collection('subscribers').updateOne({username, agent_username: user.agent_username}, {$set:{level:1,}, $inc: {coins: cdkey2.amount}})
+        await diskDB.collection('robot_cdkey').updateOne({key}, {$set: {username, actived: true, activedtm: new Date}})
+    }
+    if(cdkey2.key_type==2) { // 会员期限
+        if(user.expires.getTime()<= (new Date).getTime()) user.expires = new Date()
+        await diskDB.collection('subscribers').updateOne({username, agent_username: user.agent_username}, {$set:{level:2, expires: new Date(user.expires.getTime() + cdkey2.amount * 24* 60 *60 *1000)}})
+        await diskDB.collection('robot_cdkey').updateOne({key}, {$set: {username, actived: true, activedtm: new Date}})
+    }
     return {}
 }
 module.exports = {
