@@ -141,6 +141,7 @@ async function getCDkeyClassifyList( limit = 20, offset = 0, username) {
                 $project: {
                   _id: 0,
                   used: 1,
+                  actived:1
                 }
               }
             ],
@@ -153,7 +154,8 @@ async function getCDkeyClassifyList( limit = 20, offset = 0, username) {
             name:1,
             ctm:1,
             nums: {$size: '$cdkeys'},
-            used:  { $size: { $filter: { input: "$cdkeys", as: "cdkey", cond: { $eq: ["$$cdkey.used", true] } } } }
+            used:  { $size: { $filter: { input: "$cdkeys", as: "cdkey", cond: { $eq: ["$$cdkey.used", true] } } } },
+            actived:  { $size: { $filter: { input: "$cdkeys", as: "cdkey", cond: { $eq: ["$$cdkey.actived", true] } } } },
         }
     },
     {
@@ -212,10 +214,10 @@ async function postCDkey( classify_id, nums, amount,  key_type, username ) {
  * @param {}  limit
  * @param {}  offset
  */
-async function getCDkeyList( limit = 20, offset = 0,classify_id, key, used, sessionname, config_id) {
+async function getCDkeyList( limit = 20, offset = 0,classify_id, key, used, sessionname, config_id, agent_id, actived) {
     let returnData = {};
     const query = {
-       
+        agent_id
     }
     if(classify_id)  query.classify_id = ObjectID(classify_id)
     if(config_id)  query.config_id = config_id
@@ -223,6 +225,8 @@ async function getCDkeyList( limit = 20, offset = 0,classify_id, key, used, sess
     if(sessionname) query.sessionname = {$regex: (urldecode(sessionname).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))}
     if(used === 'true') query.used = true
     if(used === 'false') query.used = false
+    if(actived === 'true') query.actived = true
+    if(actived === 'false') query.actived = false
     const pipeline = [{
         $match: query
     },
