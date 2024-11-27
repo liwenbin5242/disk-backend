@@ -7,6 +7,7 @@ const { ObjectID } = require('mongodb');
 const redis = require('../utils/rediser');
 const _ = require('lodash');
 const { logger } = require('../utils/logger');
+const { resolve } = require('url');
 
 moment.locale('zh-cn');
 
@@ -90,6 +91,11 @@ async function task() {
                             // 回复文件
                         }
                         await diskDB.collection('robot_cdkey').updateOne({key: msgrecord.msg.trim(), used: false}, {$set: {config_id: cfg._id.toString(), sessionname: unreadSession.sessionname, used: true, usetm: new Date, reply_content: rule.reply_content, group_name, reply_files}})
+                    } else {
+                        // const msg = `{"send_type":3,"receiver":["${msgrecord.from_uk}"],"msg_type":1,"msg":"抱歉,消息未识别成功请联系客服或重试","fs_ids":[],"receiver_name":["${unreadSession.sessionname}"]}`
+                        // let {data: {errno}} = await utils.bdapis.sendMsg(disk.cookie, msg)
+                        // if(errno) logger.error(`回复消息出错,disk_id:${disk._id},cookie:${disk.cookie}`)
+                        logger.error('robot_cdkey不匹配,此次消息发送的是:', msgrecord.msg)
                     }
                 }
             }

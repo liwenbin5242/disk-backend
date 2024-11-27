@@ -97,8 +97,8 @@ router.get('/disks/files', reqHandler(async function(req, res) {
  * @apiSuccess {String} data.files.server_mtime  文件修改时间   
  */
 router.get('/disks/files/search', reqHandler(async function(req, res) {
-    let { disk_id, path, key, code  } = req.query;
-    const result = await corsServ.searchUserShareFiles( disk_id, urldecodes(path ||''), urldecodes(key), code);
+    let { disk_id, key, code  } = req.query;
+    const result = await corsServ.searchUserShareFiles( disk_id, urldecodes(key), code);
     return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
 }));
 
@@ -128,6 +128,34 @@ router.get('/disks/files/shareurl', reqHandler(async function(req, res) {
     let { disk_id, parent_path, filename, username } = req.query;
      
     const result = await corsServ.getShareFileUrl( disk_id, urldecodes(parent_path ||''), urldecodes(filename), username);
+    return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
+}));
+
+/**
+ * @api {get} /cors/disks/files/shareurl2 07.获取盘文件提取链接
+ * @apiName 获取盘文件提取链接
+ * @apiGroup 前台页面api
+ *
+ * @apiParam {String} disk_id 网盘id
+ * @apiParam {String} parent_path 父级路径
+ * @apiParam {String} filename 文件名 
+ *
+ * @apiSuccess {String} code 响应码, 如： 200, 0，……
+ * @apiSuccess {String} message 响应信息
+ * @apiSuccess {Object} data 数据对象数组
+ * @apiSuccess {Object} data.files 文件数组
+ * @apiSuccess {Object} data.total 文件按总数量
+ * @apiSuccess {String} data.files.category 文件类型  1: '视频',2: '音频',3: '图片',4: '文档',5: '应用',6: '其他',7: '种子'
+ * @apiSuccess {String} data.files.ctm 创建时间
+ * @apiSuccess {Number} data.files.filesize 文件大小 kb
+ * @apiSuccess {Number} data.files.isdir  是否文件夹 0:文件 1:文件夹 文件夹可以继续进入下级目录
+ * @apiSuccess {String} data.files.parent_path  父级路径 
+ * @apiSuccess {String} data.files.server_filename  文件名   
+ * @apiSuccess {String} data.files.server_mtime  文件修改时间   
+ */
+router.get('/disks/files/shareurl2', reqHandler(async function(req, res) {
+    let { disk_id, parent_path, filename } = req.query;
+    const result = await corsServ.getShareFileUrl2( disk_id, urldecodes(parent_path ||''), urldecodes(filename));
     return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
 }));
 module.exports = router;
