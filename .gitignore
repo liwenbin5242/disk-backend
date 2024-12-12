@@ -3,5 +3,7 @@ node_modules/
 !temp/.gitkeep
 logs/
 public/*
-static/*
+static/apidoc
+static/upload
+static/qrcode
 
