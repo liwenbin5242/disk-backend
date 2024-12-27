@@ -10,7 +10,8 @@ const nodePath = require('path');
 const _ = require('lodash');
 const splitFileStream = require('split-file-stream');
 const { logger } = require('../utils/logger');
-const { task: genTreeMysql} = require('../scripts/gen_dir_tree_mysql') 
+const { task: genTreeMysql} = require('../scripts/gen_dir_tree_mysql'); 
+const { start } = require('repl');
 require('events').EventEmitter.defaultMaxListeners = 0;
 moment.locale('zh-cn');
 
@@ -147,17 +148,6 @@ async function addCookie(username, disk_id, cookie) {
     return returnData;
 }
 
-/**
- * 网盘绑定bdstoken
- * @param {账号} username
- * @param {id} id
- * @param {cookie} bdstoken
- */
-async function addBdstoken(username, id, bdstoken) {
-    let returnData = {};
-    await diskDB.collection('disks').updateOne({ _id: ObjectId(id), username }, { $set: { bdstoken } });
-    return returnData;
-}
 
 /**
  * 刷新群组
@@ -186,7 +176,7 @@ async function flushGroups(username, disk_id) {
         }
     }
     insertData.forEach(d => {
-        d._id= ObjectId(utils.md5ID(d.gid))
+        d._id= ObjectId(utils.md5ID(d.gid+ disk_id + username))
         d.disk_id = disk_id
         d.username = username
         d.ctm = new Date()
@@ -205,6 +195,57 @@ async function getGroups(username, disk_id, limit =100, offset=0) {
     let returnData = {};
     const data = await diskDB.collection('disk_group').find({username, disk_id}).sort({ctime:-1}).skip(offset).limit(limit).toArray()
     const total =  await diskDB.collection('disk_group').countDocuments({username, disk_id})
+    returnData = {list:data, total};
+    return returnData;
+}
+
+/**
+ * 获取群拉人任务
+ * @param {账号} username
+ * @param {id} id
+ */
+async function getGroupTasks(username, disk_id, taskname, limit =100, offset=0) {
+    let returnData = {};
+    const query = {username, disk_id}
+    if(taskname) {
+        query.taskname = {$regex: taskname}
+    }
+    const data = await diskDB.collection('disk_group_task').find(query).sort({ctm:-1}).skip(offset).limit(limit).toArray()
+    const total =  await diskDB.collection('disk_group_task').countDocuments(query)
+    returnData = {list:data, total};
+    return returnData;
+}
+
+
+/**
+ * 创建群拉人任务
+ * @param {账号} username
+ * @param {id} id
+ */
+async function postGroupTasks(username, task_name, group_name, disk_id, managers ) {
+    const returnData = {}
+    const task = {
+        username, task_name, group_name, disk_id, managers, ctm: new Date()
+    }
+    const result = await diskDB.collection('disk_group_task').insertOne(task)
+    const task_id = result.insertedId
+    startGrouptask(task_id, disk_id, username)
+    return returnData;
+}
+/**
+ * 获取好友列表
+ * @param {账号} username
+ * @param {id} id
+ */
+async function getFollowers(username, priority_name, disk_id, limit =100, offset=0) {
+    let returnData = {};
+    await flushFollowers(username, disk_id)
+    const query = {username, disk_id}
+    if(priority_name) {
+        query.priority_name = {$regex: priority_name}
+    }
+    const data = await diskDB.collection('disk_follower').find(query).sort({ctime:-1}).skip(offset).limit(limit).toArray()
+    const total =  await diskDB.collection('disk_follower').countDocuments(query)
     returnData = {list:data, total};
     return returnData;
 }
@@ -459,53 +500,41 @@ async function postDbfile(req, disk_id, chunks, chunk, md5, filename, timestamp)
     return returnData;
 }
 
-/**
- * 上传db文件到对应网盘生成目录树(文件可能较大,采用异步处理任务的方式)
- * @param {网盘id} diskid
- * @param {db文件} file
- */
-// async function postDbfile(diskid, req) {
-//     let returnData = {};
-//     const disk = await diskDB.collection('disks').findOne({ _id: ObjectId(diskid) });
-//     if (!disk) {
-//         throw new Error('网盘不存在');
-//     }
-//     // 更新网盘状态,设置为pending
-//     await diskDB.collection('disks').updateOne({ _id: ObjectId(diskid) }, {$set: {dir_tree_status: 'pending'}});
-//     const tempdir = node_path.join(__dirname, `../temp/${diskid}/`);
-//     let tempfile = ''
-//     const result = await new Promise(async (resolve, reject) => { // 异步执行
-//         const exists = await fs.existsSync(tempdir);
-//         if (!exists) {
-//             await fs.mkdirSync(tempdir);
-//         }
-//         const fileStream = req.pipe(req.busboy)
-//         fileStream.on('file', (name, file, info) => {
-//             tempfile = node_path.join(tempdir, `${info.filename}`);
-//             const writeStream = fs.createWriteStream(`${tempfile}`);
-//             file.pipe(writeStream);
-//           });
-//         fileStream.on('close', () => {
-//             logger.info('db文件上传成功');
-//             return resolve(true);
-//         });
-//         fileStream.on('field', (name, value, info) => {
-//             logger.info('files', name, value, info);
-//           });
-//         fileStream.on('error', (error) => {
-//             logger.error('db文件上传失败', error);
-//             return resolve(false);
-//         });
-//     })
-//     // 开始异步执行文件入pgsql库
-//     if(result) {
-//         // genTreepg(tempfile, diskid)
-//         genTreeMysql(tempfile, diskid)
-//     }
-//     return returnData;
-// }
+async function flushFollowers (username, disk_id) {
+    const lastest_followers = await diskDB.collection('disk_follower').find({username, disk_id}).sort({sequence:-1}).limit(1).toArray()
+    const disk = await diskDB.collection('disks').findOne({ _id: ObjectId(disk_id) });
+    if (!disk || !disk.cookie) {
+        throw new Error('网盘或cookie不存在');
+    }
+    let start = 0
+    let limit = 100
+    if(lastest_followers.length) {
+        start = lastest_followers[0].sequence
+    }
+    while(1) {
+        const data = await utils.bdapis.getFollowList(disk.cookie, start, limit)
+        if(data.data.errno === 0 && data.data.records.length) {
+           let sequence = 1
+           for(let record of data.data.records) {
+            await diskDB.collection('disk_follower').updateOne({ _id: ObjectId(utils.md5ID( record.uk+ disk_id + username))}, {$set: {
+                disk_id,
+                username,
+                sequence: start +  sequence,
+                ...record
+            }} , {upsert: true})
+            sequence ++
+           }
+           start += sequence
+         } else {
+            break
+        }
+    }
+}
+
+async function startGrouptask( task_id, username, disk_id) {
+    
+}
 module.exports = {
-    addBdstoken,
     addCookie,
     fileCreate,
     fileSuperfile2,
@@ -514,6 +543,9 @@ module.exports = {
     fileTransfer,
     flushGroups,
     getGroups,
+    getGroupTasks,
+    postGroupTasks,
+    getFollowers,
     getGrouplistshare,
     getGroupshareinfo,
     getDiskinfo,

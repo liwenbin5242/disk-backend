@@ -1,7 +1,6 @@
 'use strict';
 const mongodber = require('../utils/mongodber');
 const diskDB = mongodber.use('disk');
-const moment = require('moment');
 const utils = require('../lib/utils');
 const { ObjectId } = require('mongodb');
 const fs = require('fs');

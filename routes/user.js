@@ -100,7 +100,6 @@ router.get('/info', reqHandler(async function(req, res) {
  * @apiParam {String} avatar 头像
  * @apiParam {String} name 网盘
  * @apiParam {String} phone 手机号
- * @apiParam {Array} banners 轮播图
  * @apiParam {String} wx 微信二维码图片地址
  * 
  * @apiSuccess {String} code 响应码, 如： 200, 0，……
@@ -108,8 +107,8 @@ router.get('/info', reqHandler(async function(req, res) {
  * @apiSuccess {Object} data 数据对象数组
  */
 router.post('/info', reqHandler(async function(req, res) {
-    const { avatar, name, phone, banners, wx} = req.body;
-    const result = await userServ.updateUserInfo(req.user.username, avatar, name, phone, banners, wx);
+    const { avatar, name, phone, wx, freeTime, showShareUrl, searchType} = req.body;
+    const result = await userServ.updateUserInfo(req.user.username, avatar, name, phone, wx, freeTime, showShareUrl, searchType);
     return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
 }));
 

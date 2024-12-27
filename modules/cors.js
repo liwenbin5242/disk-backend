@@ -113,9 +113,23 @@ async function searchUserShareFiles(disk_id, key, code, ) {
     if(disk_id) query._id = ObjectID(disk_id)
     const disks = await diskDB.collection('disks').find(query).toArray();
     const disk_ids = disks.map(disk => {return disk._id.toString()})
-    
+    // 判断磁盘是否存在
+    const exists = []
+    for(let disk_id of disk_ids) {
+        try {
+            const query = `SELECT 1 FROM disk_${disk_id} LIMIT 1`
+            const res = await pool.query(query)
+            if(res) {
+                exists.push(disk_id)
+            }
+        } catch(err) {
+            continue
+        }
+      
+    }
+     
     const tasks = []
-    for(disk_id of disk_ids) {
+    for(disk_id of exists) {
         // 全文检索
         const query = `SELECT * FROM disk_${disk_id} WHERE MATCH(server_filename) AGAINST('${key}') ORDER BY category DESC, server_filename ASC ;`
         // 模糊搜索

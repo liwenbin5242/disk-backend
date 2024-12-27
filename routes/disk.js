@@ -118,24 +118,6 @@ router.post('/cookie', reqHandler(async function(req, res) {
 }));
 
 /**
- * @api {post} /disk/bdstoekn 07.新增/修改网盘bdstoekn
- * @apiName 新增/修改网盘bdstoekn
- * @apiGroup 网盘模块
- *
- * @apiParam {String} bdstoekn string.
- * @apiParam {String} disk_id 网盘id.
- *
- * @apiSuccess {String} code 响应码, 如： 200, 0，……
- * @apiSuccess {String} msg 响应信息
- * @apiSuccess {Object} data 数据对象数组
- */
-router.post('/bdstoken', reqHandler(async function(req, res) {
-    const {disk_id, bdstoken, } = req.body ; 
-    const result = await diskServ.addBdstoken(req.user.username, disk_id, bdstoken);
-    res.json({code: returnCode.SUCCESS, data: result, msg: 'ok'});
-}));
-
-/**
  * @api {get} /disk/groups 08.获取网盘群组列表
  * @apiName 获取网盘群组列表
  * @apiGroup 网盘模块
@@ -156,6 +138,69 @@ router.get('/groups', reqHandler(async function(req, res) {
     res.json({code: returnCode.SUCCESS, data: result, msg: 'ok'});
 }));
 
+
+/**
+ * @api {get} /disk/groupTasks 08.获取网盘群组任务列表
+ * @apiName 获取网盘群组列表
+ * @apiGroup 网盘模块
+ *
+ * @apiParam {String} disk_id 网盘id.
+ * @apiParam {String} flush 刷新群组.
+ * @apiParam {String} offset 分页.
+ * @apiParam {String} limit 分页.
+ *
+ * @apiSuccess {String} code 响应码, 如： 200, 0，……
+ * @apiSuccess {String} msg 响应信息
+ * @apiSuccess {Object} data 数据对象数组
+ */
+router.get('/groupTasks', reqHandler(async function(req, res) {
+    const {disk_id, taskname ,offset, limit} = req.query;
+    const result = await diskServ.getGroupTasks( req.user.username, disk_id, taskname ,parseInt(limit), parseInt(offset), );
+   
+    res.json({code: returnCode.SUCCESS, data: result, msg: 'ok'});
+}));
+
+
+/**
+ * @api {post} /disk/groupTasks 08.获取网盘群组列表
+ * @apiName 获取网盘群组列表
+ * @apiGroup 网盘模块
+ *
+ * @apiParam {String} disk_id 网盘id.
+ * @apiParam {String} flush 刷新群组.
+ * @apiParam {String} offset 分页.
+ * @apiParam {String} limit 分页.
+ *
+ * @apiSuccess {String} code 响应码, 如： 200, 0，……
+ * @apiSuccess {String} msg 响应信息
+ * @apiSuccess {Object} data 数据对象数组
+ */
+router.post('/groupTasks', reqHandler(async function(req, res) {
+    const {task_name, group_name, disk_id, managers} = req.body;
+    const result = await diskServ.postGroupTasks( req.user.username, task_name, group_name, disk_id, managers );
+    res.json({code: returnCode.SUCCESS, data: result, msg: 'ok'});
+}));
+
+/**
+ * @api {get} /disk/followers 08.获取网盘好友列表
+ * @apiName 获取网盘群组列表
+ * @apiGroup 网盘模块
+ *
+ * @apiParam {String} disk_id 网盘id.
+ * @apiParam {String} uname 用户名.
+ * @apiParam {String} offset 分页.
+ * @apiParam {String} limit 分页.
+ *
+ * @apiSuccess {String} code 响应码, 如： 200, 0，……
+ * @apiSuccess {String} msg 响应信息
+ * @apiSuccess {Object} data 数据对象数组
+ */
+router.get('/followers', reqHandler(async function(req, res) {
+    const {disk_id, priority_name ,offset, limit} = req.query;
+    const result = await diskServ.getFollowers( req.user.username, priority_name, disk_id,parseInt(limit), parseInt(offset), );
+   
+    res.json({code: returnCode.SUCCESS, data: result, msg: 'ok'});
+}));
 
 /**
  * @api {post} /disk/groups/flush 15.刷新网盘群组列表到db

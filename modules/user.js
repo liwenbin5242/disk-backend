@@ -146,8 +146,8 @@ async function getUserInfo(username) {
  * 更新用户基本信息
  * @param {*} username
  */
-async function updateUserInfo(username, avatar, name, phone, banners, wx) {
-    await diskDB.collection('users').updateOne({ username }, { $set: { avatar, name, phone, banners, wx, utm: new Date } });
+async function updateUserInfo(username, avatar, name, phone, wx, freeTime = 1, showShareUrl= true, searchType = 1) {
+    await diskDB.collection('users').updateOne({ username }, { $set: { avatar, name, phone,  wx,  freeTime, showShareUrl, searchType, utm: new Date } });
     return {};
 }
 

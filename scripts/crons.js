@@ -15,8 +15,8 @@ module.exports = function jobs() {
         const disks = await diskDB.collection('disks').find({uptime: {$lt: new Date(tm)}}).toArray()
         for(let disk of disks) {
             try {
-                const refresh_token = await utils.bdapis.refreshToken(disk.refresh_token)
-                await diskDB.collection('disks').updateOne({_id: disk._id}, {$set:{ refresh_token: refresh_token.data.refresh_token, access_token:refresh_token.data.access_token, uptime: new Date}})
+                // const refresh_token = await utils.bdapis.refreshToken(disk.refresh_token)
+                // await diskDB.collection('disks').updateOne({_id: disk._id}, {$set:{ refresh_token: refresh_token.data.refresh_token, access_token:refresh_token.data.access_token, uptime: new Date}})
                 logger.info(`${disk.baidu_name} token已更新`)
             } catch (err) {
                 logger.error(`${disk.baidu_name} token更新出错`)
@@ -25,7 +25,7 @@ module.exports = function jobs() {
         }
     })
     cron.schedule('*/30 * * * * *', async ()=> {
-        await task()
+        // await task()
         logger.info(`robot task runing`)
     })
     cron.schedule('*/60 * * * * *', async ()=> {

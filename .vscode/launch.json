@@ -38,6 +38,14 @@
                 "<node_internals>/**"
             ],
             "program": "${workspaceFolder}\\scripts/task.js"
+        },{
+            "type": "node",
+            "request": "launch",
+            "name": "addGroups",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}\\scripts/groups.js"
         },
     ]
 }

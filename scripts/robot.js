@@ -7,7 +7,6 @@ const { ObjectID } = require('mongodb');
 const redis = require('../utils/rediser');
 const _ = require('lodash');
 const { logger } = require('../utils/logger');
-const { resolve } = require('url');
 
 moment.locale('zh-cn');
 
