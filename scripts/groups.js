@@ -12,17 +12,18 @@ async function initDb() {
 }
 
 async function get_group_list() {
-    const data = await utils.bdapis.getGroups(cookie,0,100)
-    const groups = data.data.records.filter(r => {return r.name.includes ('白金版试看群')})
+    const data = await utils.bdapis.getGroups(cookie,0,200)
+    const groups = data.data.records.filter(r => {return r.name.includes ('白金版试看群602')}).sort((a,b)=> {return a.name -b.name})
     const diskDB = mongodber.use('disk');
     for(let group of groups) {
         let followers =  await diskDB.collection('disk_follower').find({disk_id,uk:{$nin:uks}, groups: {$size: 0}}).limit(196).toArray();
         const res = await utils.bdapis.addUser(cookie, group.gid, JSON.stringify(followers.map(f=> {return f.uk})), bdstoken)
         if(res.data.errno ==0) {
             await diskDB.collection('disk_follower').updateMany({_id:{$in: followers.map(f=> f._id)}}, {$push: {groups: group.gid}})
+            console.log(`${group.name} 添加完成`)
         }
-        
     }
+    console.log(`本轮添加完成`)
 }
 
 

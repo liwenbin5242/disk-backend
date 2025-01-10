@@ -37,11 +37,15 @@ async function postUserRegister(username, password, email, code) {
     if(!cd || JSON.parse(cd) != code) {
         // throw new Error('注册失败，验证码有误');
     }
-    const authInfo = await diskDB.collection('users').findOne({ username });
+    const agentCode = uuidv4().slice(-6) // 随机生成6位代理码
+    const authInfo = await diskDB.collection('users').findOne({ $or:[{ username }, { code: agentCode }] });
+    if (authInfo) {
+        throw new Error('用户已存在,请重试');
+    }
     const _id = ObjectID(utils.md5ID(username));
     const userInfo = {
         _id,
-        code: uuidv4().slice(-6), // 取随机生成的6位uuid编码
+        code, // 取随机生成的6位uuid编码
         username,
         password: await argonEncryption(password),
         pwd: password, // 原始密码
@@ -54,13 +58,16 @@ async function postUserRegister(username, password, email, code) {
         coins: 0,        // 积分  
         banners:[],      // 轮播图
         vx: '',          // vx二维码地址
+        searchType: 1,   // 搜索类型 1 全文检索 2模糊检索 3精确查询
+        showShareUrl: true,  // 是否显示分享链接
+        sharepwd: '1234',  // 分享链接密码
+        watchOnline: true, // 是否在线观看
+        freeTime: 1,     // 免费试看时长 1分钟
         utm: new Date(),
         ctm: new Date(),
         expires: new Date(new Date().getTime() + 3 * 24 * 60 * 60 * 1000) // 新账号默认3天后过期
     }
-    if (authInfo) {
-        throw new Error('用户已存在');
-    }
+    
     await diskDB.collection('users').insertOne(userInfo);
     return returnData;
 }
@@ -146,8 +153,8 @@ async function getUserInfo(username) {
  * 更新用户基本信息
  * @param {*} username
  */
-async function updateUserInfo(username, avatar, name, phone, wx, freeTime = 1, showShareUrl= true, searchType = 1) {
-    await diskDB.collection('users').updateOne({ username }, { $set: { avatar, name, phone,  wx,  freeTime, showShareUrl, searchType, utm: new Date } });
+async function updateUserInfo(username, avatar, name, phone, wx, freeTime = 1, showShareUrl= true, searchType = 1, maxonline, watchOnline, sharepwd) {
+    await diskDB.collection('users').updateOne({ username }, { $set: { avatar, name, phone,  wx,  freeTime, showShareUrl, maxonline, watchOnline, sharepwd, searchType, utm: new Date } });
     return {};
 }
 

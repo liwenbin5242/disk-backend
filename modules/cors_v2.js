@@ -73,7 +73,7 @@ async function postUserLogin(code, username,password) {
         };
         returnData.token = await encodeJwt(payload);
         const result = await rediser.lrange(`${code}:${username}`, 0, -1)
-        if(!result.length || result.length<3) {
+        if(!result.length || result.length<agent.maxonline) {
             await rediser.lpush(`${code}:${username}`,  returnData.token)
         } else {
             throw new Error('登录的设备超过限制数量');

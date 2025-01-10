@@ -2,7 +2,7 @@
     "app": {
         "name": "disk-backend",
         "port": 3101,
-        "url": "http://127.0.0.1:3101",
+        "url": "http://api.aassc.cn",
         "env": "dev"
     },
     "SECRET": "baidudicksecret",
@@ -44,5 +44,9 @@
         "clientsecret": "GVpNxBBQ3P79GTcGWPfnds5jk7Um6EM8",
         "signkey": "$bzmHeFRou$a=kUk@BCO-sid^Y@Zy0dW",
         "redirecturi": "http://disk.aassc.cn/oauth_redirect"
+    },
+    "WeChatMP" : {
+        "appid": "wx225c85ed443def3f",
+        "secret": "28e5e27cec76c61aae9090c3531e8e99"
     }
 }

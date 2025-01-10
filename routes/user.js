@@ -107,8 +107,8 @@ router.get('/info', reqHandler(async function(req, res) {
  * @apiSuccess {Object} data 数据对象数组
  */
 router.post('/info', reqHandler(async function(req, res) {
-    const { avatar, name, phone, wx, freeTime, showShareUrl, searchType} = req.body;
-    const result = await userServ.updateUserInfo(req.user.username, avatar, name, phone, wx, freeTime, showShareUrl, searchType);
+    const { avatar, name, phone, wx, freeTime, showShareUrl, searchType, watchOnline, sharepwd ,maxonline,} = req.body;
+    const result = await userServ.updateUserInfo(req.user.username, avatar, name, phone, wx, freeTime, showShareUrl, searchType, maxonline, watchOnline, sharepwd);
     return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
 }));
 
