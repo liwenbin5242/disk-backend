@@ -319,7 +319,11 @@ async function getFilesPermission(disk_id, path, token) {
 async function getAgentInfo(code) {
     const returnData = {}
     const banners = await diskDB.collection('banners').find({code, status:1}).sort({sort:1}).toArray()
+    const user = await diskDB.collection('users').findOne({code})
     returnData.banners = banners
+    returnData.showShareUrl = user.showShareUrl 
+    returnData.watchOnline = user.watchOnline 
+    returnData.freeTime = user.freeTime 
     return returnData
 }
 

@@ -180,7 +180,7 @@ async function searchUserShareFiles(disk_id, key, code, ) {
  */
 async function getShareFileUrl(disk_id, path = '', filename, username) {
     const returnData = {};
-    const subscriber = await  diskDB.collection('subscribers').findOne({username, expires: {$gte: new Date}}) 
+    const subscriber = await diskDB.collection('subscribers').findOne({username, expires: {$gte: new Date}}) 
     if(!subscriber) {
       throw new Error('会员已到期')
     }
@@ -225,6 +225,7 @@ async function getShareFileUrl(disk_id, path = '', filename, username) {
  */
 async function getShareFileUrl2(disk_id, path = '', filename, ) {
     const returnData = {};
+    const agent = await diskDB.collection('users').findOne({code, expires: {$gte: new Date}}) 
     try {
         const share_file = await redis.get(`${disk_id}:${path}:${filename}`)
         if(share_file) {
@@ -242,8 +243,8 @@ async function getShareFileUrl2(disk_id, path = '', filename, ) {
             if (!file) {
                 throw new Error('云端文件不存在')
             }
-            const code = uuidv4().slice(-4); // ⇨ '1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed'
-            const expireday = 7
+            const code = agent.sharepwd || uuidv4().slice(-4); // ⇨ '1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed'
+            const expireday = agent.expireday || 1
             const res = await utils.bdapis.fileShare(disk.cookie, expireday, code,[], 4, [file.fs_id])
             await redis.set(`${disk_id}:${path}:${filename}`, {code, url: res.data.shorturl}, expireday * 24 * 60 * 60)
             returnData.code = code
