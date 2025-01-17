@@ -11,8 +11,7 @@ const _ = require('lodash');
 const splitFileStream = require('split-file-stream');
 const { logger } = require('../utils/logger');
 const { task: genTreeMysql} = require('../scripts/gen_dir_tree_mysql'); 
-const { start } = require('repl');
-require('events').EventEmitter.defaultMaxListeners = 0;
+
 moment.locale('zh-cn');
 
 /**

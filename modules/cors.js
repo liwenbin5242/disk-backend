@@ -223,7 +223,7 @@ async function getShareFileUrl(disk_id, path = '', filename, username) {
  * @param {string} filename 文件名
  * @param {string} username 用户名 
  */
-async function getShareFileUrl2(disk_id, path = '', filename, ) {
+async function getShareFileUrl2(code, disk_id, path = '', filename, ) {
     const returnData = {};
     const agent = await diskDB.collection('users').findOne({code, expires: {$gte: new Date}}) 
     try {
