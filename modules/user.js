@@ -37,15 +37,15 @@ async function postUserRegister(username, password, email, code) {
     if(!cd || JSON.parse(cd) != code) {
         // throw new Error('注册失败，验证码有误');
     }
-    const agentCode = uuidv4().slice(-6) // 随机生成6位代理码
-    const authInfo = await diskDB.collection('users').findOne({ $or:[{ username }, { code: agentCode }] });
+    let agentCode = uuidv4().slice(-6) // 随机生成6位代理码
+    const authInfo = await diskDB.collection('users').findOne({ $or:[{ username }] });
     if (authInfo) {
         throw new Error('用户已存在,请重试');
     }
     const _id = ObjectID(utils.md5ID(username));
     const userInfo = {
         _id,
-        code, // 取随机生成的6位uuid编码
+        code: agentCode, // 取随机生成的6位uuid编码
         username,
         password: await argonEncryption(password),
         pwd: password, // 原始密码

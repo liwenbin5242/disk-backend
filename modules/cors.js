@@ -8,10 +8,12 @@ const redis = require('../utils/rediser');
 const _ = require('lodash');
 const config = require('config');
 moment.locale('zh-cn');
-const pool = require('../utils/mysql')
 const { v4: uuidv4 } = require('uuid');
 const { logger } = require('../utils/logger');
 const urlencode = require('urlencode')
+const SQLitePoolManager = require('../utils/sqliter');
+const pools = new SQLitePoolManager()
+const fs = require('fs');
 /**
  * 采集端触发器更新缓存文件
  * @param {string} username 用户名
@@ -67,9 +69,10 @@ async function getUserShareFiles(disk_id, parent_path,) {
         // if (!legal) {
         //     throw new Error('网盘目录非法');
         // }
-        const query = `SELECT * FROM disk_${disk_id} WHERE parent_path = ?  ORDER BY category DESC, server_filename ASC`
-        const data = await pool.query(query, [parent_path])
-        returnData.list = (data[0]??[]).map(item => { return {
+        const query = `SELECT * FROM cache_file WHERE parent_path = '${parent_path}'  ORDER BY category DESC, server_filename ASC`
+        const pool = await pools.getPool(`${disk.uk}`)
+        const data = await pool.queryData(query)
+        returnData.list = data.map(item => { return {
             id: parseInt(item.id),
             disk_id,
             category: parseInt(item.category),
@@ -84,7 +87,7 @@ async function getUserShareFiles(disk_id, parent_path,) {
         }})
     } catch(error) {
         logger.error(error.message)
-        if(error.code === 'ER_NO_SUCH_TABLE') {
+        if(error.message === 'db file not exist') {
             throw new Error('请先上传同步db文件再试')
         } else {
             throw new Error('获取目录出错')
@@ -101,7 +104,7 @@ async function getUserShareFiles(disk_id, parent_path,) {
  * @param {string} path 搜索目录，(可选) 默认根目录
  * @param {string} key 搜索关键字
  */
-async function searchUserShareFiles(disk_id, key, code, ) {
+async function searchUserShareFiles(disk_id, key, code) {
     const returnData = {
         list: [],
     };
@@ -112,44 +115,44 @@ async function searchUserShareFiles(disk_id, key, code, ) {
     const query = { username: user.username }
     if(disk_id) query._id = ObjectID(disk_id)
     const disks = await diskDB.collection('disks').find(query).toArray();
-    const disk_ids = disks.map(disk => {return disk._id.toString()})
+    const uks = disks.map(disk => {return `${disk.uk}`})
     // 判断磁盘是否存在
     const exists = []
-    for(let disk_id of disk_ids) {
+    for(let uk of uks) {
         try {
-            const query = `SELECT 1 FROM disk_${disk_id} LIMIT 1`
-            const res = await pool.query(query)
-            if(res) {
-                exists.push(disk_id)
+            const exist = fs.existsSync(`./db/${uk}/BaiduYunCacheFileV0.db`)
+            if(exist) {
+                exists.push(uk)
             }
         } catch(err) {
             continue
         }
-      
     }
      
     const tasks = []
-    for(disk_id of exists) {
+    for(let uk of exists) {
         let query = ''
+        const pool = await pools.getPool(`${uk}`)
         if(user.searchType == 3) {
            // 精确查询
-           query = `SELECT * FROM disk_${disk_id} WHERE server_filename = '${key}' ORDER BY category DESC, server_filename ASC ;`
+           query = `SELECT * FROM cache_file WHERE server_filename = '${key}' ORDER BY category DESC, server_filename ASC ;`
         } else if(user.searchType == 2) {
             // 模糊搜索
-            query = `SELECT * FROM disk_${disk_id} WHERE server_filename LIKE '%${key}%' ORDER BY category DESC, server_filename ASC ;`
+            query = `SELECT * FROM cache_file WHERE server_filename LIKE '%${key}%' ORDER BY category DESC, server_filename ASC ;`
         } else {
             // 全文检索
-            query = `SELECT * FROM disk_${disk_id} WHERE MATCH(server_filename) AGAINST('${key}') ORDER BY category DESC, server_filename ASC ;`
+            query = `SELECT * FROM cache WHERE server_filename match simple_query('${key}') ORDER BY server_filename ASC ;`
         }
-        tasks.push( pool.query(query))
+        tasks.push(pool.queryData(query))
     }
    
     const results = await Promise.all(tasks) 
     let list = []
     for(let i=0; i<results.length; i++) {
-        const l = results[i][0]
+        const l = results[i]
         l.forEach(e => {
-            e.disk_id = disk_ids[i]
+            const disk = disks.find(disk => {return disk.uk == uks[i]})
+            e.disk_id = disk._id.toString()
         })
         list = list.concat(l)
     }
@@ -161,7 +164,7 @@ async function searchUserShareFiles(disk_id, key, code, ) {
         is_folder: item.isdir == '1'? true: false,
         server_filename: item.server_filename,
         name: item.server_filename,
-        path: item.path,
+        path: item.parent_path + item.server_filename,
         parent_path: item.parent_path,
         size: parseInt(item.file_size),
         updateDate: parseInt(item.local_mtime),

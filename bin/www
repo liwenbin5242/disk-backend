@@ -5,13 +5,14 @@ const { ObjectID } = require('mongodb');
 const config = require('config');
 const {logger} = require('../utils/logger');
 const { argonEncryption} = require('../lib/utils');
-const utils = require('../lib/utils');
+const SQLitePoolManager = require('../utils/sqliter')
 
 async function initDb() {
     let databases = config.get('MONGODBS');
     await mongodber.init(databases);
     logger.info('mongo is ready!');
 }
+
 async function initRedis() {
     const redisConfig = config.get('REDIS');
     await new Promise((resolve) => {
@@ -27,7 +28,13 @@ async function initRedis() {
     });
 }
 
+async function initSqlite() {
+    const Pool = new SQLitePoolManager()
+    await Pool.init()
+    logger.info('sqlite is ready!');
+}
 (async function init() {
+    await initSqlite()
     await initDb();
     await initRedis();
     const app = require('../app');

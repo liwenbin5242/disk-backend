@@ -76,7 +76,7 @@ router.get('/disks/files', reqHandler(async function(req, res) {
  * @apiName 搜索文件
  * @apiGroup 前台页面api
  *
- * @apiParam {String}  code 必选
+ * @apiParam {String} code 必选
  * @apiParam {String} disk_id 网盘id(可选)
  * @apiParam {String} path 父级路径(可选)
  * @apiParam {String} key 查询条件 (可选)

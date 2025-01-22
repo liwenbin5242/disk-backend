@@ -2,11 +2,9 @@ const cron = require('node-cron');
 const mongodber = require('../utils/mongodber');
 const { logger } = require('../utils/logger');
 const utils = require('../lib/utils');
-const pool = require('../utils/mysql')
 const diskDB = mongodber.use('disk');
 const {task} = require('./robot')
 const moment = require('moment')
-const _ = require('lodash')
 module.exports = function jobs() {
     cron.schedule('0 0 5 */1 * *', async () => {
         logger.info(`check bd access_token`)
