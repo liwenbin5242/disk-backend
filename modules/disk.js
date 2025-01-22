@@ -11,7 +11,7 @@ const _ = require('lodash');
 const splitFileStream = require('split-file-stream');
 const { logger } = require('../utils/logger');
 const { task: genTreeMysql} = require('../scripts/gen_dir_tree_mysql'); 
-
+const { task: genTreeSqlite} = require('../scripts/gen_dir_tree_sqlite');
 moment.locale('zh-cn');
 
 /**
@@ -462,8 +462,8 @@ async function postDbfile(req, disk_id, chunks, chunk, md5, filename, timestamp)
         throw new Error('网盘不存在');
     }
     // 更新网盘状态,设置为pending
-    await diskDB.collection('disks').updateOne({ _id: ObjectId(disk_id) }, {$set: {dir_tree_status: 'pending'}});
-    const tempdir = node_path.join(__dirname, `../temp/${disk_id}/${timestamp}/`);
+    await diskDB.collection('disks').updateMany({ uk: disk.uk }, {$set: {dir_tree_status: 'pending'}});
+    const tempdir = node_path.join(__dirname, `../temp/${disk.uk}/`);
     await fs.mkdirSync(tempdir, {recursive: true})
     let tempfile = ''
     await new Promise(async (resolve, reject) => { // 异步执行
@@ -490,10 +490,12 @@ async function postDbfile(req, disk_id, chunks, chunk, md5, filename, timestamp)
         // 定义要合并的分片文件路径数组
         const filePaths = files.sort((a,b)=> {return parseInt(a)- parseInt(b)}).map(file => {return `${tempdir}${file}`});
         // 合并文件
-        const result = await utils.mergeFile(filePaths,`${tempdir}${filename}`)
-        if(result.done && md5=== utils.md5(fs.readFileSync(`${tempdir}${filename}`))) { //
+        const dbdir = node_path.join(__dirname, `../db/${disk.uk}/`);
+        await fs.mkdirSync(dbdir, {recursive: true})
+        const result = await utils.mergeFile(filePaths,`${dbdir}${filename}`)
+        if(result.done && md5=== utils.md5(fs.readFileSync(`${dbdir}${filename}`))) { //
             logger.info('文件md5摘要校验成功')
-            genTreeMysql(`${tempdir}${filename}`, disk_id)
+            await genTreeSqlite(`${dbdir}${filename}`, disk.uk)
         }
     }
     return returnData;

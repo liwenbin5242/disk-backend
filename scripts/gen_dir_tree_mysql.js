@@ -37,9 +37,9 @@ async function task(tempfile, diskid) {
             FULLTEXT(server_filename) WITH PARSER ngram 
         ) ENGINE=InnoDB CHARACTER SET utf8mb4;`);
         // 新增全文检索 索引，索引字段是server_filename
-        //  await pool.query(`CREATE FULLTEXT INDEX server_filename_full_text ON disk_${diskid} (server_filename)`)
+        await pool.query(`CREATE FULLTEXT INDEX server_filename_full_text ON disk_${diskid} (server_filename)`)
         // 新增正常索引
-        // await pool.query(`CREATE INDEX server_filename ON disk_${diskid} (server_filename)`)
+        await pool.query(`CREATE INDEX server_filename ON disk_${diskid} (server_filename)`)
         let cond = true;
         while ( cond ) {
             try {
