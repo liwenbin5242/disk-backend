@@ -39,8 +39,8 @@ router.get('/regcode', reqHandler(async function(req, res) {
  * @apiSuccess {Object} data 数据对象数组
  */
 router.post('/register', reqHandler(async function(req, res) {
-    let {username, password, email, code} = req.body;
-    const result = await userServ.postUserRegister(username, password, email, code);
+    let {username, password, email, code, appid} = req.body;
+    const result = await userServ.postUserRegister(username, password, email, code, appid);
     res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
 }));
 
@@ -156,8 +156,8 @@ router.get('/group/disks', reqHandler(async function(req, res) {
  * @apiSuccess {Object} data 数据对象数组
  */
 router.post('/disks/code', reqHandler(async function(req, res) {
-    const {code} = req.query;
-    const result = await userServ.bindDisk(req.user.username, code);
+    const {code, redirect_url} = req.query;
+    const result = await userServ.bindDisk(req.user.username,req.user.app_id, code, redirect_url);
     return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
 }));
 

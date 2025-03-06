@@ -31,7 +31,7 @@ async function getUserRegcode(mail) {
  * @param {账号} username 用户名(建议使用手机号)
  * @param {密码} password 密码
  */
-async function postUserRegister(username, password, email, code) {
+async function postUserRegister(username, password, email, code, appid) {
     const returnData = {};
     const cd = await redis.get(email)
     if(!cd || JSON.parse(cd) != code) {
@@ -45,6 +45,7 @@ async function postUserRegister(username, password, email, code) {
     const _id = ObjectID(utils.md5ID(username));
     const userInfo = {
         _id,
+        appid,
         code: agentCode, // 取随机生成的6位uuid编码
         username,
         password: await argonEncryption(password),
@@ -87,6 +88,10 @@ async function postUserLogin(username, password) {
     if (user.expires <= new Date() && isTrue) {
         throw new Error('账号已过期,请联系管理员续期');
     }
+    const app = await diskDB.collection('baidu_apps').findOne({ app_id: user.app_id });
+    user.app_key = app.app_key
+    user.redirect_url = app.redirect_url
+    user.domain = app.domain
     if (isTrue) {
         const payload = {
             user,
@@ -94,6 +99,9 @@ async function postUserLogin(username, password) {
         returnData.token = await encodeJwt(payload);
         returnData.username = username;
         returnData.userId = user._id;
+        returnData.app_key = user.app_key;
+        returnData.redirect_url = user.redirect_url;
+        returnData.domain = user.domain;
         return returnData;
     }
     throw new Error('账号或密码错误');
@@ -103,19 +111,21 @@ async function postUserLogin(username, password) {
  * 用户通过code换取access_token和refresh_token
  * @param {百度code} code
  * @param {*} username
+ * @param {应用id} appid
  * @returns
  */
-async function bindDisk(username, code) {
+async function bindDisk(username, app_id, code, redirect_url) {
     const returnData = {};
-    const { data } = await utils.bdapis.code2token(code);
+    const app = await diskDB.collection('baidu_apps').findOne({app_id})
+    const { data } = await utils.bdapis.code2token(code, app.app_key, app.secret_key, redirect_url);
     const bduserinfo = await utils.bdapis.getbdUserByToken(data.access_token);
-    redis.set(bduserinfo.data.uk, data.access_token, data.expires_in);
-    const _id = ObjectID(await utils.md5ID(`${username}|${bduserinfo.data.uk}`));
+    const _id = ObjectID(await utils.md5ID(`${app_id}${username}|${bduserinfo.data.uk}`));
     await diskDB.collection('disks').findOneAndUpdate(
         { _id },
         {
             $set: {
                 username,
+                app_id,
                 avatar_url: bduserinfo?.data?.avatar_url,
                 baidu_name: bduserinfo?.data?.baidu_name,
                 netdisk_name: bduserinfo?.data?.netdisk_name,
@@ -145,6 +155,10 @@ async function getUserInfo(username) {
     if (!user) {
         throw new Error('用户不存在');
     }
+    const app = await diskDB.collection('baidu_apps').findOne({ app_id: user.app_id });
+    user.app_key = app.app_key
+    user.redirect_url = app.redirect_url
+    user.domain = app.domain
     delete user.password;
     return user;
 }

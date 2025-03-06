@@ -9,7 +9,7 @@
     "REDIS": {
         "port": 6379,
         "host": "127.0.0.1",
-        "password": ""
+        "password": "ojmhygbgrfvcdewsxzasedrf"
     },
     "MONGODBS": {
         "disk": {
@@ -40,10 +40,7 @@
         "http://localhost:9528"
     ],
     "BaiDuDisk": {
-        "clientid": "Xo5gDASeVZRxHArna5hviweIGkllqetf",
-        "clientsecret": "GVpNxBBQ3P79GTcGWPfnds5jk7Um6EM8",
-        "signkey": "$bzmHeFRou$a=kUk@BCO-sid^Y@Zy0dW",
-        "redirecturi": "http://disk.aassc.cn/oauth_redirect"
+        "appid":"33416078"
     },
     "WeChatMP" : {
         "appid": "wx225c85ed443def3f",

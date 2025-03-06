@@ -10,7 +10,6 @@ const nodePath = require('path');
 const _ = require('lodash');
 const splitFileStream = require('split-file-stream');
 const { logger } = require('../utils/logger');
-const { task: genTreeMysql} = require('../scripts/gen_dir_tree_mysql'); 
 const { task: genTreeSqlite} = require('../scripts/gen_dir_tree_sqlite');
 moment.locale('zh-cn');
 

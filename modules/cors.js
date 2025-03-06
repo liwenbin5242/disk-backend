@@ -6,7 +6,6 @@ const moment = require('moment');
 const { ObjectID } = require('mongodb');
 const redis = require('../utils/rediser');
 const _ = require('lodash');
-const config = require('config');
 moment.locale('zh-cn');
 const { v4: uuidv4 } = require('uuid');
 const { logger } = require('../utils/logger');
@@ -135,13 +134,13 @@ async function searchUserShareFiles(disk_id, key, code) {
         const pool = await pools.getPool(`${uk}`)
         if(user.searchType == 3) {
            // 精确查询
-           query = `SELECT * FROM cache_file WHERE server_filename = '${key}' ORDER BY category DESC, server_filename ASC ;`
+           query = `SELECT * FROM cache WHERE server_filename = '${key}' ORDER BY category DESC, server_filename ASC ;`
         } else if(user.searchType == 2) {
             // 模糊搜索
-            query = `SELECT * FROM cache_file WHERE server_filename LIKE '%${key}%' ORDER BY category DESC, server_filename ASC ;`
+            query = `SELECT * FROM cache WHERE server_filename LIKE '%${key}%' ORDER BY category DESC, server_filename ASC ;`
         } else {
             // 全文检索
-            query = `SELECT * FROM cache WHERE server_filename match simple_query('${key}') ORDER BY server_filename ASC ;`
+            query = `SELECT * FROM cache WHERE server_filename match simple_query('${key}') ORDER BY  category DESC, server_filename ASC ;`
         }
         tasks.push(pool.queryData(query))
     }
