@@ -258,10 +258,19 @@ async function getShareFileUrl2(code, disk_id, path = '', filename, ) {
     }
     return returnData;
 }
+
+async function postWeixinLogin(code, appId) {
+    const app = await diskDB.collection('wx_apps').findOne({appId})
+    if(!app) {
+        throw new Error('appId不存在')
+    }
+    const {data} = await utils.bdapis.code2token(code, app.app_key, app.secret_key, app.redirect_url);
+}
 module.exports = {
     postUserShare,
     getUserShareFiles,
     searchUserShareFiles,
     getShareFileUrl,
-    getShareFileUrl2
+    getShareFileUrl2,
+    postWeixinLogin
 };

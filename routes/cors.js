@@ -158,4 +158,21 @@ router.get('/disks/files/shareurl2', reqHandler(async function(req, res) {
     const result = await corsServ.getShareFileUrl2(code, disk_id, urldecodes(parent_path ||''), urldecodes(filename));
     return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
 }));
+
+/**
+ * @api {get} /wx/login 00.微信用户登录
+ * @apiName 微信用户登录
+ * @apiGroup 小程序
+ *
+ * @apiParam {String}
+ *
+ * @apiSuccess {String} code 响应码, 如： 200, 0，……
+ * @apiSuccess {String} message 响应信息
+ * @apiSuccess {Object} data 数据对象数组
+ */
+router.post('/weixin/login', reqHandler(async function(req, res) {
+    let {code, appId} = req.body;
+    const result = await corsServ.postWeixinLogin(code, appId);
+    res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
+}));
 module.exports = router;

@@ -17,12 +17,15 @@ const urldecode = require('urldecode');
  * @apiSuccess {String} message 响应信息
  * @apiSuccess {Object} data 数据对象数组
  */
-router.get('/regcode', reqHandler(async function(req, res) {
-    let {mail} = req.query;
-    mail = urldecode(mail)
+router.get(
+  '/regcode',
+  reqHandler(async function (req, res) {
+    let { mail } = req.query;
+    mail = urldecode(mail);
     const result = await userServ.getUserRegcode(mail);
-    res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
-}));
+    res.json({ code: returnCode.SUCCESS, data: result, message: 'ok' });
+  })
+);
 
 /**
  * @api {post} /user/register 01.用户注册(后台)
@@ -38,11 +41,20 @@ router.get('/regcode', reqHandler(async function(req, res) {
  * @apiSuccess {String} message 响应信息
  * @apiSuccess {Object} data 数据对象数组
  */
-router.post('/register', reqHandler(async function(req, res) {
-    let {username, password, email, code, appid} = req.body;
-    const result = await userServ.postUserRegister(username, password, email, code, appid);
-    res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
-}));
+router.post(
+  '/register',
+  reqHandler(async function (req, res) {
+    let { username, password, email, code, appid } = req.body;
+    const result = await userServ.postUserRegister(
+      username,
+      password,
+      email,
+      code,
+      appid
+    );
+    res.json({ code: returnCode.SUCCESS, data: result, message: 'ok' });
+  })
+);
 
 /**
  * @api {post} /user/login 02.用户登录获取token
@@ -56,11 +68,14 @@ router.post('/register', reqHandler(async function(req, res) {
  * @apiSuccess {String} message 响应信息
  * @apiSuccess {Object} data 数据对象数组
  */
-router.post('/login', reqHandler(async function(req, res) {
-    const {username, password} = req.body;
+router.post(
+  '/login',
+  reqHandler(async function (req, res) {
+    const { username, password } = req.body;
     const result = await userServ.postUserLogin(username, password);
-    return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
-}));
+    return res.json({ code: returnCode.SUCCESS, data: result, message: 'ok' });
+  })
+);
 
 /**
  * @api {post} /user/logout 03.用户登出
@@ -72,11 +87,14 @@ router.post('/login', reqHandler(async function(req, res) {
  * @apiSuccess {String} message 响应信息
  * @apiSuccess {Object} data 数据对象数组
  */
-router.post('/logout', reqHandler(async function(req, res) {
+router.post(
+  '/logout',
+  reqHandler(async function (req, res) {
     // const {username, password} = req.body;
     // const result = await userServ.postUserLogout(username, password);
-    return res.json({code: returnCode.SUCCESS, data: {}, message: 'ok'});
-}));
+    return res.json({ code: returnCode.SUCCESS, data: {}, message: 'ok' });
+  })
+);
 
 /**
  * @api {get} /user/info 04.获取用户基本信息
@@ -88,10 +106,13 @@ router.post('/logout', reqHandler(async function(req, res) {
  * @apiSuccess {String} message 响应信息
  * @apiSuccess {Object} data 数据对象数组
  */
-router.get('/info', reqHandler(async function(req, res) {
+router.get(
+  '/info',
+  reqHandler(async function (req, res) {
     const result = await userServ.getUserInfo(req.user.username);
-    return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
-}));
+    return res.json({ code: returnCode.SUCCESS, data: result, message: 'ok' });
+  })
+);
 
 /**
  * @api {post} /user/info 05.修改用户基本信息
@@ -101,16 +122,42 @@ router.get('/info', reqHandler(async function(req, res) {
  * @apiParam {String} name 网盘
  * @apiParam {String} phone 手机号
  * @apiParam {String} wx 微信二维码图片地址
- * 
+ *
  * @apiSuccess {String} code 响应码, 如： 200, 0，……
  * @apiSuccess {String} message 响应信息
  * @apiSuccess {Object} data 数据对象数组
  */
-router.post('/info', reqHandler(async function(req, res) {
-    const { avatar, name, phone, wx, freeTime, showShareUrl, searchType, watchOnline, sharepwd ,maxonline,} = req.body;
-    const result = await userServ.updateUserInfo(req.user.username, avatar, name, phone, wx, freeTime, showShareUrl, searchType, maxonline, watchOnline, sharepwd);
-    return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
-}));
+router.post(
+  '/info',
+  reqHandler(async function (req, res) {
+    const {
+      avatar,
+      name,
+      phone,
+      wx,
+      freeTime,
+      showShareUrl,
+      searchType,
+      watchOnline,
+      sharepwd,
+      maxonline,
+    } = req.body;
+    const result = await userServ.updateUserInfo(
+      req.user.username,
+      avatar,
+      name,
+      phone,
+      wx,
+      freeTime,
+      showShareUrl,
+      searchType,
+      maxonline,
+      watchOnline,
+      sharepwd
+    );
+    return res.json({ code: returnCode.SUCCESS, data: result, message: 'ok' });
+  })
+);
 
 /**
  * @api {get} /user/disks 06.获取用户关联网盘信息
@@ -123,10 +170,13 @@ router.post('/info', reqHandler(async function(req, res) {
  * @apiSuccess {Object} data 数据对象数组
  */
 
-router.get('/disks', reqHandler(async function(req, res) {
+router.get(
+  '/disks',
+  reqHandler(async function (req, res) {
     const result = await userServ.getUserDisks(req.user.username);
-    return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
-}));
+    return res.json({ code: returnCode.SUCCESS, data: result, message: 'ok' });
+  })
+);
 
 /**
  * @api {get} /user/group/disks 06.获取用户组织下关联网盘信息
@@ -139,10 +189,13 @@ router.get('/disks', reqHandler(async function(req, res) {
  * @apiSuccess {Object} data 数据对象数组
  */
 
-router.get('/group/disks', reqHandler(async function(req, res) {
+router.get(
+  '/group/disks',
+  reqHandler(async function (req, res) {
     const result = await userServ.getGroupDisks(req.user.username);
-    return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
-}));
+    return res.json({ code: returnCode.SUCCESS, data: result, message: 'ok' });
+  })
+);
 
 /**
  * @api {post} /user/disks/code  07.通过code换取access_token
@@ -155,11 +208,18 @@ router.get('/group/disks', reqHandler(async function(req, res) {
  * @apiSuccess {String} message 响应信息
  * @apiSuccess {Object} data 数据对象数组
  */
-router.post('/disks/code', reqHandler(async function(req, res) {
-    const {code, redirect_url} = req.query;
-    const result = await userServ.bindDisk(req.user.username,req.user.app_id, code, redirect_url);
-    return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
-}));
+router.post(
+  '/disks/code',
+  reqHandler(async function (req, res) {
+    const { code, redirect_url } = req.query;
+    const result = await userServ.bindDisk(
+      req.user.username,
+      code,
+      redirect_url
+    );
+    return res.json({ code: returnCode.SUCCESS, data: result, message: 'ok' });
+  })
+);
 
 /**
  * @api {post} /user/disks/share 09.用户新增目录
@@ -169,7 +229,7 @@ router.post('/disks/code', reqHandler(async function(req, res) {
  * @apiParam {String} disk_id 网盘id
  * @apiParam {String} title 目录名称
  * @apiParam {String} sort 排序
- * @apiParam {String} type 文件类型 1网盘文件 2好友文件 3群组文件 
+ * @apiParam {String} type 文件类型 1网盘文件 2好友文件 3群组文件
  * @apiParam {String} path 网盘目录路径
  * @apiParam {String} name 文件名称
  * @apiParam {String} category 文件类型
@@ -180,12 +240,38 @@ router.post('/disks/code', reqHandler(async function(req, res) {
  * @apiSuccess {String} message 响应信息
  * @apiSuccess {Object} data 数据对象数组
  */
-router.post('/disks/share', reqHandler(async function(req, res) {
-    const {disk_id, title, sort, type, path, parent_id ='', name, category, is_folder} = req.body;
-    const {username} = req.user
-    const result = await userServ.postShare(username, disk_id, title, sort, type, path, parent_id, name, category, is_folder);
-    return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
-}));
+router.post(
+  '/disks/share',
+  reqHandler(async function (req, res) {
+    const {
+      disk_id,
+      title,
+      status,
+      sort,
+      type,
+      path,
+      parent_id = '',
+      name,
+      category,
+      is_folder,
+    } = req.body;
+    const { username } = req.user;
+    const result = await userServ.postShare(
+      username,
+      disk_id,
+      status,
+      title,
+      sort,
+      type,
+      path,
+      parent_id,
+      name,
+      category,
+      is_folder
+    );
+    return res.json({ code: returnCode.SUCCESS, data: result, message: 'ok' });
+  })
+);
 
 /**
  * @api {delete} /user/disks/share 10.用户取消分享指定网盘下文件夹
@@ -198,12 +284,14 @@ router.post('/disks/share', reqHandler(async function(req, res) {
  * @apiSuccess {String} message 响应信息
  * @apiSuccess {Object} data 数据对象数组
  */
-router.delete('/disks/share', reqHandler(async function(req, res) {
-    const {id} = req.query;
+router.delete(
+  '/disks/share',
+  reqHandler(async function (req, res) {
+    const { id } = req.query;
     const result = await userServ.deleteShare(id);
-    return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
-}));
-
+    return res.json({ code: returnCode.SUCCESS, data: result, message: 'ok' });
+  })
+);
 
 /**
  * @api {get} /user/disks/share 11.用户获取分享网盘及网盘下文件夹
@@ -214,10 +302,13 @@ router.delete('/disks/share', reqHandler(async function(req, res) {
  * @apiSuccess {String} message 响应信息
  * @apiSuccess {Object} data 数据对象数组
  */
-router.get('/disks/share', reqHandler(async function(req, res) {
+router.get(
+  '/disks/share',
+  reqHandler(async function (req, res) {
     const result = await userServ.getShare(req.user.username);
-    return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
-}));
+    return res.json({ code: returnCode.SUCCESS, data: result, message: 'ok' });
+  })
+);
 
 /**
  * @api {put} /user/disks/share 12.用户编辑分享网盘及网盘下文件夹
@@ -228,12 +319,36 @@ router.get('/disks/share', reqHandler(async function(req, res) {
  * @apiSuccess {String} message 响应信息
  * @apiSuccess {Object} data 数据对象数组
  */
-router.put('/disks/share', reqHandler(async function(req, res) {
-    const {_id, disk_id, title, sort, type, path, parent_id ='', name, category} = req.body
-    const result = await userServ.putShare( _id, disk_id, title, sort, type, path, parent_id, name, category);
-    return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
-}));
-
+router.put(
+  '/disks/share',
+  reqHandler(async function (req, res) {
+    const {
+      _id,
+      disk_id,
+      status,
+      title,
+      sort,
+      type,
+      path,
+      parent_id = '',
+      name,
+      category,
+    } = req.body;
+    const result = await userServ.putShare(
+      _id,
+      disk_id,
+      status,
+      title,
+      sort,
+      type,
+      path,
+      parent_id,
+      name,
+      category
+    );
+    return res.json({ code: returnCode.SUCCESS, data: result, message: 'ok' });
+  })
+);
 
 /**
  * @api {delete} /user/disks/:id  08.用户解绑网盘
@@ -246,15 +361,17 @@ router.put('/disks/share', reqHandler(async function(req, res) {
  * @apiSuccess {String} message 响应信息
  * @apiSuccess {Object} data 数据对象数组
  */
-router.delete('/disks/:id', reqHandler(async function(req, res) {
-    const {id} = req.params;
+router.delete(
+  '/disks/:id',
+  reqHandler(async function (req, res) {
+    const { id } = req.params;
     const result = await userServ.deleteDisk(req.user.username, id);
-    return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
-}));
-
+    return res.json({ code: returnCode.SUCCESS, data: result, message: 'ok' });
+  })
+);
 
 /**
- * @api {get} /config/banners 
+ * @api {get} /config/banners
  * @apiName 获取banners
  * @apiGroup 用户模块
  *
@@ -263,12 +380,14 @@ router.delete('/disks/:id', reqHandler(async function(req, res) {
  * @apiSuccess {String} message 响应信息
  * @apiSuccess {Object} data 数据对象数组
  */
-router.get('/config/banners', reqHandler(async function(req, res) {
-    const {limit, offset} = req.query
+router.get(
+  '/config/banners',
+  reqHandler(async function (req, res) {
+    const { limit, offset } = req.query;
     const result = await userServ.getBanners(req.user.username, limit, offset);
-    return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
-}));
-
+    return res.json({ code: returnCode.SUCCESS, data: result, message: 'ok' });
+  })
+);
 
 /**
  * @api {delete} /config/banners
@@ -281,11 +400,14 @@ router.get('/config/banners', reqHandler(async function(req, res) {
  * @apiSuccess {String} message 响应信息
  * @apiSuccess {Object} data 数据对象数组
  */
-router.delete('/config/banners', reqHandler(async function(req, res) {
-    const {id} = req.body;
+router.delete(
+  '/config/banners',
+  reqHandler(async function (req, res) {
+    const { id } = req.body;
     const result = await userServ.deleteBanners(id);
-    return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
-}));
+    return res.json({ code: returnCode.SUCCESS, data: result, message: 'ok' });
+  })
+);
 
 /**
  * @api {post} /config/banners
@@ -298,11 +420,32 @@ router.delete('/config/banners', reqHandler(async function(req, res) {
  * @apiSuccess {String} message 响应信息
  * @apiSuccess {Object} data 数据对象数组
  */
-router.post('/config/banners', reqHandler(async function(req, res) {
-    const {status, img_url, redirect_url, sort, type, position, share_file_id} = req.body
-    const result = await userServ.postBanners(req.user.username,req.user.code, status, img_url, redirect_url, sort, type, position, share_file_id );
-    return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
-}));
+router.post(
+  '/config/banners',
+  reqHandler(async function (req, res) {
+    const {
+      status,
+      img_url,
+      redirect_url,
+      sort,
+      type,
+      position,
+      share_file_id,
+    } = req.body;
+    const result = await userServ.postBanners(
+      req.user.username,
+      req.user.code,
+      status,
+      img_url,
+      redirect_url,
+      sort,
+      type,
+      position,
+      share_file_id
+    );
+    return res.json({ code: returnCode.SUCCESS, data: result, message: 'ok' });
+  })
+);
 
 /**
  * @api {put} /config/banners
@@ -315,10 +458,31 @@ router.post('/config/banners', reqHandler(async function(req, res) {
  * @apiSuccess {String} message 响应信息
  * @apiSuccess {Object} data 数据对象数组
  */
-router.put('/config/banners', reqHandler(async function(req, res) {
-    const {_id,status, img_url, redirect_url, sort, type, position, share_file_id} = req.body
-    const result = await userServ.putBanners(_id ,status, img_url, redirect_url, sort, type, position, share_file_id );
-    return res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
-}));
+router.put(
+  '/config/banners',
+  reqHandler(async function (req, res) {
+    const {
+      _id,
+      status,
+      img_url,
+      redirect_url,
+      sort,
+      type,
+      position,
+      share_file_id,
+    } = req.body;
+    const result = await userServ.putBanners(
+      _id,
+      status,
+      img_url,
+      redirect_url,
+      sort,
+      type,
+      position,
+      share_file_id
+    );
+    return res.json({ code: returnCode.SUCCESS, data: result, message: 'ok' });
+  })
+);
 
 module.exports = router;
