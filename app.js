@@ -50,6 +50,16 @@ app.use('/api/cors', corsRotes);
 app.use('/api/cdkey', cdkeyRotes);
 app.use('/api/robot', robotRotes);
 
+// 健康检查接口
+app.get('/health', (req, res) => {
+    res.status(200).json({
+        status: 'OK',
+        timestamp: new Date().toISOString(),
+        service: 'disk-backend',
+        version: '1.0.0'
+    });
+});
+
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
     logger.error(`404: ${req.method} from ${req.ip.slice(7)} url:${req.path} \n query:${JSON.stringify(req.query)} \n params:${JSON.stringify(req.params)} \n body:${JSON.stringify(req.body)}`);
