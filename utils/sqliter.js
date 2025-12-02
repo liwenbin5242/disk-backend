@@ -8,7 +8,9 @@ class SQLitePoolManager {
 
   async init() {
     // 获取db目录下的所有文件
-    const dbdirs = await fs.readdirSync('./db');
+    const exists = fs.existsSync('./db')
+    if(!exists) fs.mkdirSync('./db')
+    const dbdirs =  fs.readdirSync('./db');
     for(let dir of dbdirs) {
         this.getPool(dir)
     }
