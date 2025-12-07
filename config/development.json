@@ -12,9 +12,12 @@
         "password": "ojmhygbgrfvcdewsxzasedrf"
     },
     "MONGODBS": {
-        "disk": {
-            "host": "mongodb://disk:qazwsxedc40cer47fsdf8erqaz@43.143.243.237:17017/disk?authSource=disk"
-        }
+          "disk": {
+            "host": "mongodb://disk:qazwsxedc40cer47fsdf8erqaz@81.70.16.147:27017/disk?authSource=disk"
+            },
+            "admin": {
+                "host": "mongodb://admin:qazwsxedc40cer47fsdf8erqaz@81.70.16.147:27017/admin?authSource=admin"
+            }
     },
     "PG": {
         "port": 5432,
