@@ -7,16 +7,16 @@
     },
     "SECRET": "baidudicksecret",
     "REDIS": {
-        "port": 6379,
-        "host": "127.0.0.1",
+        "port": 16379,
+        "host": "120.53.11.217",
         "password": "ojmhygbgrfvcdewsxzasedrf"
     },
     "MONGODBS": {
           "disk": {
-            "host": "mongodb://disk:qazwsxedc40cer47fsdf8erqaz@81.70.16.147:27017/disk?authSource=disk"
+            "host": "mongodb://disk:qazwsxedc40cer47fsdf8erqaz@120.53.11.217/disk?authSource=disk"
             },
             "admin": {
-                "host": "mongodb://admin:qazwsxedc40cer47fsdf8erqaz@81.70.16.147:27017/admin?authSource=admin"
+                "host": "mongodb://root:qazwsxedc40cer47fsdf8erqaz@120.53.11.217/admin?authSource=admin"
             }
     },
     "PG": {
