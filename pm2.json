@@ -6,7 +6,7 @@
       "script": "bin/www",
       "log_date_format": "YYYY-MM-DD HH:mm:ss",
       "exec_mode": "fork",
-      "instances": "max",
+      "instances": 1,
       "min_uptime": "200s",
       "max_restarts": 10,
       "max_memory_restart": "1024M",
@@ -18,7 +18,8 @@
       "error_file": "./logs/err.log",
       "out_file": "./logs/out.log",
       "env": {
-        "NODE_ENV": "development"
+        "NODE_ENV": "development",
+        "NODE_CONFIG_DIR": "./config"
       }
     }
   ]
