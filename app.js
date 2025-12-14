@@ -20,7 +20,7 @@ const corsV2Rotes = require('./routes/cors_v2');
 const wxRotes = require('./routes/wx');
 jobs()
 const app = express();
-app.use(cors());
+// app.use(cors());
 app.use(busboy());
 
 app.use('*', responseTime(),);
