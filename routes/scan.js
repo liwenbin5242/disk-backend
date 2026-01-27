@@ -36,6 +36,11 @@ router.get('/versions', reqHandler(async function(req, res) {
     res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
 }));
 
+router.post('/versions', reqHandler(async function(req, res) {
+    const result = await scanServ.postVersions(req.body.data);
+    res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
+}));
+
 
 
 module.exports = router;

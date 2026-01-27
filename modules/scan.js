@@ -29,9 +29,16 @@ async function getVersions() {
     return returnData;
 }
 
+async function postVersions(data) {
+    let returnData = {};
+    await diskDB.collection('scan_versions').insertOne({ ...data, ctm: new Date() });
+    return returnData;
+}
+
 module.exports = {
     postData,
     getNotice,
     getVersions,
     putNotice,
+    postVersions,
 };
