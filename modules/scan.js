@@ -10,6 +10,13 @@ async function postData(data) {
     return returnData;
 }
 
+async function getNotice() {
+    let returnData = {};
+    returnData = await diskDB.collection('scan_notice').findOne();
+    return returnData;
+}
+
 module.exports = {
     postData,
+    getNotice,
 };

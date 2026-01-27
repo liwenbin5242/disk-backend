@@ -21,4 +21,10 @@ router.post('/data', reqHandler(async function(req, res) {
     res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
 }));
 
+router.get('/notice', reqHandler(async function(req, res) {
+    const result = await scanServ.getNotice(req.body.data);
+    res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
+}));
+
+
 module.exports = router;
