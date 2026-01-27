@@ -16,7 +16,14 @@ async function getNotice() {
     return returnData;
 }
 
+async function getVersions() {
+    let returnData = {};
+    returnData = await diskDB.collection('scan_versions').find().toArray();
+    return returnData;
+}
+
 module.exports = {
     postData,
     getNotice,
+    getVersions,
 };

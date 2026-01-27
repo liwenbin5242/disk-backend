@@ -26,5 +26,11 @@ router.get('/notice', reqHandler(async function(req, res) {
     res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
 }));
 
+router.get('/versions', reqHandler(async function(req, res) {
+    const result = await scanServ.getVersions(req.body.data);
+    res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
+}));
+
+
 
 module.exports = router;
