@@ -3,6 +3,7 @@ const mongodber = require('../utils/mongodber');
 const diskDB = mongodber.use('disk');
 const moment = require('moment');
 moment.locale('zh-cn');
+const { ObjectID } = require('mongodb');
 
 async function postData(data) {
     let returnData = {};
@@ -16,6 +17,12 @@ async function getNotice() {
     return returnData;
 }
 
+async function putNotice(data) {
+    let returnData = {};
+    await diskDB.collection('scan_notice').updateOne({_id: new ObjectID(data.id)}, { $set: { notice: data.notice } });
+    return returnData;
+}
+
 async function getVersions() {
     let returnData = {};
     returnData = await diskDB.collection('scan_versions').find().toArray();
@@ -26,4 +33,5 @@ module.exports = {
     postData,
     getNotice,
     getVersions,
+    putNotice,
 };
