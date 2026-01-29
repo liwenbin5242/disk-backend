@@ -47,7 +47,7 @@ router.delete('/versions/:id', reqHandler(async function(req, res) {
 }));
 // 版本更新
 router.put('/versions/:id', reqHandler(async function(req, res) {
-    const result = await scanServ.putVersions({id: req.params.id, ...req.body.data});
+    const result = await scanServ.putVersions({id: req.params.id, ...req.body});
     res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
 }));
 
