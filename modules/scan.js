@@ -35,10 +35,24 @@ async function postVersions(data) {
     return returnData;
 }
 
+async function deleteVersions(data) {
+    let returnData = {};
+    await diskDB.collection('scan_versions').deleteOne({ _id: new ObjectID(data.id) });
+    return returnData;
+}
+
+async function putVersions({id, ...q}) {
+    let returnData = {};
+    await diskDB.collection('scan_versions').updateOne({_id: new ObjectID(id)}, { $set: { ...q, utm: new Date() } });
+    return returnData;
+}
+
 module.exports = {
     postData,
     getNotice,
     getVersions,
     putNotice,
     postVersions,
+    deleteVersions,
+    putVersions
 };
