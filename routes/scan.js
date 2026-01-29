@@ -41,13 +41,13 @@ router.post('/versions', reqHandler(async function(req, res) {
     res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
 }));
 
-router.delete('/versions', reqHandler(async function(req, res) {
-    const result = await scanServ.deleteVersions(req.body.data);
+router.delete('/versions/:id', reqHandler(async function(req, res) {
+    const result = await scanServ.deleteVersions({id: req.params.id});
     res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
 }));
 // 版本更新
-router.put('/versions', reqHandler(async function(req, res) {
-    const result = await scanServ.putVersions(req.body.data);
+router.put('/versions/:id', reqHandler(async function(req, res) {
+    const result = await scanServ.putVersions({id: req.params.id, ...req.body.data});
     res.json({code: returnCode.SUCCESS, data: result, message: 'ok'});
 }));
 
