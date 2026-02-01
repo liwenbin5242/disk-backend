@@ -2,6 +2,7 @@
 const mongodber = require('../utils/mongodber');
 const diskDB = mongodber.use('disk');
 const moment = require('moment');
+const _ = require('lodash');
 moment.locale('zh-cn');
 const { ObjectID } = require('mongodb');
 
@@ -25,7 +26,7 @@ async function putNotice(data) {
 
 async function getVersions() {
     let returnData = {};
-    returnData = await diskDB.collection('scan_versions').find().toArray();
+    returnData = await diskDB.collection('scan_versions').find().sort({ctm: -1}).toArray();
     return returnData;
 }
 
