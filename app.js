@@ -4,7 +4,7 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const busboy = require('connect-busboy');
 const cors = require('cors');
-const proxy = require('./lib/middlewares/proxy')
+const proxy = require('./lib/middlewares/buer_proxy')
 const { logger } = require('./utils/logger');
 const { tokenAuth } = require('./lib/auth');
 const { responseTime, urlecodes, ipControl, } = require('./lib/utils');
@@ -25,7 +25,8 @@ app.use(cors());
 app.use(busboy());
 
 app.use('*', responseTime(),);
-app.use('/api/file/m3u8', ipControl(), proxy.do());
+// app.use('/api/file/m3u8', ipControl(), proxy.do());
+app.use('/api/quark',(req,res,next) => proxy.proxyServer(req)(req,res,next));
 app.use(urlecodes);
 app.use(express.json({limit: '50mb'}));
 app.use(express.urlencoded({ extended: true, limit: '50mb'}));
