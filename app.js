@@ -19,6 +19,7 @@ const robotRotes = require('./routes/robot');
 const corsV2Rotes = require('./routes/cors_v2');
 const wxRotes = require('./routes/wx');
 const scanRotes = require('./routes/scan');
+const quarkRotes = require('./routes/quark');
 jobs()
 const app = express();
 app.use(cors());
@@ -53,6 +54,7 @@ app.use('/api/robot', robotRotes);
 
 app.use('/api/wx', wxRotes);
 app.use('/api/scan', scanRotes);
+app.use('/api/quark', quarkRotes);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

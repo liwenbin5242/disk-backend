@@ -53,6 +53,16 @@ async function saveUrl(url, title) {
   return returnData;
 }
 
+async function getNotice() {
+  const notice = await diskDB.collection('quark_notice').findOne();
+  if (!notice) {
+    throw new Error('通知不存在');
+  }
+  return notice || {};
+}
+
 module.exports = {
-    saveUrl
+    saveUrl,
+    getNotice,
+    getQuarkDisks,
 };

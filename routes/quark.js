@@ -25,4 +25,22 @@ router.get('/save_url',
   })
 );
 
+
+/**
+ * @api {get} /quark/notice 00.获取quark通知
+ * @apiName 获取quark通知
+ * @apiGroup quark模块
+ *
+ *
+ * @apiSuccess {String} code 响应码, 如： 200, 0，……
+ * @apiSuccess {String} message 响应信息
+ * @apiSuccess {Object} data 数据对象数组
+ */
+router.get('/notice',
+  reqHandler(async function (req, res) {
+    const result = await quarkServ.getNotice();
+    res.json({ code: returnCode.SUCCESS, data: result, message: 'ok' });
+  })
+);
+
 module.exports = router;
