@@ -36,8 +36,7 @@ router.get('/save_url',
  * @apiSuccess {String} message 响应信息
  * @apiSuccess {Object} data 数据对象数组
  */
-router.get('/notice',
-  reqHandler(async function (req, res) {
+router.get('/notice', reqHandler(async function (req, res) {
     const result = await quarkServ.getNotice();
     res.json({ code: returnCode.SUCCESS, data: result, message: 'ok' });
   })
