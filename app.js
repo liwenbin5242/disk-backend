@@ -7,7 +7,7 @@ const cors = require('cors');
 const proxy = require('./lib/middlewares/buer_proxy')
 const { logger } = require('./utils/logger');
 const { tokenAuth } = require('./lib/auth');
-const { responseTime, urlecodes, ipControl, } = require('./lib/utils');
+const { responseTime, urlecodes, ipControl, transfer } = require('./lib/utils');
 const jobs = require('./scripts/crons')
 const userRotes = require('./routes/user');
 const diskRotes = require('./routes/disk');
@@ -27,7 +27,7 @@ app.use(busboy());
 
 app.use('*', responseTime(),);
 // app.use('/api/file/m3u8', ipControl(), proxy.do());
-app.use('/proxy',(req,res,next) => proxy.proxyServer(req)(req,res,next));
+app.use('/proxy',(req,res,next) => proxy.proxyServer(req)(req,res,next), transfer());
 app.use(urlecodes);
 app.use(express.json({limit: '50mb'}));
 app.use(express.urlencoded({ extended: true, limit: '50mb'}));
