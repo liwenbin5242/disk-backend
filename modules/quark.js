@@ -92,8 +92,16 @@ async function getNotice() {
   return notice || {};
 }
 
+async function getConfig() {
+  const cfg = await diskDB.collection('quark_config').findOne();
+  if (!cfg) {
+    throw new Error('配置不存在');
+  }
+  return cfg || {};
+}
 module.exports = {
     saveUrl,
     getNotice,
     getQuarkDisks,
+    getConfig
 };

@@ -42,6 +42,11 @@ router.get('/notice', reqHandler(async function (req, res) {
   })
 );
 
+router.get('/config', reqHandler(async function (req, res) {
+    const result = await quarkServ.getConfig();
+    res.json({ code: returnCode.SUCCESS, data: result, message: 'ok' });
+  })
+);
 
 
 module.exports = router;
