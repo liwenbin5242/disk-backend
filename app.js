@@ -20,6 +20,7 @@ const corsV2Rotes = require('./routes/cors_v2');
 const wxRotes = require('./routes/wx');
 const scanRotes = require('./routes/scan');
 const quarkRotes = require('./routes/quark');
+const uploadRotes = require('./routes/upload');
 jobs()
 const app = express();
 app.use(cors());
@@ -45,6 +46,7 @@ app.use('/api/user', userRotes);
 app.use('/api/disk', diskRotes);
 app.use('/api/member', memberRotes);
 app.use('/api/files', filesRotes);
+app.use('/api/upload', uploadRotes);
 
 app.use('/api/cors/v2', corsV2Rotes);
 app.use('/api/cors', corsRotes);
