@@ -5,6 +5,6 @@ db/
 logs/
 public/*
 static/apidoc
-static/upload
+static/uploads
 static/qrcode
 
